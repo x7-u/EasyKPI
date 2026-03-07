@@ -1,0 +1,2004 @@
+[
+  {
+    "id": "1",
+    "category": "Financial",
+    "name": "Revenue Growth Rate",
+    "type": "Core",
+    "description": "% increase in revenue over a period",
+    "variableTags": [
+      "Sales Volume",
+      "Price",
+      "New Customers",
+      "Market Expansion",
+      "Product Mix",
+      "Discounts",
+      "Seasonality"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Growth",
+      "Pricing"
+    ],
+    "chartRecommendation": "Line Chart — tracks the trend of revenue changes period-over-period",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "2",
+    "category": "Financial",
+    "name": "Net Profit Margin",
+    "type": "Core",
+    "description": "Net income as a % of revenue",
+    "variableTags": [
+      "Revenue",
+      "COGS",
+      "Operating Costs",
+      "Interest Expense",
+      "Tax Rate",
+      "Depreciation"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Cost Management",
+      "Revenue"
+    ],
+    "chartRecommendation": "Line Chart — monitors margin trend; overlay with a target reference line",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "3",
+    "category": "Financial",
+    "name": "Gross Profit Margin",
+    "type": "Core",
+    "description": "Revenue minus COGS, as a % of revenue",
+    "variableTags": [
+      "Revenue",
+      "Cost of Goods Sold (COGS)",
+      "Pricing Strategy",
+      "Raw Material Costs",
+      "Production Efficiency"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Cost Management",
+      "Pricing"
+    ],
+    "chartRecommendation": "Combo Chart (Bar + Line) — bars show absolute gross profit, line shows margin %",
+    "chartType": "Combo Chart (Bar + Line)"
+  },
+  {
+    "id": "4",
+    "category": "Financial",
+    "name": "EBITDA",
+    "type": "Core",
+    "description": "Earnings before interest, taxes, depreciation & amortisation",
+    "variableTags": [
+      "Revenue",
+      "Operating Expenses",
+      "Headcount",
+      "Depreciation",
+      "Amortisation",
+      "Capital Investments"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Cost Management",
+      "Revenue"
+    ],
+    "chartRecommendation": "Waterfall Chart — breaks down how revenue flows through to EBITDA",
+    "chartType": "Waterfall Chart"
+  },
+  {
+    "id": "5",
+    "category": "Financial",
+    "name": "Return on Investment (ROI)",
+    "type": "Core",
+    "description": "Gain from investment relative to its cost",
+    "variableTags": [
+      "Net Gain",
+      "Investment Cost",
+      "Time Period",
+      "Risk Adjustment",
+      "Opportunity Cost"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Growth",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Bullet Chart — compares actual ROI against a benchmark or target",
+    "chartType": "Bullet Chart"
+  },
+  {
+    "id": "6",
+    "category": "Financial",
+    "name": "Return on Equity (ROE)",
+    "type": "Core",
+    "description": "Net income relative to shareholder equity",
+    "variableTags": [
+      "Net Income",
+      "Shareholder Equity",
+      "Financial Leverage",
+      "Dividend Policy",
+      "Retained Earnings"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Financial Health"
+    ],
+    "chartRecommendation": "Line Chart — shows ROE trend across reporting periods",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "7",
+    "category": "Financial",
+    "name": "Current Ratio",
+    "type": "Core",
+    "description": "Current assets divided by current liabilities (liquidity)",
+    "variableTags": [
+      "Cash & Equivalents",
+      "Accounts Receivable",
+      "Inventory",
+      "Short-Term Debt",
+      "Accounts Payable"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Risk"
+    ],
+    "chartRecommendation": "Gauge Chart — instantly shows whether the ratio is above or below the safe threshold",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "8",
+    "category": "Financial",
+    "name": "Debt-to-Equity Ratio",
+    "type": "Core",
+    "description": "Total liabilities vs. shareholder equity",
+    "variableTags": [
+      "Total Debt",
+      "Shareholder Equity",
+      "Borrowings",
+      "Retained Earnings",
+      "Capital Structure"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Risk"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — visualises the split between debt and equity financing over time",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "9",
+    "category": "Financial",
+    "name": "Operating Cash Flow",
+    "type": "Core",
+    "description": "Cash generated from core business operations",
+    "variableTags": [
+      "Net Income",
+      "Depreciation",
+      "Working Capital Changes",
+      "CapEx",
+      "Accounts Receivable",
+      "Payables"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Revenue",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Waterfall Chart — shows cash inflows and outflows leading to net operating cash",
+    "chartType": "Waterfall Chart"
+  },
+  {
+    "id": "10",
+    "category": "Financial",
+    "name": "Burn Rate",
+    "type": "Core",
+    "description": "How fast a company spends its cash reserves (startups)",
+    "variableTags": [
+      "Monthly Expenses",
+      "Revenue",
+      "Headcount",
+      "Operational Costs",
+      "Marketing Spend",
+      "R&D Spend"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Cost Management",
+      "Growth"
+    ],
+    "chartRecommendation": "Area Chart — illustrates cash depletion over time, making the runway visible",
+    "chartType": "Area Chart"
+  },
+  {
+    "id": "11",
+    "category": "Financial",
+    "name": "Working Capital Ratio",
+    "type": "Lesser-Known",
+    "description": "Short-term financial health indicator",
+    "variableTags": [
+      "Current Assets",
+      "Current Liabilities",
+      "Inventory",
+      "Accounts Receivable",
+      "Short-Term Borrowings"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Risk"
+    ],
+    "chartRecommendation": "Gauge Chart — highlights whether short-term financial health is in the safe zone",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "12",
+    "category": "Financial",
+    "name": "Cash Conversion Cycle (CCC)",
+    "type": "Lesser-Known",
+    "description": "Time to convert inventory into cash flow",
+    "variableTags": [
+      "Inventory Days Outstanding",
+      "Days Sales Outstanding",
+      "Days Payable Outstanding",
+      "Supply Chain Speed"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Process Efficiency",
+      "Supply Chain"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — each segment shows DIO, DSO, and DPO components",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "13",
+    "category": "Financial",
+    "name": "Economic Value Added (EVA)",
+    "type": "Lesser-Known",
+    "description": "Profit after deducting cost of capital",
+    "variableTags": [
+      "Net Operating Profit After Tax (NOPAT)",
+      "Weighted Average Cost of Capital (WACC)",
+      "Invested Capital"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Financial Health"
+    ],
+    "chartRecommendation": "Bar Chart — compares EVA across periods or business units",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "14",
+    "category": "Financial",
+    "name": "Revenue per Employee",
+    "type": "Lesser-Known",
+    "description": "Efficiency of workforce relative to output",
+    "variableTags": [
+      "Total Revenue",
+      "Headcount",
+      "Productivity",
+      "Automation Level",
+      "Industry Benchmarks"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Workforce",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Bar Chart — compares productivity across teams, departments, or companies",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "15",
+    "category": "Financial",
+    "name": "Days Sales Outstanding (DSO)",
+    "type": "Lesser-Known",
+    "description": "Average days to collect payment after a sale",
+    "variableTags": [
+      "Accounts Receivable",
+      "Daily Sales Revenue",
+      "Payment Terms",
+      "Credit Policy",
+      "Customer Payment Behaviour"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Customer Retention",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Line Chart — tracks collection efficiency trend; flag spikes as early warning",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "16",
+    "category": "Sales",
+    "name": "Total Sales / Revenue",
+    "type": "Core",
+    "description": "Overall income generated",
+    "variableTags": [
+      "Sales Volume",
+      "Unit Price",
+      "Product Mix",
+      "Discounts",
+      "Seasonal Demand",
+      "Channel Mix"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Growth",
+      "Pricing"
+    ],
+    "chartRecommendation": "Line Chart — the classic revenue trend line across weeks, months, or quarters",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "17",
+    "category": "Sales",
+    "name": "Sales Growth Rate",
+    "type": "Core",
+    "description": "Period-over-period increase in sales",
+    "variableTags": [
+      "New Customers",
+      "Upsells",
+      "Market Expansion",
+      "Price Changes",
+      "Seasonal Trends",
+      "Churn"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Growth",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Column Chart — period-over-period growth bars make acceleration or slowdown clear",
+    "chartType": "Column Chart"
+  },
+  {
+    "id": "18",
+    "category": "Sales",
+    "name": "Conversion Rate",
+    "type": "Core",
+    "description": "% of leads that become paying customers",
+    "variableTags": [
+      "Lead Quality",
+      "Sales Team Performance",
+      "Product-Market Fit",
+      "Pricing",
+      "Follow-Up Process"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Growth",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Funnel Chart — maps the drop-off at each stage from lead to closed customer",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "19",
+    "category": "Sales",
+    "name": "Average Deal Size",
+    "type": "Core",
+    "description": "Mean value of closed sales",
+    "variableTags": [
+      "Product Mix",
+      "Negotiation Outcome",
+      "Upselling",
+      "Customer Segment",
+      "Pricing Strategy"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Pricing",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Box Plot — shows distribution of deal sizes and highlights outliers",
+    "chartType": "Box Plot"
+  },
+  {
+    "id": "20",
+    "category": "Sales",
+    "name": "Sales Cycle Length",
+    "type": "Core",
+    "description": "Average time to close a deal",
+    "variableTags": [
+      "Lead Quality",
+      "Product Complexity",
+      "Number of Decision Makers",
+      "Sales Process",
+      "Buyer Urgency"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Customer Acquisition",
+      "Workforce"
+    ],
+    "chartRecommendation": "Histogram — shows frequency distribution of deal durations",
+    "chartType": "Histogram"
+  },
+  {
+    "id": "21",
+    "category": "Sales",
+    "name": "Quota Attainment",
+    "type": "Core",
+    "description": "% of sales reps hitting their targets",
+    "variableTags": [
+      "Sales Team Performance",
+      "Quota Setting",
+      "Territory Assignment",
+      "Market Conditions",
+      "Enablement"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Growth",
+      "Revenue"
+    ],
+    "chartRecommendation": "Bullet Chart — each rep's actual attainment vs. quota target in a compact bar",
+    "chartType": "Bullet Chart"
+  },
+  {
+    "id": "22",
+    "category": "Sales",
+    "name": "Pipeline Value",
+    "type": "Core",
+    "description": "Total value of deals in the sales pipeline",
+    "variableTags": [
+      "Lead Volume",
+      "Average Deal Size",
+      "Stage Distribution",
+      "Win Rate",
+      "Time in Pipeline"
+    ],
+    "generalTags": [
+      "Growth",
+      "Revenue",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Funnel Chart — total value stacked by pipeline stage shows coverage at a glance",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "23",
+    "category": "Sales",
+    "name": "Win Rate",
+    "type": "Lesser-Known",
+    "description": "% of deals won vs. total deals pursued",
+    "variableTags": [
+      "Competitive Landscape",
+      "Sales Skills",
+      "Product Quality",
+      "Pricing",
+      "Proposal Quality"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Pricing",
+      "Product"
+    ],
+    "chartRecommendation": "Gauge Chart — quickly communicates whether the win rate is above or below target",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "24",
+    "category": "Sales",
+    "name": "Lead Velocity Rate (LVR)",
+    "type": "Lesser-Known",
+    "description": "Month-over-month growth in qualified leads",
+    "variableTags": [
+      "Marketing Spend",
+      "Campaign Performance",
+      "Market Demand",
+      "Channel Effectiveness",
+      "Content Quality"
+    ],
+    "generalTags": [
+      "Growth",
+      "Customer Acquisition",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Line Chart — month-on-month growth in qualified leads as a trend",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "25",
+    "category": "Sales",
+    "name": "Sales Velocity",
+    "type": "Lesser-Known",
+    "description": "Speed at which leads move through the pipeline",
+    "variableTags": [
+      "Pipeline Value",
+      "Win Rate",
+      "Average Deal Size",
+      "Sales Cycle Length",
+      "Lead Quality"
+    ],
+    "generalTags": [
+      "Growth",
+      "Revenue",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Line Chart — plots the pace at which value moves through the pipeline over time",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "26",
+    "category": "Sales",
+    "name": "Upsell / Cross-sell Rate",
+    "type": "Lesser-Known",
+    "description": "% of customers purchasing additional products",
+    "variableTags": [
+      "Customer Satisfaction",
+      "Product Portfolio Breadth",
+      "Sales Training",
+      "Timing",
+      "Recommendation Engine"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Customer Retention",
+      "Product"
+    ],
+    "chartRecommendation": "Stacked Column Chart — separates base revenue from upsell/cross-sell contributions",
+    "chartType": "Stacked Column Chart"
+  },
+  {
+    "id": "27",
+    "category": "Sales",
+    "name": "Opportunity-to-Win Ratio",
+    "type": "Lesser-Known",
+    "description": "Efficiency of converting opportunities to closed deals",
+    "variableTags": [
+      "Sales Process Quality",
+      "Product-Market Fit",
+      "Competitive Positioning",
+      "Pricing",
+      "Relationship Strength"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Process Efficiency",
+      "Pricing"
+    ],
+    "chartRecommendation": "Funnel Chart — opportunities narrowing down to won deals illustrates conversion depth",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "28",
+    "category": "Marketing",
+    "name": "Customer Acquisition Cost (CAC)",
+    "type": "Core",
+    "description": "Cost to acquire one new customer",
+    "variableTags": [
+      "Marketing Spend",
+      "Sales Costs",
+      "New Customers Acquired",
+      "Channel Efficiency",
+      "Campaign Performance"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Cost Management",
+      "Growth"
+    ],
+    "chartRecommendation": "Line Chart — monitors CAC trend alongside CAC:LTV ratio for context",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "29",
+    "category": "Marketing",
+    "name": "Return on Ad Spend (ROAS)",
+    "type": "Core",
+    "description": "Revenue generated per £/$ spent on ads",
+    "variableTags": [
+      "Ad Revenue Generated",
+      "Ad Spend",
+      "Conversion Rate",
+      "Average Order Value",
+      "Attribution Model"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Revenue",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Bar Chart — compares ROAS across campaigns, channels, or time periods",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "30",
+    "category": "Marketing",
+    "name": "Click-Through Rate (CTR)",
+    "type": "Core",
+    "description": "% of people who click on an ad or link",
+    "variableTags": [
+      "Ad Creative Quality",
+      "Targeting Accuracy",
+      "Relevance Score",
+      "Placement",
+      "Audience Segment"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Digital Performance",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Line Chart — trends CTR over time, often broken down by channel or ad type",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "31",
+    "category": "Marketing",
+    "name": "Cost Per Click (CPC)",
+    "type": "Core",
+    "description": "Average cost per individual ad click",
+    "variableTags": [
+      "Bidding Strategy",
+      "Ad Quality Score",
+      "Keyword Competition",
+      "Targeting",
+      "Platform Algorithm"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Cost Management",
+      "Digital Performance"
+    ],
+    "chartRecommendation": "Line Chart — tracks cost efficiency trend across campaigns or bidding periods",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "32",
+    "category": "Marketing",
+    "name": "Cost Per Lead (CPL)",
+    "type": "Core",
+    "description": "Cost to generate one lead",
+    "variableTags": [
+      "Ad Spend",
+      "Landing Page Conversion Rate",
+      "Campaign Targeting",
+      "Offer Value",
+      "Form Complexity"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Cost Management",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Bar Chart — compares CPL across campaigns or channels to identify best performers",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "33",
+    "category": "Marketing",
+    "name": "Marketing Qualified Leads (MQLs)",
+    "type": "Core",
+    "description": "Leads deemed likely to convert",
+    "variableTags": [
+      "Lead Volume",
+      "Lead Scoring Criteria",
+      "Campaign Quality",
+      "ICP Alignment",
+      "Behavioural Triggers"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Growth",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Column Chart — volume of MQLs by period; overlay with SQL conversion rate",
+    "chartType": "Column Chart"
+  },
+  {
+    "id": "34",
+    "category": "Marketing",
+    "name": "Brand Awareness",
+    "type": "Core",
+    "description": "Measured via surveys, reach, and impressions",
+    "variableTags": [
+      "Reach",
+      "Impressions",
+      "Share of Voice",
+      "PR Activity",
+      "Social Mentions",
+      "Ad Frequency"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Growth",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Area Chart — builds a picture of cumulative reach and awareness growth over time",
+    "chartType": "Area Chart"
+  },
+  {
+    "id": "35",
+    "category": "Marketing",
+    "name": "Email Open Rate / Click Rate",
+    "type": "Core",
+    "description": "Engagement with email campaigns",
+    "variableTags": [
+      "Subject Line Quality",
+      "Send Time",
+      "List Quality",
+      "Segmentation",
+      "Sender Reputation",
+      "Preview Text"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Customer Retention",
+      "Digital Performance"
+    ],
+    "chartRecommendation": "Line Chart — dual-line chart with open rate and click rate on the same axis",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "36",
+    "category": "Marketing",
+    "name": "Marketing Attributed Revenue",
+    "type": "Lesser-Known",
+    "description": "Revenue directly tied to marketing efforts",
+    "variableTags": [
+      "Campaign Attribution Model",
+      "Revenue Generated",
+      "Channel Mix",
+      "Multi-Touch Weighting",
+      "Sales Alignment"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Marketing & Brand",
+      "Data & Analytics"
+    ],
+    "chartRecommendation": "Waterfall Chart — shows which campaigns and channels contributed to total revenue",
+    "chartType": "Waterfall Chart"
+  },
+  {
+    "id": "37",
+    "category": "Marketing",
+    "name": "Share of Voice (SOV)",
+    "type": "Lesser-Known",
+    "description": "Brand's presence vs. competitors in the market",
+    "variableTags": [
+      "Brand Mentions",
+      "Competitor Activity",
+      "Marketing Spend",
+      "PR Coverage",
+      "Social Following"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Growth",
+      "Pricing"
+    ],
+    "chartRecommendation": "Donut Chart — shows brand's share vs. named competitors as proportional slices",
+    "chartType": "Donut Chart"
+  },
+  {
+    "id": "38",
+    "category": "Marketing",
+    "name": "Content Engagement Rate",
+    "type": "Lesser-Known",
+    "description": "Interactions per piece of content published",
+    "variableTags": [
+      "Content Quality",
+      "Topic Relevance",
+      "Audience Targeting",
+      "Distribution Channel",
+      "Posting Frequency"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Digital Performance",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Bar Chart — ranks content pieces or topics by engagement rate",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "39",
+    "category": "Marketing",
+    "name": "Organic Traffic Growth",
+    "type": "Lesser-Known",
+    "description": "Increase in unpaid website visitors over time",
+    "variableTags": [
+      "SEO Performance",
+      "Content Volume",
+      "Backlink Profile",
+      "Keyword Rankings",
+      "Domain Authority"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Growth",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Area Chart — cumulative organic visitor growth makes the upward trend tangible",
+    "chartType": "Area Chart"
+  },
+  {
+    "id": "40",
+    "category": "Marketing",
+    "name": "Time on Page",
+    "type": "Lesser-Known",
+    "description": "Average duration visitors spend on a web page",
+    "variableTags": [
+      "Content Quality",
+      "Readability",
+      "Media Richness",
+      "Internal Links",
+      "Page Layout",
+      "Audience Intent"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Bar Chart — ranks pages by average time spent, highlighting top-performing content",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "41",
+    "category": "Marketing",
+    "name": "Ad Frequency",
+    "type": "Lesser-Known",
+    "description": "Average number of times a person sees your ad",
+    "variableTags": [
+      "Campaign Budget",
+      "Audience Size",
+      "Ad Scheduling",
+      "Impression Cap Settings",
+      "Targeting Overlap"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Digital Performance",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — monitors ad frequency to detect audience fatigue",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "42",
+    "category": "Customer",
+    "name": "Net Promoter Score (NPS)",
+    "type": "Core",
+    "description": "Likelihood of customers recommending you (scale 0–10)",
+    "variableTags": [
+      "Customer Satisfaction",
+      "Product Quality",
+      "Support Quality",
+      "Ease of Use",
+      "Brand Perception"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Customer Retention",
+      "Growth"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — segments of Promoters, Passives, and Detractors per period",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "43",
+    "category": "Customer",
+    "name": "Customer Satisfaction Score (CSAT)",
+    "type": "Core",
+    "description": "Satisfaction rating post-interaction",
+    "variableTags": [
+      "Service Quality",
+      "Response Time",
+      "Resolution Rate",
+      "Agent Training",
+      "Product Quality"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Quality",
+      "Customer Retention"
+    ],
+    "chartRecommendation": "Gauge Chart — clearly shows current satisfaction level against the target band",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "44",
+    "category": "Customer",
+    "name": "Customer Lifetime Value (CLV / LTV)",
+    "type": "Core",
+    "description": "Total revenue expected from a customer over their relationship",
+    "variableTags": [
+      "Purchase Frequency",
+      "Average Order Value",
+      "Retention Rate",
+      "Gross Margin",
+      "Churn Rate"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Customer Retention",
+      "Growth"
+    ],
+    "chartRecommendation": "Bar Chart — compares LTV across customer segments or cohorts",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "45",
+    "category": "Customer",
+    "name": "Customer Retention Rate",
+    "type": "Core",
+    "description": "% of customers retained over a period",
+    "variableTags": [
+      "Product Value",
+      "Customer Service Quality",
+      "Pricing Competitiveness",
+      "Competition",
+      "Loyalty Programmes"
+    ],
+    "generalTags": [
+      "Customer Retention",
+      "Revenue",
+      "Growth"
+    ],
+    "chartRecommendation": "Line Chart — retention trend over time; often shown alongside churn rate",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "46",
+    "category": "Customer",
+    "name": "Customer Churn Rate",
+    "type": "Core",
+    "description": "% of customers lost over a period",
+    "variableTags": [
+      "Product Issues",
+      "Pricing",
+      "Competition",
+      "Customer Experience",
+      "Onboarding Quality",
+      "Contract Terms"
+    ],
+    "generalTags": [
+      "Customer Retention",
+      "Revenue",
+      "Risk"
+    ],
+    "chartRecommendation": "Line Chart — churn trend with period annotations for product or pricing changes",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "47",
+    "category": "Customer",
+    "name": "Customer Effort Score (CES)",
+    "type": "Core",
+    "description": "How easy it is to do business with you",
+    "variableTags": [
+      "Process Complexity",
+      "Support Quality",
+      "Self-Service Options",
+      "UX Design",
+      "Response Time"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Process Efficiency",
+      "Product"
+    ],
+    "chartRecommendation": "Gauge Chart — CES sits on a simple scale, making a gauge the clearest display",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "48",
+    "category": "Customer",
+    "name": "Customer Health Score",
+    "type": "Lesser-Known",
+    "description": "Composite score predicting churn or expansion",
+    "variableTags": [
+      "Product Usage Frequency",
+      "Support Ticket Volume",
+      "Payment History",
+      "Engagement Depth",
+      "NPS"
+    ],
+    "generalTags": [
+      "Customer Retention",
+      "Data & Analytics",
+      "Risk"
+    ],
+    "chartRecommendation": "Heatmap — a grid of customers vs. health dimensions reveals at-risk patterns",
+    "chartType": "Heatmap"
+  },
+  {
+    "id": "49",
+    "category": "Customer",
+    "name": "Product Adoption Rate",
+    "type": "Lesser-Known",
+    "description": "% of customers actively using a product/feature",
+    "variableTags": [
+      "Onboarding Quality",
+      "Product Usability",
+      "In-App Guidance",
+      "Training Resources",
+      "Feature Discoverability"
+    ],
+    "generalTags": [
+      "Product",
+      "Customer Retention",
+      "Growth"
+    ],
+    "chartRecommendation": "Line Chart — adoption curve over time shows whether growth is accelerating",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "50",
+    "category": "Customer",
+    "name": "Repeat Purchase Rate",
+    "type": "Lesser-Known",
+    "description": "% of customers who buy more than once",
+    "variableTags": [
+      "Product Satisfaction",
+      "Loyalty Programmes",
+      "Email Marketing",
+      "Re-engagement Campaigns",
+      "Pricing"
+    ],
+    "generalTags": [
+      "Customer Retention",
+      "Revenue",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Line Chart — tracks loyalty and retention trends in transactional businesses",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "51",
+    "category": "Customer",
+    "name": "Customer Engagement Score",
+    "type": "Lesser-Known",
+    "description": "Behavioural scoring across all touchpoints",
+    "variableTags": [
+      "Login Frequency",
+      "Feature Usage",
+      "Email Opens",
+      "Support Interactions",
+      "Community Participation"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Customer Retention",
+      "Digital Performance"
+    ],
+    "chartRecommendation": "Radar Chart — maps engagement across multiple dimensions (logins, features, support)",
+    "chartType": "Radar Chart"
+  },
+  {
+    "id": "52",
+    "category": "Customer",
+    "name": "Referral Rate",
+    "type": "Lesser-Known",
+    "description": "% of new customers acquired through existing customers",
+    "variableTags": [
+      "Customer Satisfaction",
+      "Referral Programme Design",
+      "Incentives",
+      "Brand Advocacy",
+      "Ease of Sharing"
+    ],
+    "generalTags": [
+      "Growth",
+      "Customer Acquisition",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Line Chart — referral rate trend highlights the impact of programme changes",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "53",
+    "category": "Customer",
+    "name": "Wallet Share",
+    "type": "Lesser-Known",
+    "description": "% of a customer's total spend captured by your business",
+    "variableTags": [
+      "Customer Loyalty",
+      "Product Range",
+      "Competitive Pricing",
+      "Cross-sell Success",
+      "Switching Costs"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Customer Retention",
+      "Pricing"
+    ],
+    "chartRecommendation": "Donut Chart — your share vs. competitors in a customer's total spend",
+    "chartType": "Donut Chart"
+  },
+  {
+    "id": "54",
+    "category": "Operational",
+    "name": "Overall Equipment Effectiveness (OEE)",
+    "type": "Core",
+    "description": "Manufacturing productivity metric (Availability × Performance × Quality)",
+    "variableTags": [
+      "Machine Availability",
+      "Performance Rate",
+      "Quality Rate",
+      "Planned Downtime",
+      "Unplanned Downtime"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Quality",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Gauge Chart — instantly communicates how close to world-class OEE the plant is",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "55",
+    "category": "Operational",
+    "name": "Order Fulfillment Cycle Time",
+    "type": "Core",
+    "description": "Time from order placement to delivery",
+    "variableTags": [
+      "Order Processing Speed",
+      "Inventory Levels",
+      "Picking & Packing Efficiency",
+      "Shipping Partner SLA"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Customer Experience",
+      "Supply Chain"
+    ],
+    "chartRecommendation": "Bar Chart — compares cycle times across product types, warehouses, or periods",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "56",
+    "category": "Operational",
+    "name": "Inventory Turnover",
+    "type": "Core",
+    "description": "How often inventory is sold/replaced per period",
+    "variableTags": [
+      "Sales Volume",
+      "Inventory Levels",
+      "Demand Forecasting Accuracy",
+      "Reorder Points",
+      "Seasonality"
+    ],
+    "generalTags": [
+      "Supply Chain",
+      "Cost Management",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Line Chart — turnover trend identifies over-stocking or supply chain issues",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "57",
+    "category": "Operational",
+    "name": "Capacity Utilisation Rate",
+    "type": "Core",
+    "description": "% of production capacity currently in use",
+    "variableTags": [
+      "Production Volume",
+      "Total Capacity",
+      "Demand Levels",
+      "Scheduled Downtime",
+      "Workforce Availability"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Cost Management",
+      "Growth"
+    ],
+    "chartRecommendation": "Gauge Chart — shows what % of capacity is in use vs. the optimal range",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "58",
+    "category": "Operational",
+    "name": "On-Time Delivery Rate",
+    "type": "Core",
+    "description": "% of orders delivered on schedule",
+    "variableTags": [
+      "Supply Chain Reliability",
+      "Logistics Partners",
+      "Inventory Levels",
+      "Demand Planning",
+      "Lead Times"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Supply Chain",
+      "Quality"
+    ],
+    "chartRecommendation": "Line Chart — delivery performance trend; dips signal logistics problems",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "59",
+    "category": "Operational",
+    "name": "Cost per Unit Produced",
+    "type": "Core",
+    "description": "Efficiency of production",
+    "variableTags": [
+      "Labour Costs",
+      "Raw Material Costs",
+      "Overheads",
+      "Production Volume",
+      "Waste Rate",
+      "Energy Costs"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Process Efficiency",
+      "Profitability"
+    ],
+    "chartRecommendation": "Line Chart — cost efficiency trend over time; link to volume for context",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "60",
+    "category": "Operational",
+    "name": "Throughput Rate",
+    "type": "Lesser-Known",
+    "description": "Units produced per unit of time",
+    "variableTags": [
+      "Machine Speed",
+      "Labour Efficiency",
+      "Process Bottlenecks",
+      "Downtime",
+      "Shift Scheduling"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Quality",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — production rate over time; useful for spotting bottleneck periods",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "61",
+    "category": "Operational",
+    "name": "Supplier Lead Time",
+    "type": "Lesser-Known",
+    "description": "Time between ordering and receiving from suppliers",
+    "variableTags": [
+      "Supplier Performance",
+      "Order Volume",
+      "Logistics Reliability",
+      "Geography",
+      "Contract Terms"
+    ],
+    "generalTags": [
+      "Supply Chain",
+      "Process Efficiency",
+      "Risk"
+    ],
+    "chartRecommendation": "Box Plot — shows the distribution and variability of lead times per supplier",
+    "chartType": "Box Plot"
+  },
+  {
+    "id": "62",
+    "category": "Operational",
+    "name": "Shrinkage Rate",
+    "type": "Lesser-Known",
+    "description": "Inventory lost to theft, damage, or administrative error",
+    "variableTags": [
+      "Theft Incidence",
+      "Physical Damage",
+      "Spoilage",
+      "Administrative Errors",
+      "Warehouse Procedures"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Risk",
+      "Supply Chain"
+    ],
+    "chartRecommendation": "Bar Chart — compares shrinkage by category, location, or time period",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "63",
+    "category": "Operational",
+    "name": "Process Adherence Rate",
+    "type": "Lesser-Known",
+    "description": "% of tasks completed per defined process / SOP",
+    "variableTags": [
+      "Employee Training",
+      "SOP Clarity",
+      "Monitoring Mechanisms",
+      "Management Enforcement",
+      "Culture"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Quality",
+      "Workforce"
+    ],
+    "chartRecommendation": "Gauge Chart — simple % adherence shown against a target compliance level",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "64",
+    "category": "Operational",
+    "name": "Mean Time to Repair (MTTR)",
+    "type": "Lesser-Known",
+    "description": "Average time to fix a failed system or process",
+    "variableTags": [
+      "Technical Expertise",
+      "Spare Parts Availability",
+      "System Complexity",
+      "Diagnostic Speed",
+      "Tooling"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Process Efficiency",
+      "Risk"
+    ],
+    "chartRecommendation": "Line Chart — MTTR trend; spikes flag systemic issues or resource shortfalls",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "65",
+    "category": "HR & People",
+    "name": "Employee Turnover Rate",
+    "type": "Core",
+    "description": "% of employees leaving over a period",
+    "variableTags": [
+      "Job Satisfaction",
+      "Compensation Competitiveness",
+      "Career Development",
+      "Culture",
+      "Management Quality"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Cost Management",
+      "Growth"
+    ],
+    "chartRecommendation": "Line Chart — turnover trend across periods; annotate with culture or pay events",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "66",
+    "category": "HR & People",
+    "name": "Employee Satisfaction / Engagement Score",
+    "type": "Core",
+    "description": "Workplace sentiment measure",
+    "variableTags": [
+      "Management Quality",
+      "Work Environment",
+      "Benefits & Perks",
+      "Workload",
+      "Recognition",
+      "Purpose"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Customer Experience",
+      "Growth"
+    ],
+    "chartRecommendation": "Gauge Chart — benchmark current score against industry and internal targets",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "67",
+    "category": "HR & People",
+    "name": "Absenteeism Rate",
+    "type": "Core",
+    "description": "% of unplanned employee absences",
+    "variableTags": [
+      "Employee Wellbeing",
+      "Workload Pressure",
+      "Culture",
+      "Health Policies",
+      "Remote Work Flexibility"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Process Efficiency",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — monthly or quarterly absenteeism trend",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "68",
+    "category": "HR & People",
+    "name": "Time to Hire",
+    "type": "Core",
+    "description": "Days from job posting to offer acceptance",
+    "variableTags": [
+      "Recruitment Process Efficiency",
+      "Job Market Conditions",
+      "Sourcing Channels",
+      "Role Complexity"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Process Efficiency",
+      "Growth"
+    ],
+    "chartRecommendation": "Bar Chart — average days to hire across roles, departments, or time periods",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "69",
+    "category": "HR & People",
+    "name": "Cost per Hire",
+    "type": "Core",
+    "description": "Total recruiting cost per new employee",
+    "variableTags": [
+      "Advertising Spend",
+      "Agency Fees",
+      "Recruiter Time",
+      "Interview Hours",
+      "Onboarding Costs"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Workforce",
+      "Growth"
+    ],
+    "chartRecommendation": "Bar Chart — compares hiring cost across roles or sourcing channels",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "70",
+    "category": "HR & People",
+    "name": "Training Completion Rate",
+    "type": "Core",
+    "description": "% of staff completing required training",
+    "variableTags": [
+      "Training Accessibility",
+      "Content Quality",
+      "Management Enforcement",
+      "Workload",
+      "Motivation"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Quality",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — completed vs. in-progress vs. not-started by team",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "71",
+    "category": "HR & People",
+    "name": "Internal Promotion Rate",
+    "type": "Lesser-Known",
+    "description": "% of roles filled internally vs. externally",
+    "variableTags": [
+      "Career Development Investment",
+      "Succession Planning",
+      "Talent Pipeline Depth",
+      "Internal Mobility Policy"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Growth",
+      "Customer Retention"
+    ],
+    "chartRecommendation": "Column Chart — compares internal vs. external hires per period or department",
+    "chartType": "Column Chart"
+  },
+  {
+    "id": "72",
+    "category": "HR & People",
+    "name": "HR-to-Employee Ratio",
+    "type": "Lesser-Known",
+    "description": "Number of HR staff per 100 employees",
+    "variableTags": [
+      "Company Size",
+      "HR Automation Level",
+      "Outsourced Functions",
+      "Workforce Complexity",
+      "HR Strategy"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Process Efficiency",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — monitors ratio as headcount scales",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "73",
+    "category": "HR & People",
+    "name": "Talent Density",
+    "type": "Lesser-Known",
+    "description": "% of high performers relative to total workforce",
+    "variableTags": [
+      "Hiring Standards",
+      "Training Investment",
+      "Performance Management Rigour",
+      "Culture",
+      "Attrition of Low Performers"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Quality",
+      "Growth"
+    ],
+    "chartRecommendation": "Bar Chart — % high performers by department or team",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "74",
+    "category": "HR & People",
+    "name": "Manager Effectiveness Score",
+    "type": "Lesser-Known",
+    "description": "Employee ratings of their direct managers",
+    "variableTags": [
+      "Leadership Training",
+      "Feedback Culture",
+      "Communication Skills",
+      "Team Performance",
+      "Empathy"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Customer Experience",
+      "Quality"
+    ],
+    "chartRecommendation": "Radar Chart — maps effectiveness across multiple competency dimensions per manager",
+    "chartType": "Radar Chart"
+  },
+  {
+    "id": "75",
+    "category": "HR & People",
+    "name": "Retention Rate of Top Performers",
+    "type": "Lesser-Known",
+    "description": "Specifically tracking high-value staff retention",
+    "variableTags": [
+      "Compensation",
+      "Recognition",
+      "Career Opportunities",
+      "Engaging Work",
+      "Manager Relationships",
+      "Culture"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Growth",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — trend line with annotations for reward or culture changes",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "76",
+    "category": "Technology / IT",
+    "name": "System Uptime / Availability",
+    "type": "Core",
+    "description": "% of time systems are operational",
+    "variableTags": [
+      "Infrastructure Quality",
+      "Maintenance Frequency",
+      "Redundancy Design",
+      "Traffic Load",
+      "Incident Rate"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Risk",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Gauge Chart — % uptime displayed against the SLA target (e.g., 99.9%)",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "77",
+    "category": "Technology / IT",
+    "name": "Mean Time Between Failures (MTBF)",
+    "type": "Core",
+    "description": "Reliability of systems between failure events",
+    "variableTags": [
+      "Hardware Quality",
+      "Software Quality",
+      "Maintenance Schedule",
+      "System Age",
+      "Environmental Conditions"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Risk",
+      "Quality"
+    ],
+    "chartRecommendation": "Line Chart — MTBF trend shows whether system reliability is improving",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "78",
+    "category": "Technology / IT",
+    "name": "IT Cost as % of Revenue",
+    "type": "Core",
+    "description": "Technology spend efficiency relative to revenue",
+    "variableTags": [
+      "IT Headcount",
+      "Software Licences",
+      "Infrastructure Costs",
+      "Revenue",
+      "Cloud Spend",
+      "Vendor Contracts"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Technology & Systems",
+      "Profitability"
+    ],
+    "chartRecommendation": "Line Chart — tracks IT spend efficiency as the business scales",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "79",
+    "category": "Technology / IT",
+    "name": "Incident Resolution Time",
+    "type": "Core",
+    "description": "Average time to resolve IT issues",
+    "variableTags": [
+      "Team Size",
+      "Technical Expertise",
+      "Tooling Quality",
+      "Incident Severity",
+      "Documentation",
+      "On-Call Rota"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Process Efficiency",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Bar Chart — average resolution time by incident category or severity",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "80",
+    "category": "Technology / IT",
+    "name": "Technical Debt Ratio",
+    "type": "Lesser-Known",
+    "description": "Cost of fixing existing code vs. cost of new development",
+    "variableTags": [
+      "Code Quality",
+      "Development Speed Pressure",
+      "Refactoring Investment",
+      "Test Coverage",
+      "Legacy Systems"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Cost Management",
+      "Quality"
+    ],
+    "chartRecommendation": "Area Chart — growing area signals accumulating debt needing remediation",
+    "chartType": "Area Chart"
+  },
+  {
+    "id": "81",
+    "category": "Technology / IT",
+    "name": "Deployment Frequency",
+    "type": "Lesser-Known",
+    "description": "How often new code / updates are released to production",
+    "variableTags": [
+      "CI/CD Pipeline Maturity",
+      "Team Size",
+      "Release Process",
+      "Automation Level",
+      "Feature Flag Usage"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Process Efficiency",
+      "Growth"
+    ],
+    "chartRecommendation": "Column Chart — deployments per week or month shows CI/CD maturity over time",
+    "chartType": "Column Chart"
+  },
+  {
+    "id": "82",
+    "category": "Technology / IT",
+    "name": "Change Failure Rate",
+    "type": "Lesser-Known",
+    "description": "% of deployments causing failures or rollbacks",
+    "variableTags": [
+      "Code Review Quality",
+      "Testing Rigour",
+      "Deployment Process",
+      "Rollback Capability",
+      "Team Experience"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Quality",
+      "Risk"
+    ],
+    "chartRecommendation": "Line Chart — failure rate trend tied to release process improvements",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "83",
+    "category": "Technology / IT",
+    "name": "API Response Time",
+    "type": "Lesser-Known",
+    "description": "Speed of application programming interfaces",
+    "variableTags": [
+      "Server Load",
+      "Code Efficiency",
+      "Network Latency",
+      "Caching Strategy",
+      "Database Query Performance"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Digital Performance",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Line Chart — latency trend with percentile overlays (p50, p95, p99)",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "84",
+    "category": "Technology / IT",
+    "name": "Data Quality Score",
+    "type": "Lesser-Known",
+    "description": "Accuracy, completeness, and consistency of data",
+    "variableTags": [
+      "Data Governance Framework",
+      "Source System Quality",
+      "Validation Rules",
+      "ETL Processes",
+      "Data Ownership"
+    ],
+    "generalTags": [
+      "Data & Analytics",
+      "Technology & Systems",
+      "Quality"
+    ],
+    "chartRecommendation": "Gauge Chart — composite score displayed against a target quality threshold",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "85",
+    "category": "Technology / IT",
+    "name": "License Utilisation Rate",
+    "type": "Lesser-Known",
+    "description": "% of purchased software licences actively used",
+    "variableTags": [
+      "User Adoption Rate",
+      "Licence Allocation Policy",
+      "Software Needs Assessment",
+      "Offboarding Process"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Technology & Systems",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — used vs. unused licences by software product",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "86",
+    "category": "E-commerce / Digital",
+    "name": "Cart Abandonment Rate",
+    "type": "Core",
+    "description": "% of shoppers who add items but don't complete purchase",
+    "variableTags": [
+      "Checkout UX",
+      "Unexpected Shipping Costs",
+      "Payment Options",
+      "Site Speed",
+      "Trust Signals",
+      "Price Sensitivity"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Revenue"
+    ],
+    "chartRecommendation": "Funnel Chart — shows where customers drop off across the cart-to-checkout journey",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "87",
+    "category": "E-commerce / Digital",
+    "name": "Average Order Value (AOV)",
+    "type": "Core",
+    "description": "Mean spend per transaction",
+    "variableTags": [
+      "Product Mix",
+      "Upselling Tactics",
+      "Cross-sell Recommendations",
+      "Promotions",
+      "Bundling",
+      "Minimum Order Thresholds"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Pricing",
+      "Digital Performance"
+    ],
+    "chartRecommendation": "Line Chart — AOV trend over time; overlay with promotional periods",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "88",
+    "category": "E-commerce / Digital",
+    "name": "Revenue per Visitor (RPV)",
+    "type": "Core",
+    "description": "Revenue generated per site visitor",
+    "variableTags": [
+      "Conversion Rate",
+      "Average Order Value",
+      "Traffic Quality",
+      "Product Catalogue",
+      "Landing Page Relevance"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Digital Performance",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Line Chart — RPV trend with traffic source breakdown",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "89",
+    "category": "E-commerce / Digital",
+    "name": "Return on Ad Spend (ROAS)",
+    "type": "Core",
+    "description": "E-commerce advertising efficiency",
+    "variableTags": [
+      "Ad Creative Quality",
+      "Audience Targeting",
+      "Landing Page Conversion",
+      "Average Order Value",
+      "Attribution Model"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Revenue",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Bar Chart — compares ROAS across campaigns, channels, or time periods",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "90",
+    "category": "E-commerce / Digital",
+    "name": "Checkout Completion Rate",
+    "type": "Core",
+    "description": "% of users completing the checkout flow",
+    "variableTags": [
+      "UX Design",
+      "Payment Options Available",
+      "Page Load Speed",
+      "Trust Signals",
+      "Form Complexity",
+      "Guest Checkout"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Revenue"
+    ],
+    "chartRecommendation": "Funnel Chart — step-by-step drop-off from cart entry to payment confirmation",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "91",
+    "category": "E-commerce / Digital",
+    "name": "Search Exit Rate",
+    "type": "Lesser-Known",
+    "description": "% of users who leave after using the site search",
+    "variableTags": [
+      "Search Relevance Algorithm",
+      "Product Availability",
+      "Search UX Design",
+      "Catalogue Breadth",
+      "Synonym Handling"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Product"
+    ],
+    "chartRecommendation": "Bar Chart — ranks search queries by exit rate to identify gaps in the catalogue",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "92",
+    "category": "E-commerce / Digital",
+    "name": "Wishlist Conversion Rate",
+    "type": "Lesser-Known",
+    "description": "% of wishlist items that are eventually purchased",
+    "variableTags": [
+      "Price Change Alerts",
+      "Email Reminders",
+      "Stock Availability",
+      "Promotions",
+      "Time Since Wishlisted"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Retention",
+      "Revenue"
+    ],
+    "chartRecommendation": "Line Chart — conversion rate trend from wishlisted items to purchases",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "93",
+    "category": "E-commerce / Digital",
+    "name": "Payment Failure Rate",
+    "type": "Lesser-Known",
+    "description": "% of transactions that fail at payment stage",
+    "variableTags": [
+      "Payment Gateway Reliability",
+      "Card Issuer Decline Rates",
+      "Technical Integration Quality",
+      "Fraud Filters"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Risk",
+      "Technology & Systems"
+    ],
+    "chartRecommendation": "Line Chart — failure rate trend; spikes indicate gateway or technical issues",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "94",
+    "category": "E-commerce / Digital",
+    "name": "Refund Rate",
+    "type": "Lesser-Known",
+    "description": "% of orders resulting in a refund",
+    "variableTags": [
+      "Product Quality",
+      "Accuracy of Product Descriptions",
+      "Customer Expectations",
+      "Delivery Condition",
+      "Returns Policy"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Quality",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — tracks refund rate trend alongside product or policy changes",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "95",
+    "category": "E-commerce / Digital",
+    "name": "Mobile vs. Desktop Conversion Split",
+    "type": "Lesser-Known",
+    "description": "Channel-specific conversion rate insights across devices",
+    "variableTags": [
+      "Mobile UX Quality",
+      "Page Load Speed on Mobile",
+      "Device-Specific Features",
+      "Checkout Simplicity",
+      "Screen Size Optimisation"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Data & Analytics"
+    ],
+    "chartRecommendation": "Grouped Bar Chart — side-by-side conversion rates for mobile and desktop by period",
+    "chartType": "Grouped Bar Chart"
+  }
+]
