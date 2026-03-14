@@ -13,7 +13,7 @@ const typeStyle = {
   'Lesser-Known': { background: 'rgba(100,116,139,0.12)', color: '#94a3b8', border: '1px solid rgba(100,116,139,0.25)' },
 };
 
-export default function KPIDetail({ kpi, onClose, onCompareToggle, isComparing, onTagClick, onCategoryClick }) {
+export default function KPIDetail({ kpi, onClose, onCompareToggle, isComparing, onTagClick, onCategoryClick, onCalculate }) {
   if (!kpi) return null;
 
   const dotColor = catDotColor[kpi.category] || '#818cf8';
@@ -170,11 +170,11 @@ export default function KPIDetail({ kpi, onClose, onCompareToggle, isComparing, 
         </div>
 
         {/* Footer */}
-        <div style={{ padding: '16px 28px 24px', borderTop: '1px solid rgba(51,65,85,0.35)', flexShrink: 0 }}>
+        <div style={{ padding: '16px 28px 24px', borderTop: '1px solid rgba(51,65,85,0.35)', flexShrink: 0, display: 'flex', gap: 10 }}>
           <button
             onClick={() => onCompareToggle(kpi)}
             style={{
-              width: '100%', padding: '11px 0', borderRadius: 10,
+              flex: 1, padding: '11px 0', borderRadius: 10,
               fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
               background: isComparing ? 'rgba(109,40,217,0.25)' : 'rgba(109,40,217,0.15)',
               border: '1px solid rgba(139,92,246,0.4)',
@@ -182,6 +182,21 @@ export default function KPIDetail({ kpi, onClose, onCompareToggle, isComparing, 
             }}
           >
             {isComparing ? '✓ Remove from Compare' : '+ Add to Compare'}
+          </button>
+          <button
+            onClick={() => onCalculate(kpi)}
+            style={{
+              padding: '11px 20px', borderRadius: 10,
+              fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
+              background: `${dotColor}20`,
+              border: `1px solid ${dotColor}50`,
+              color: dotColor,
+              flexShrink: 0,
+            }}
+            onMouseOver={e => e.currentTarget.style.background = `${dotColor}35`}
+            onMouseOut={e => e.currentTarget.style.background = `${dotColor}20`}
+          >
+            Calculate
           </button>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { kpis, categories, generalTags, categoryColors } from './data/kpis';
 import KPICard from './components/KPICard';
 import KPIDetail from './components/KPIDetail';
 import CompareView from './components/CompareView';
+import KPICalculator from './components/KPICalculator';
 
 const CONTAINER = { maxWidth: 1100, margin: '0 auto', width: '100%', padding: '0 24px' };
 
@@ -16,6 +17,7 @@ export default function App() {
   const [selectedKPI, setSelectedKPI] = useState(null);
   const [compareList, setCompareList] = useState([]);
   const [showCompare, setShowCompare] = useState(false);
+  const [calculatorKPI, setCalculatorKPI] = useState(null);
 
   const filteredKPIs = useMemo(() => {
     let result = kpis;
@@ -342,6 +344,7 @@ export default function App() {
                   onSelect={setSelectedKPI}
                   onTagClick={handleTagClick}
                   onCategoryClick={handleCategoryClick}
+                  onCalculate={setCalculatorKPI}
                   selectedTags={selectedTags}
                   selectedCategories={selectedCategories}
                 />
@@ -359,6 +362,7 @@ export default function App() {
           isComparing={isComparing(selectedKPI)}
           onTagClick={handleTagClick}
           onCategoryClick={handleCategoryClick}
+          onCalculate={kpi => { setSelectedKPI(null); setCalculatorKPI(kpi); }}
         />
       )}
 
@@ -367,6 +371,13 @@ export default function App() {
           compareList={compareList}
           onRemove={toggleCompare}
           onClose={() => setShowCompare(false)}
+        />
+      )}
+
+      {calculatorKPI && (
+        <KPICalculator
+          kpi={calculatorKPI}
+          onClose={() => setCalculatorKPI(null)}
         />
       )}
     </div>

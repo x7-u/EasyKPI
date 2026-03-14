@@ -13,7 +13,7 @@ const typeStyleMap = {
   'Lesser-Known': { background: 'rgba(100,116,139,0.12)', color: '#94a3b8', border: '1px solid rgba(100,116,139,0.25)' },
 };
 
-export default function KPICard({ kpi, isComparing, onCompareToggle, onSelect, onTagClick, onCategoryClick, selectedTags = [], selectedCategories = [] }) {
+export default function KPICard({ kpi, isComparing, onCompareToggle, onSelect, onTagClick, onCategoryClick, onCalculate, selectedTags = [], selectedCategories = [] }) {
   const icon = chartIcons[kpi.chartType] || '📊';
   const dotColor = catDotColor[kpi.category] || '#818cf8';
   const typeStyle = typeStyleMap[kpi.type] || typeStyleMap.Supporting;
@@ -110,12 +110,12 @@ export default function KPICard({ kpi, isComparing, onCompareToggle, onSelect, o
         )}
       </div>
 
-      {/* Compare button */}
-      <div style={{ padding: '0 16px 14px' }}>
+      {/* Footer: Compare + Calculate */}
+      <div style={{ padding: '0 16px 14px', display: 'flex', gap: 8 }}>
         <button
           onClick={e => { e.stopPropagation(); onCompareToggle(kpi); }}
           style={{
-            width: '100%', padding: '6px 0', borderRadius: 8, fontSize: 12, fontWeight: 500,
+            flex: 1, padding: '6px 0', borderRadius: 8, fontSize: 12, fontWeight: 500,
             cursor: 'pointer', transition: 'all 0.15s',
             ...(isComparing
               ? { background: 'rgba(109,40,217,0.2)', border: '1px solid rgba(139,92,246,0.45)', color: '#c4b5fd' }
@@ -123,6 +123,20 @@ export default function KPICard({ kpi, isComparing, onCompareToggle, onSelect, o
           }}
         >
           {isComparing ? '✓ In Compare' : '+ Compare'}
+        </button>
+        <button
+          onClick={e => { e.stopPropagation(); onCalculate(kpi); }}
+          style={{
+            padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 500,
+            cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+            background: `${dotColor}15`,
+            border: `1px solid ${dotColor}35`,
+            color: dotColor,
+          }}
+          onMouseOver={e => { e.currentTarget.style.background = `${dotColor}28`; e.currentTarget.style.borderColor = `${dotColor}60`; }}
+          onMouseOut={e => { e.currentTarget.style.background = `${dotColor}15`; e.currentTarget.style.borderColor = `${dotColor}35`; }}
+        >
+          Calculate
         </button>
       </div>
     </div>
