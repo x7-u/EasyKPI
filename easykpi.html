@@ -1,0 +1,4223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KPI Finder</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0f1e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(71,85,105,0.4); border-radius: 3px; }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input::placeholder { color: #475569; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    const kpiData = [
+  {
+    "id": "1",
+    "category": "Financial",
+    "name": "Revenue Growth Rate",
+    "type": "Core",
+    "description": "% increase in revenue over a period",
+    "variableTags": [
+      "Sales Volume",
+      "Price",
+      "New Customers",
+      "Market Expansion",
+      "Product Mix",
+      "Discounts",
+      "Seasonality"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Growth",
+      "Pricing"
+    ],
+    "chartRecommendation": "Line Chart — tracks the trend of revenue changes period-over-period",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "2",
+    "category": "Financial",
+    "name": "Net Profit Margin",
+    "type": "Core",
+    "description": "Net income as a % of revenue",
+    "variableTags": [
+      "Revenue",
+      "COGS",
+      "Operating Costs",
+      "Interest Expense",
+      "Tax Rate",
+      "Depreciation"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Cost Management",
+      "Revenue"
+    ],
+    "chartRecommendation": "Line Chart — monitors margin trend; overlay with a target reference line",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "3",
+    "category": "Financial",
+    "name": "Gross Profit Margin",
+    "type": "Core",
+    "description": "Revenue minus COGS, as a % of revenue",
+    "variableTags": [
+      "Revenue",
+      "Cost of Goods Sold (COGS)",
+      "Pricing Strategy",
+      "Raw Material Costs",
+      "Production Efficiency"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Cost Management",
+      "Pricing"
+    ],
+    "chartRecommendation": "Combo Chart (Bar + Line) — bars show absolute gross profit, line shows margin %",
+    "chartType": "Combo Chart (Bar + Line)"
+  },
+  {
+    "id": "4",
+    "category": "Financial",
+    "name": "EBITDA",
+    "type": "Core",
+    "description": "Earnings before interest, taxes, depreciation & amortisation",
+    "variableTags": [
+      "Revenue",
+      "Operating Expenses",
+      "Headcount",
+      "Depreciation",
+      "Amortisation",
+      "Capital Investments"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Cost Management",
+      "Revenue"
+    ],
+    "chartRecommendation": "Waterfall Chart — breaks down how revenue flows through to EBITDA",
+    "chartType": "Waterfall Chart"
+  },
+  {
+    "id": "5",
+    "category": "Financial",
+    "name": "Return on Investment (ROI)",
+    "type": "Core",
+    "description": "Gain from investment relative to its cost",
+    "variableTags": [
+      "Net Gain",
+      "Investment Cost",
+      "Time Period",
+      "Risk Adjustment",
+      "Opportunity Cost"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Growth",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Bullet Chart — compares actual ROI against a benchmark or target",
+    "chartType": "Bullet Chart"
+  },
+  {
+    "id": "6",
+    "category": "Financial",
+    "name": "Return on Equity (ROE)",
+    "type": "Core",
+    "description": "Net income relative to shareholder equity",
+    "variableTags": [
+      "Net Income",
+      "Shareholder Equity",
+      "Financial Leverage",
+      "Dividend Policy",
+      "Retained Earnings"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Financial Health"
+    ],
+    "chartRecommendation": "Line Chart — shows ROE trend across reporting periods",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "7",
+    "category": "Financial",
+    "name": "Current Ratio",
+    "type": "Core",
+    "description": "Current assets divided by current liabilities (liquidity)",
+    "variableTags": [
+      "Cash & Equivalents",
+      "Accounts Receivable",
+      "Inventory",
+      "Short-Term Debt",
+      "Accounts Payable"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Risk"
+    ],
+    "chartRecommendation": "Gauge Chart — instantly shows whether the ratio is above or below the safe threshold",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "8",
+    "category": "Financial",
+    "name": "Debt-to-Equity Ratio",
+    "type": "Core",
+    "description": "Total liabilities vs. shareholder equity",
+    "variableTags": [
+      "Total Debt",
+      "Shareholder Equity",
+      "Borrowings",
+      "Retained Earnings",
+      "Capital Structure"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Risk"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — visualises the split between debt and equity financing over time",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "9",
+    "category": "Financial",
+    "name": "Operating Cash Flow",
+    "type": "Core",
+    "description": "Cash generated from core business operations",
+    "variableTags": [
+      "Net Income",
+      "Depreciation",
+      "Working Capital Changes",
+      "CapEx",
+      "Accounts Receivable",
+      "Payables"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Revenue",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Waterfall Chart — shows cash inflows and outflows leading to net operating cash",
+    "chartType": "Waterfall Chart"
+  },
+  {
+    "id": "10",
+    "category": "Financial",
+    "name": "Burn Rate",
+    "type": "Core",
+    "description": "How fast a company spends its cash reserves (startups)",
+    "variableTags": [
+      "Monthly Expenses",
+      "Revenue",
+      "Headcount",
+      "Operational Costs",
+      "Marketing Spend",
+      "R&D Spend"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Cost Management",
+      "Growth"
+    ],
+    "chartRecommendation": "Area Chart — illustrates cash depletion over time, making the runway visible",
+    "chartType": "Area Chart"
+  },
+  {
+    "id": "11",
+    "category": "Financial",
+    "name": "Working Capital Ratio",
+    "type": "Lesser-Known",
+    "description": "Short-term financial health indicator",
+    "variableTags": [
+      "Current Assets",
+      "Current Liabilities",
+      "Inventory",
+      "Accounts Receivable",
+      "Short-Term Borrowings"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Risk"
+    ],
+    "chartRecommendation": "Gauge Chart — highlights whether short-term financial health is in the safe zone",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "12",
+    "category": "Financial",
+    "name": "Cash Conversion Cycle (CCC)",
+    "type": "Lesser-Known",
+    "description": "Time to convert inventory into cash flow",
+    "variableTags": [
+      "Inventory Days Outstanding",
+      "Days Sales Outstanding",
+      "Days Payable Outstanding",
+      "Supply Chain Speed"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Process Efficiency",
+      "Supply Chain"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — each segment shows DIO, DSO, and DPO components",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "13",
+    "category": "Financial",
+    "name": "Economic Value Added (EVA)",
+    "type": "Lesser-Known",
+    "description": "Profit after deducting cost of capital",
+    "variableTags": [
+      "Net Operating Profit After Tax (NOPAT)",
+      "Weighted Average Cost of Capital (WACC)",
+      "Invested Capital"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Financial Health"
+    ],
+    "chartRecommendation": "Bar Chart — compares EVA across periods or business units",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "14",
+    "category": "Financial",
+    "name": "Revenue per Employee",
+    "type": "Lesser-Known",
+    "description": "Efficiency of workforce relative to output",
+    "variableTags": [
+      "Total Revenue",
+      "Headcount",
+      "Productivity",
+      "Automation Level",
+      "Industry Benchmarks"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Workforce",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Bar Chart — compares productivity across teams, departments, or companies",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "15",
+    "category": "Financial",
+    "name": "Days Sales Outstanding (DSO)",
+    "type": "Lesser-Known",
+    "description": "Average days to collect payment after a sale",
+    "variableTags": [
+      "Accounts Receivable",
+      "Daily Sales Revenue",
+      "Payment Terms",
+      "Credit Policy",
+      "Customer Payment Behaviour"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Customer Retention",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Line Chart — tracks collection efficiency trend; flag spikes as early warning",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "16",
+    "category": "Sales",
+    "name": "Total Sales / Revenue",
+    "type": "Core",
+    "description": "Overall income generated",
+    "variableTags": [
+      "Sales Volume",
+      "Unit Price",
+      "Product Mix",
+      "Discounts",
+      "Seasonal Demand",
+      "Channel Mix"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Growth",
+      "Pricing"
+    ],
+    "chartRecommendation": "Line Chart — the classic revenue trend line across weeks, months, or quarters",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "17",
+    "category": "Sales",
+    "name": "Sales Growth Rate",
+    "type": "Core",
+    "description": "Period-over-period increase in sales",
+    "variableTags": [
+      "New Customers",
+      "Upsells",
+      "Market Expansion",
+      "Price Changes",
+      "Seasonal Trends",
+      "Churn"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Growth",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Column Chart — period-over-period growth bars make acceleration or slowdown clear",
+    "chartType": "Column Chart"
+  },
+  {
+    "id": "18",
+    "category": "Sales",
+    "name": "Conversion Rate",
+    "type": "Core",
+    "description": "% of leads that become paying customers",
+    "variableTags": [
+      "Lead Quality",
+      "Sales Team Performance",
+      "Product-Market Fit",
+      "Pricing",
+      "Follow-Up Process"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Growth",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Funnel Chart — maps the drop-off at each stage from lead to closed customer",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "19",
+    "category": "Sales",
+    "name": "Average Deal Size",
+    "type": "Core",
+    "description": "Mean value of closed sales",
+    "variableTags": [
+      "Product Mix",
+      "Negotiation Outcome",
+      "Upselling",
+      "Customer Segment",
+      "Pricing Strategy"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Pricing",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Box Plot — shows distribution of deal sizes and highlights outliers",
+    "chartType": "Box Plot"
+  },
+  {
+    "id": "20",
+    "category": "Sales",
+    "name": "Sales Cycle Length",
+    "type": "Core",
+    "description": "Average time to close a deal",
+    "variableTags": [
+      "Lead Quality",
+      "Product Complexity",
+      "Number of Decision Makers",
+      "Sales Process",
+      "Buyer Urgency"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Customer Acquisition",
+      "Workforce"
+    ],
+    "chartRecommendation": "Histogram — shows frequency distribution of deal durations",
+    "chartType": "Histogram"
+  },
+  {
+    "id": "21",
+    "category": "Sales",
+    "name": "Quota Attainment",
+    "type": "Core",
+    "description": "% of sales reps hitting their targets",
+    "variableTags": [
+      "Sales Team Performance",
+      "Quota Setting",
+      "Territory Assignment",
+      "Market Conditions",
+      "Enablement"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Growth",
+      "Revenue"
+    ],
+    "chartRecommendation": "Bullet Chart — each rep's actual attainment vs. quota target in a compact bar",
+    "chartType": "Bullet Chart"
+  },
+  {
+    "id": "22",
+    "category": "Sales",
+    "name": "Pipeline Value",
+    "type": "Core",
+    "description": "Total value of deals in the sales pipeline",
+    "variableTags": [
+      "Lead Volume",
+      "Average Deal Size",
+      "Stage Distribution",
+      "Win Rate",
+      "Time in Pipeline"
+    ],
+    "generalTags": [
+      "Growth",
+      "Revenue",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Funnel Chart — total value stacked by pipeline stage shows coverage at a glance",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "23",
+    "category": "Sales",
+    "name": "Win Rate",
+    "type": "Lesser-Known",
+    "description": "% of deals won vs. total deals pursued",
+    "variableTags": [
+      "Competitive Landscape",
+      "Sales Skills",
+      "Product Quality",
+      "Pricing",
+      "Proposal Quality"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Pricing",
+      "Product"
+    ],
+    "chartRecommendation": "Gauge Chart — quickly communicates whether the win rate is above or below target",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "24",
+    "category": "Sales",
+    "name": "Lead Velocity Rate (LVR)",
+    "type": "Lesser-Known",
+    "description": "Month-over-month growth in qualified leads",
+    "variableTags": [
+      "Marketing Spend",
+      "Campaign Performance",
+      "Market Demand",
+      "Channel Effectiveness",
+      "Content Quality"
+    ],
+    "generalTags": [
+      "Growth",
+      "Customer Acquisition",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Line Chart — month-on-month growth in qualified leads as a trend",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "25",
+    "category": "Sales",
+    "name": "Sales Velocity",
+    "type": "Lesser-Known",
+    "description": "Speed at which leads move through the pipeline",
+    "variableTags": [
+      "Pipeline Value",
+      "Win Rate",
+      "Average Deal Size",
+      "Sales Cycle Length",
+      "Lead Quality"
+    ],
+    "generalTags": [
+      "Growth",
+      "Revenue",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Line Chart — plots the pace at which value moves through the pipeline over time",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "26",
+    "category": "Sales",
+    "name": "Upsell / Cross-sell Rate",
+    "type": "Lesser-Known",
+    "description": "% of customers purchasing additional products",
+    "variableTags": [
+      "Customer Satisfaction",
+      "Product Portfolio Breadth",
+      "Sales Training",
+      "Timing",
+      "Recommendation Engine"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Customer Retention",
+      "Product"
+    ],
+    "chartRecommendation": "Stacked Column Chart — separates base revenue from upsell/cross-sell contributions",
+    "chartType": "Stacked Column Chart"
+  },
+  {
+    "id": "27",
+    "category": "Sales",
+    "name": "Opportunity-to-Win Ratio",
+    "type": "Lesser-Known",
+    "description": "Efficiency of converting opportunities to closed deals",
+    "variableTags": [
+      "Sales Process Quality",
+      "Product-Market Fit",
+      "Competitive Positioning",
+      "Pricing",
+      "Relationship Strength"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Process Efficiency",
+      "Pricing"
+    ],
+    "chartRecommendation": "Funnel Chart — opportunities narrowing down to won deals illustrates conversion depth",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "28",
+    "category": "Marketing",
+    "name": "Customer Acquisition Cost (CAC)",
+    "type": "Core",
+    "description": "Cost to acquire one new customer",
+    "variableTags": [
+      "Marketing Spend",
+      "Sales Costs",
+      "New Customers Acquired",
+      "Channel Efficiency",
+      "Campaign Performance"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Cost Management",
+      "Growth"
+    ],
+    "chartRecommendation": "Line Chart — monitors CAC trend alongside CAC:LTV ratio for context",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "29",
+    "category": "Marketing",
+    "name": "Return on Ad Spend (ROAS)",
+    "type": "Core",
+    "description": "Revenue generated per £/$ spent on ads",
+    "variableTags": [
+      "Ad Revenue Generated",
+      "Ad Spend",
+      "Conversion Rate",
+      "Average Order Value",
+      "Attribution Model"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Revenue",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Bar Chart — compares ROAS across campaigns, channels, or time periods",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "30",
+    "category": "Marketing",
+    "name": "Click-Through Rate (CTR)",
+    "type": "Core",
+    "description": "% of people who click on an ad or link",
+    "variableTags": [
+      "Ad Creative Quality",
+      "Targeting Accuracy",
+      "Relevance Score",
+      "Placement",
+      "Audience Segment"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Digital Performance",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Line Chart — trends CTR over time, often broken down by channel or ad type",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "31",
+    "category": "Marketing",
+    "name": "Cost Per Click (CPC)",
+    "type": "Core",
+    "description": "Average cost per individual ad click",
+    "variableTags": [
+      "Bidding Strategy",
+      "Ad Quality Score",
+      "Keyword Competition",
+      "Targeting",
+      "Platform Algorithm"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Cost Management",
+      "Digital Performance"
+    ],
+    "chartRecommendation": "Line Chart — tracks cost efficiency trend across campaigns or bidding periods",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "32",
+    "category": "Marketing",
+    "name": "Cost Per Lead (CPL)",
+    "type": "Core",
+    "description": "Cost to generate one lead",
+    "variableTags": [
+      "Ad Spend",
+      "Landing Page Conversion Rate",
+      "Campaign Targeting",
+      "Offer Value",
+      "Form Complexity"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Cost Management",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Bar Chart — compares CPL across campaigns or channels to identify best performers",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "33",
+    "category": "Marketing",
+    "name": "Marketing Qualified Leads (MQLs)",
+    "type": "Core",
+    "description": "Leads deemed likely to convert",
+    "variableTags": [
+      "Lead Volume",
+      "Lead Scoring Criteria",
+      "Campaign Quality",
+      "ICP Alignment",
+      "Behavioural Triggers"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Growth",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Column Chart — volume of MQLs by period; overlay with SQL conversion rate",
+    "chartType": "Column Chart"
+  },
+  {
+    "id": "34",
+    "category": "Marketing",
+    "name": "Brand Awareness",
+    "type": "Core",
+    "description": "Measured via surveys, reach, and impressions",
+    "variableTags": [
+      "Reach",
+      "Impressions",
+      "Share of Voice",
+      "PR Activity",
+      "Social Mentions",
+      "Ad Frequency"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Growth",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Area Chart — builds a picture of cumulative reach and awareness growth over time",
+    "chartType": "Area Chart"
+  },
+  {
+    "id": "35",
+    "category": "Marketing",
+    "name": "Email Open Rate / Click Rate",
+    "type": "Core",
+    "description": "Engagement with email campaigns",
+    "variableTags": [
+      "Subject Line Quality",
+      "Send Time",
+      "List Quality",
+      "Segmentation",
+      "Sender Reputation",
+      "Preview Text"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Customer Retention",
+      "Digital Performance"
+    ],
+    "chartRecommendation": "Line Chart — dual-line chart with open rate and click rate on the same axis",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "36",
+    "category": "Marketing",
+    "name": "Marketing Attributed Revenue",
+    "type": "Lesser-Known",
+    "description": "Revenue directly tied to marketing efforts",
+    "variableTags": [
+      "Campaign Attribution Model",
+      "Revenue Generated",
+      "Channel Mix",
+      "Multi-Touch Weighting",
+      "Sales Alignment"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Marketing & Brand",
+      "Data & Analytics"
+    ],
+    "chartRecommendation": "Waterfall Chart — shows which campaigns and channels contributed to total revenue",
+    "chartType": "Waterfall Chart"
+  },
+  {
+    "id": "37",
+    "category": "Marketing",
+    "name": "Share of Voice (SOV)",
+    "type": "Lesser-Known",
+    "description": "Brand's presence vs. competitors in the market",
+    "variableTags": [
+      "Brand Mentions",
+      "Competitor Activity",
+      "Marketing Spend",
+      "PR Coverage",
+      "Social Following"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Growth",
+      "Pricing"
+    ],
+    "chartRecommendation": "Donut Chart — shows brand's share vs. named competitors as proportional slices",
+    "chartType": "Donut Chart"
+  },
+  {
+    "id": "38",
+    "category": "Marketing",
+    "name": "Content Engagement Rate",
+    "type": "Lesser-Known",
+    "description": "Interactions per piece of content published",
+    "variableTags": [
+      "Content Quality",
+      "Topic Relevance",
+      "Audience Targeting",
+      "Distribution Channel",
+      "Posting Frequency"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Digital Performance",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Bar Chart — ranks content pieces or topics by engagement rate",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "39",
+    "category": "Marketing",
+    "name": "Organic Traffic Growth",
+    "type": "Lesser-Known",
+    "description": "Increase in unpaid website visitors over time",
+    "variableTags": [
+      "SEO Performance",
+      "Content Volume",
+      "Backlink Profile",
+      "Keyword Rankings",
+      "Domain Authority"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Growth",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Area Chart — cumulative organic visitor growth makes the upward trend tangible",
+    "chartType": "Area Chart"
+  },
+  {
+    "id": "40",
+    "category": "Marketing",
+    "name": "Time on Page",
+    "type": "Lesser-Known",
+    "description": "Average duration visitors spend on a web page",
+    "variableTags": [
+      "Content Quality",
+      "Readability",
+      "Media Richness",
+      "Internal Links",
+      "Page Layout",
+      "Audience Intent"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Bar Chart — ranks pages by average time spent, highlighting top-performing content",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "41",
+    "category": "Marketing",
+    "name": "Ad Frequency",
+    "type": "Lesser-Known",
+    "description": "Average number of times a person sees your ad",
+    "variableTags": [
+      "Campaign Budget",
+      "Audience Size",
+      "Ad Scheduling",
+      "Impression Cap Settings",
+      "Targeting Overlap"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Digital Performance",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — monitors ad frequency to detect audience fatigue",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "42",
+    "category": "Customer",
+    "name": "Net Promoter Score (NPS)",
+    "type": "Core",
+    "description": "Likelihood of customers recommending you (scale 0–10)",
+    "variableTags": [
+      "Customer Satisfaction",
+      "Product Quality",
+      "Support Quality",
+      "Ease of Use",
+      "Brand Perception"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Customer Retention",
+      "Growth"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — segments of Promoters, Passives, and Detractors per period",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "43",
+    "category": "Customer",
+    "name": "Customer Satisfaction Score (CSAT)",
+    "type": "Core",
+    "description": "Satisfaction rating post-interaction",
+    "variableTags": [
+      "Service Quality",
+      "Response Time",
+      "Resolution Rate",
+      "Agent Training",
+      "Product Quality"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Quality",
+      "Customer Retention"
+    ],
+    "chartRecommendation": "Gauge Chart — clearly shows current satisfaction level against the target band",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "44",
+    "category": "Customer",
+    "name": "Customer Lifetime Value (CLV / LTV)",
+    "type": "Core",
+    "description": "Total revenue expected from a customer over their relationship",
+    "variableTags": [
+      "Purchase Frequency",
+      "Average Order Value",
+      "Retention Rate",
+      "Gross Margin",
+      "Churn Rate"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Customer Retention",
+      "Growth"
+    ],
+    "chartRecommendation": "Bar Chart — compares LTV across customer segments or cohorts",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "45",
+    "category": "Customer",
+    "name": "Customer Retention Rate",
+    "type": "Core",
+    "description": "% of customers retained over a period",
+    "variableTags": [
+      "Product Value",
+      "Customer Service Quality",
+      "Pricing Competitiveness",
+      "Competition",
+      "Loyalty Programmes"
+    ],
+    "generalTags": [
+      "Customer Retention",
+      "Revenue",
+      "Growth"
+    ],
+    "chartRecommendation": "Line Chart — retention trend over time; often shown alongside churn rate",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "46",
+    "category": "Customer",
+    "name": "Customer Churn Rate",
+    "type": "Core",
+    "description": "% of customers lost over a period",
+    "variableTags": [
+      "Product Issues",
+      "Pricing",
+      "Competition",
+      "Customer Experience",
+      "Onboarding Quality",
+      "Contract Terms"
+    ],
+    "generalTags": [
+      "Customer Retention",
+      "Revenue",
+      "Risk"
+    ],
+    "chartRecommendation": "Line Chart — churn trend with period annotations for product or pricing changes",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "47",
+    "category": "Customer",
+    "name": "Customer Effort Score (CES)",
+    "type": "Core",
+    "description": "How easy it is to do business with you",
+    "variableTags": [
+      "Process Complexity",
+      "Support Quality",
+      "Self-Service Options",
+      "UX Design",
+      "Response Time"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Process Efficiency",
+      "Product"
+    ],
+    "chartRecommendation": "Gauge Chart — CES sits on a simple scale, making a gauge the clearest display",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "48",
+    "category": "Customer",
+    "name": "Customer Health Score",
+    "type": "Lesser-Known",
+    "description": "Composite score predicting churn or expansion",
+    "variableTags": [
+      "Product Usage Frequency",
+      "Support Ticket Volume",
+      "Payment History",
+      "Engagement Depth",
+      "NPS"
+    ],
+    "generalTags": [
+      "Customer Retention",
+      "Data & Analytics",
+      "Risk"
+    ],
+    "chartRecommendation": "Heatmap — a grid of customers vs. health dimensions reveals at-risk patterns",
+    "chartType": "Heatmap"
+  },
+  {
+    "id": "49",
+    "category": "Customer",
+    "name": "Product Adoption Rate",
+    "type": "Lesser-Known",
+    "description": "% of customers actively using a product/feature",
+    "variableTags": [
+      "Onboarding Quality",
+      "Product Usability",
+      "In-App Guidance",
+      "Training Resources",
+      "Feature Discoverability"
+    ],
+    "generalTags": [
+      "Product",
+      "Customer Retention",
+      "Growth"
+    ],
+    "chartRecommendation": "Line Chart — adoption curve over time shows whether growth is accelerating",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "50",
+    "category": "Customer",
+    "name": "Repeat Purchase Rate",
+    "type": "Lesser-Known",
+    "description": "% of customers who buy more than once",
+    "variableTags": [
+      "Product Satisfaction",
+      "Loyalty Programmes",
+      "Email Marketing",
+      "Re-engagement Campaigns",
+      "Pricing"
+    ],
+    "generalTags": [
+      "Customer Retention",
+      "Revenue",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Line Chart — tracks loyalty and retention trends in transactional businesses",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "51",
+    "category": "Customer",
+    "name": "Customer Engagement Score",
+    "type": "Lesser-Known",
+    "description": "Behavioural scoring across all touchpoints",
+    "variableTags": [
+      "Login Frequency",
+      "Feature Usage",
+      "Email Opens",
+      "Support Interactions",
+      "Community Participation"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Customer Retention",
+      "Digital Performance"
+    ],
+    "chartRecommendation": "Radar Chart — maps engagement across multiple dimensions (logins, features, support)",
+    "chartType": "Radar Chart"
+  },
+  {
+    "id": "52",
+    "category": "Customer",
+    "name": "Referral Rate",
+    "type": "Lesser-Known",
+    "description": "% of new customers acquired through existing customers",
+    "variableTags": [
+      "Customer Satisfaction",
+      "Referral Programme Design",
+      "Incentives",
+      "Brand Advocacy",
+      "Ease of Sharing"
+    ],
+    "generalTags": [
+      "Growth",
+      "Customer Acquisition",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Line Chart — referral rate trend highlights the impact of programme changes",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "53",
+    "category": "Customer",
+    "name": "Wallet Share",
+    "type": "Lesser-Known",
+    "description": "% of a customer's total spend captured by your business",
+    "variableTags": [
+      "Customer Loyalty",
+      "Product Range",
+      "Competitive Pricing",
+      "Cross-sell Success",
+      "Switching Costs"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Customer Retention",
+      "Pricing"
+    ],
+    "chartRecommendation": "Donut Chart — your share vs. competitors in a customer's total spend",
+    "chartType": "Donut Chart"
+  },
+  {
+    "id": "54",
+    "category": "Operational",
+    "name": "Overall Equipment Effectiveness (OEE)",
+    "type": "Core",
+    "description": "Manufacturing productivity metric (Availability × Performance × Quality)",
+    "variableTags": [
+      "Machine Availability",
+      "Performance Rate",
+      "Quality Rate",
+      "Planned Downtime",
+      "Unplanned Downtime"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Quality",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Gauge Chart — instantly communicates how close to world-class OEE the plant is",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "55",
+    "category": "Operational",
+    "name": "Order Fulfillment Cycle Time",
+    "type": "Core",
+    "description": "Time from order placement to delivery",
+    "variableTags": [
+      "Order Processing Speed",
+      "Inventory Levels",
+      "Picking & Packing Efficiency",
+      "Shipping Partner SLA"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Customer Experience",
+      "Supply Chain"
+    ],
+    "chartRecommendation": "Bar Chart — compares cycle times across product types, warehouses, or periods",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "56",
+    "category": "Operational",
+    "name": "Inventory Turnover",
+    "type": "Core",
+    "description": "How often inventory is sold/replaced per period",
+    "variableTags": [
+      "Sales Volume",
+      "Inventory Levels",
+      "Demand Forecasting Accuracy",
+      "Reorder Points",
+      "Seasonality"
+    ],
+    "generalTags": [
+      "Supply Chain",
+      "Cost Management",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Line Chart — turnover trend identifies over-stocking or supply chain issues",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "57",
+    "category": "Operational",
+    "name": "Capacity Utilisation Rate",
+    "type": "Core",
+    "description": "% of production capacity currently in use",
+    "variableTags": [
+      "Production Volume",
+      "Total Capacity",
+      "Demand Levels",
+      "Scheduled Downtime",
+      "Workforce Availability"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Cost Management",
+      "Growth"
+    ],
+    "chartRecommendation": "Gauge Chart — shows what % of capacity is in use vs. the optimal range",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "58",
+    "category": "Operational",
+    "name": "On-Time Delivery Rate",
+    "type": "Core",
+    "description": "% of orders delivered on schedule",
+    "variableTags": [
+      "Supply Chain Reliability",
+      "Logistics Partners",
+      "Inventory Levels",
+      "Demand Planning",
+      "Lead Times"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Supply Chain",
+      "Quality"
+    ],
+    "chartRecommendation": "Line Chart — delivery performance trend; dips signal logistics problems",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "59",
+    "category": "Operational",
+    "name": "Cost per Unit Produced",
+    "type": "Core",
+    "description": "Efficiency of production",
+    "variableTags": [
+      "Labour Costs",
+      "Raw Material Costs",
+      "Overheads",
+      "Production Volume",
+      "Waste Rate",
+      "Energy Costs"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Process Efficiency",
+      "Profitability"
+    ],
+    "chartRecommendation": "Line Chart — cost efficiency trend over time; link to volume for context",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "60",
+    "category": "Operational",
+    "name": "Throughput Rate",
+    "type": "Lesser-Known",
+    "description": "Units produced per unit of time",
+    "variableTags": [
+      "Machine Speed",
+      "Labour Efficiency",
+      "Process Bottlenecks",
+      "Downtime",
+      "Shift Scheduling"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Quality",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — production rate over time; useful for spotting bottleneck periods",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "61",
+    "category": "Operational",
+    "name": "Supplier Lead Time",
+    "type": "Lesser-Known",
+    "description": "Time between ordering and receiving from suppliers",
+    "variableTags": [
+      "Supplier Performance",
+      "Order Volume",
+      "Logistics Reliability",
+      "Geography",
+      "Contract Terms"
+    ],
+    "generalTags": [
+      "Supply Chain",
+      "Process Efficiency",
+      "Risk"
+    ],
+    "chartRecommendation": "Box Plot — shows the distribution and variability of lead times per supplier",
+    "chartType": "Box Plot"
+  },
+  {
+    "id": "62",
+    "category": "Operational",
+    "name": "Shrinkage Rate",
+    "type": "Lesser-Known",
+    "description": "Inventory lost to theft, damage, or administrative error",
+    "variableTags": [
+      "Theft Incidence",
+      "Physical Damage",
+      "Spoilage",
+      "Administrative Errors",
+      "Warehouse Procedures"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Risk",
+      "Supply Chain"
+    ],
+    "chartRecommendation": "Bar Chart — compares shrinkage by category, location, or time period",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "63",
+    "category": "Operational",
+    "name": "Process Adherence Rate",
+    "type": "Lesser-Known",
+    "description": "% of tasks completed per defined process / SOP",
+    "variableTags": [
+      "Employee Training",
+      "SOP Clarity",
+      "Monitoring Mechanisms",
+      "Management Enforcement",
+      "Culture"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Quality",
+      "Workforce"
+    ],
+    "chartRecommendation": "Gauge Chart — simple % adherence shown against a target compliance level",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "64",
+    "category": "Operational",
+    "name": "Mean Time to Repair (MTTR)",
+    "type": "Lesser-Known",
+    "description": "Average time to fix a failed system or process",
+    "variableTags": [
+      "Technical Expertise",
+      "Spare Parts Availability",
+      "System Complexity",
+      "Diagnostic Speed",
+      "Tooling"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Process Efficiency",
+      "Risk"
+    ],
+    "chartRecommendation": "Line Chart — MTTR trend; spikes flag systemic issues or resource shortfalls",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "65",
+    "category": "HR & People",
+    "name": "Employee Turnover Rate",
+    "type": "Core",
+    "description": "% of employees leaving over a period",
+    "variableTags": [
+      "Job Satisfaction",
+      "Compensation Competitiveness",
+      "Career Development",
+      "Culture",
+      "Management Quality"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Cost Management",
+      "Growth"
+    ],
+    "chartRecommendation": "Line Chart — turnover trend across periods; annotate with culture or pay events",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "66",
+    "category": "HR & People",
+    "name": "Employee Satisfaction / Engagement Score",
+    "type": "Core",
+    "description": "Workplace sentiment measure",
+    "variableTags": [
+      "Management Quality",
+      "Work Environment",
+      "Benefits & Perks",
+      "Workload",
+      "Recognition",
+      "Purpose"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Customer Experience",
+      "Growth"
+    ],
+    "chartRecommendation": "Gauge Chart — benchmark current score against industry and internal targets",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "67",
+    "category": "HR & People",
+    "name": "Absenteeism Rate",
+    "type": "Core",
+    "description": "% of unplanned employee absences",
+    "variableTags": [
+      "Employee Wellbeing",
+      "Workload Pressure",
+      "Culture",
+      "Health Policies",
+      "Remote Work Flexibility"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Process Efficiency",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — monthly or quarterly absenteeism trend",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "68",
+    "category": "HR & People",
+    "name": "Time to Hire",
+    "type": "Core",
+    "description": "Days from job posting to offer acceptance",
+    "variableTags": [
+      "Recruitment Process Efficiency",
+      "Job Market Conditions",
+      "Sourcing Channels",
+      "Role Complexity"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Process Efficiency",
+      "Growth"
+    ],
+    "chartRecommendation": "Bar Chart — average days to hire across roles, departments, or time periods",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "69",
+    "category": "HR & People",
+    "name": "Cost per Hire",
+    "type": "Core",
+    "description": "Total recruiting cost per new employee",
+    "variableTags": [
+      "Advertising Spend",
+      "Agency Fees",
+      "Recruiter Time",
+      "Interview Hours",
+      "Onboarding Costs"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Workforce",
+      "Growth"
+    ],
+    "chartRecommendation": "Bar Chart — compares hiring cost across roles or sourcing channels",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "70",
+    "category": "HR & People",
+    "name": "Training Completion Rate",
+    "type": "Core",
+    "description": "% of staff completing required training",
+    "variableTags": [
+      "Training Accessibility",
+      "Content Quality",
+      "Management Enforcement",
+      "Workload",
+      "Motivation"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Quality",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — completed vs. in-progress vs. not-started by team",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "71",
+    "category": "HR & People",
+    "name": "Internal Promotion Rate",
+    "type": "Lesser-Known",
+    "description": "% of roles filled internally vs. externally",
+    "variableTags": [
+      "Career Development Investment",
+      "Succession Planning",
+      "Talent Pipeline Depth",
+      "Internal Mobility Policy"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Growth",
+      "Customer Retention"
+    ],
+    "chartRecommendation": "Column Chart — compares internal vs. external hires per period or department",
+    "chartType": "Column Chart"
+  },
+  {
+    "id": "72",
+    "category": "HR & People",
+    "name": "HR-to-Employee Ratio",
+    "type": "Lesser-Known",
+    "description": "Number of HR staff per 100 employees",
+    "variableTags": [
+      "Company Size",
+      "HR Automation Level",
+      "Outsourced Functions",
+      "Workforce Complexity",
+      "HR Strategy"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Process Efficiency",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — monitors ratio as headcount scales",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "73",
+    "category": "HR & People",
+    "name": "Talent Density",
+    "type": "Lesser-Known",
+    "description": "% of high performers relative to total workforce",
+    "variableTags": [
+      "Hiring Standards",
+      "Training Investment",
+      "Performance Management Rigour",
+      "Culture",
+      "Attrition of Low Performers"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Quality",
+      "Growth"
+    ],
+    "chartRecommendation": "Bar Chart — % high performers by department or team",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "74",
+    "category": "HR & People",
+    "name": "Manager Effectiveness Score",
+    "type": "Lesser-Known",
+    "description": "Employee ratings of their direct managers",
+    "variableTags": [
+      "Leadership Training",
+      "Feedback Culture",
+      "Communication Skills",
+      "Team Performance",
+      "Empathy"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Customer Experience",
+      "Quality"
+    ],
+    "chartRecommendation": "Radar Chart — maps effectiveness across multiple competency dimensions per manager",
+    "chartType": "Radar Chart"
+  },
+  {
+    "id": "75",
+    "category": "HR & People",
+    "name": "Retention Rate of Top Performers",
+    "type": "Lesser-Known",
+    "description": "Specifically tracking high-value staff retention",
+    "variableTags": [
+      "Compensation",
+      "Recognition",
+      "Career Opportunities",
+      "Engaging Work",
+      "Manager Relationships",
+      "Culture"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Growth",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — trend line with annotations for reward or culture changes",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "76",
+    "category": "Technology / IT",
+    "name": "System Uptime / Availability",
+    "type": "Core",
+    "description": "% of time systems are operational",
+    "variableTags": [
+      "Infrastructure Quality",
+      "Maintenance Frequency",
+      "Redundancy Design",
+      "Traffic Load",
+      "Incident Rate"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Risk",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Gauge Chart — % uptime displayed against the SLA target (e.g., 99.9%)",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "77",
+    "category": "Technology / IT",
+    "name": "Mean Time Between Failures (MTBF)",
+    "type": "Core",
+    "description": "Reliability of systems between failure events",
+    "variableTags": [
+      "Hardware Quality",
+      "Software Quality",
+      "Maintenance Schedule",
+      "System Age",
+      "Environmental Conditions"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Risk",
+      "Quality"
+    ],
+    "chartRecommendation": "Line Chart — MTBF trend shows whether system reliability is improving",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "78",
+    "category": "Technology / IT",
+    "name": "IT Cost as % of Revenue",
+    "type": "Core",
+    "description": "Technology spend efficiency relative to revenue",
+    "variableTags": [
+      "IT Headcount",
+      "Software Licences",
+      "Infrastructure Costs",
+      "Revenue",
+      "Cloud Spend",
+      "Vendor Contracts"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Technology & Systems",
+      "Profitability"
+    ],
+    "chartRecommendation": "Line Chart — tracks IT spend efficiency as the business scales",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "79",
+    "category": "Technology / IT",
+    "name": "Incident Resolution Time",
+    "type": "Core",
+    "description": "Average time to resolve IT issues",
+    "variableTags": [
+      "Team Size",
+      "Technical Expertise",
+      "Tooling Quality",
+      "Incident Severity",
+      "Documentation",
+      "On-Call Rota"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Process Efficiency",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Bar Chart — average resolution time by incident category or severity",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "80",
+    "category": "Technology / IT",
+    "name": "Technical Debt Ratio",
+    "type": "Lesser-Known",
+    "description": "Cost of fixing existing code vs. cost of new development",
+    "variableTags": [
+      "Code Quality",
+      "Development Speed Pressure",
+      "Refactoring Investment",
+      "Test Coverage",
+      "Legacy Systems"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Cost Management",
+      "Quality"
+    ],
+    "chartRecommendation": "Area Chart — growing area signals accumulating debt needing remediation",
+    "chartType": "Area Chart"
+  },
+  {
+    "id": "81",
+    "category": "Technology / IT",
+    "name": "Deployment Frequency",
+    "type": "Lesser-Known",
+    "description": "How often new code / updates are released to production",
+    "variableTags": [
+      "CI/CD Pipeline Maturity",
+      "Team Size",
+      "Release Process",
+      "Automation Level",
+      "Feature Flag Usage"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Process Efficiency",
+      "Growth"
+    ],
+    "chartRecommendation": "Column Chart — deployments per week or month shows CI/CD maturity over time",
+    "chartType": "Column Chart"
+  },
+  {
+    "id": "82",
+    "category": "Technology / IT",
+    "name": "Change Failure Rate",
+    "type": "Lesser-Known",
+    "description": "% of deployments causing failures or rollbacks",
+    "variableTags": [
+      "Code Review Quality",
+      "Testing Rigour",
+      "Deployment Process",
+      "Rollback Capability",
+      "Team Experience"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Quality",
+      "Risk"
+    ],
+    "chartRecommendation": "Line Chart — failure rate trend tied to release process improvements",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "83",
+    "category": "Technology / IT",
+    "name": "API Response Time",
+    "type": "Lesser-Known",
+    "description": "Speed of application programming interfaces",
+    "variableTags": [
+      "Server Load",
+      "Code Efficiency",
+      "Network Latency",
+      "Caching Strategy",
+      "Database Query Performance"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Digital Performance",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Line Chart — latency trend with percentile overlays (p50, p95, p99)",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "84",
+    "category": "Technology / IT",
+    "name": "Data Quality Score",
+    "type": "Lesser-Known",
+    "description": "Accuracy, completeness, and consistency of data",
+    "variableTags": [
+      "Data Governance Framework",
+      "Source System Quality",
+      "Validation Rules",
+      "ETL Processes",
+      "Data Ownership"
+    ],
+    "generalTags": [
+      "Data & Analytics",
+      "Technology & Systems",
+      "Quality"
+    ],
+    "chartRecommendation": "Gauge Chart — composite score displayed against a target quality threshold",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "85",
+    "category": "Technology / IT",
+    "name": "License Utilisation Rate",
+    "type": "Lesser-Known",
+    "description": "% of purchased software licences actively used",
+    "variableTags": [
+      "User Adoption Rate",
+      "Licence Allocation Policy",
+      "Software Needs Assessment",
+      "Offboarding Process"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Technology & Systems",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — used vs. unused licences by software product",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "86",
+    "category": "E-commerce / Digital",
+    "name": "Cart Abandonment Rate",
+    "type": "Core",
+    "description": "% of shoppers who add items but don't complete purchase",
+    "variableTags": [
+      "Checkout UX",
+      "Unexpected Shipping Costs",
+      "Payment Options",
+      "Site Speed",
+      "Trust Signals",
+      "Price Sensitivity"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Revenue"
+    ],
+    "chartRecommendation": "Funnel Chart — shows where customers drop off across the cart-to-checkout journey",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "87",
+    "category": "E-commerce / Digital",
+    "name": "Average Order Value (AOV)",
+    "type": "Core",
+    "description": "Mean spend per transaction",
+    "variableTags": [
+      "Product Mix",
+      "Upselling Tactics",
+      "Cross-sell Recommendations",
+      "Promotions",
+      "Bundling",
+      "Minimum Order Thresholds"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Pricing",
+      "Digital Performance"
+    ],
+    "chartRecommendation": "Line Chart — AOV trend over time; overlay with promotional periods",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "88",
+    "category": "E-commerce / Digital",
+    "name": "Revenue per Visitor (RPV)",
+    "type": "Core",
+    "description": "Revenue generated per site visitor",
+    "variableTags": [
+      "Conversion Rate",
+      "Average Order Value",
+      "Traffic Quality",
+      "Product Catalogue",
+      "Landing Page Relevance"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Digital Performance",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Line Chart — RPV trend with traffic source breakdown",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "89",
+    "category": "E-commerce / Digital",
+    "name": "Return on Ad Spend (ROAS)",
+    "type": "Core",
+    "description": "E-commerce advertising efficiency",
+    "variableTags": [
+      "Ad Creative Quality",
+      "Audience Targeting",
+      "Landing Page Conversion",
+      "Average Order Value",
+      "Attribution Model"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Revenue",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Bar Chart — compares ROAS across campaigns, channels, or time periods",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "90",
+    "category": "E-commerce / Digital",
+    "name": "Checkout Completion Rate",
+    "type": "Core",
+    "description": "% of users completing the checkout flow",
+    "variableTags": [
+      "UX Design",
+      "Payment Options Available",
+      "Page Load Speed",
+      "Trust Signals",
+      "Form Complexity",
+      "Guest Checkout"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Revenue"
+    ],
+    "chartRecommendation": "Funnel Chart — step-by-step drop-off from cart entry to payment confirmation",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "91",
+    "category": "E-commerce / Digital",
+    "name": "Search Exit Rate",
+    "type": "Lesser-Known",
+    "description": "% of users who leave after using the site search",
+    "variableTags": [
+      "Search Relevance Algorithm",
+      "Product Availability",
+      "Search UX Design",
+      "Catalogue Breadth",
+      "Synonym Handling"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Product"
+    ],
+    "chartRecommendation": "Bar Chart — ranks search queries by exit rate to identify gaps in the catalogue",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "92",
+    "category": "E-commerce / Digital",
+    "name": "Wishlist Conversion Rate",
+    "type": "Lesser-Known",
+    "description": "% of wishlist items that are eventually purchased",
+    "variableTags": [
+      "Price Change Alerts",
+      "Email Reminders",
+      "Stock Availability",
+      "Promotions",
+      "Time Since Wishlisted"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Retention",
+      "Revenue"
+    ],
+    "chartRecommendation": "Line Chart — conversion rate trend from wishlisted items to purchases",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "93",
+    "category": "E-commerce / Digital",
+    "name": "Payment Failure Rate",
+    "type": "Lesser-Known",
+    "description": "% of transactions that fail at payment stage",
+    "variableTags": [
+      "Payment Gateway Reliability",
+      "Card Issuer Decline Rates",
+      "Technical Integration Quality",
+      "Fraud Filters"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Risk",
+      "Technology & Systems"
+    ],
+    "chartRecommendation": "Line Chart — failure rate trend; spikes indicate gateway or technical issues",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "94",
+    "category": "E-commerce / Digital",
+    "name": "Refund Rate",
+    "type": "Lesser-Known",
+    "description": "% of orders resulting in a refund",
+    "variableTags": [
+      "Product Quality",
+      "Accuracy of Product Descriptions",
+      "Customer Expectations",
+      "Delivery Condition",
+      "Returns Policy"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Quality",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — tracks refund rate trend alongside product or policy changes",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "95",
+    "category": "E-commerce / Digital",
+    "name": "Mobile vs. Desktop Conversion Split",
+    "type": "Lesser-Known",
+    "description": "Channel-specific conversion rate insights across devices",
+    "variableTags": [
+      "Mobile UX Quality",
+      "Page Load Speed on Mobile",
+      "Device-Specific Features",
+      "Checkout Simplicity",
+      "Screen Size Optimisation"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Data & Analytics"
+    ],
+    "chartRecommendation": "Grouped Bar Chart — side-by-side conversion rates for mobile and desktop by period",
+    "chartType": "Grouped Bar Chart"
+  }
+];
+    // KPI calculation formulas for all 95 KPIs
+// Each entry: formula (display string), inputs (array), calculate (fn), unit, precision
+const kpiFormulas = {
+
+  // ── FINANCIAL ────────────────────────────────────────────────────────────────
+  "1": {
+    formula: "((Current Revenue − Prior Revenue) ÷ Prior Revenue) × 100",
+    inputs: [
+      { id: "curr", label: "Current Period Revenue ($)" },
+      { id: "prev", label: "Prior Period Revenue ($)" },
+    ],
+    calculate: v => {
+      const curr = parseFloat(v.curr), prev = parseFloat(v.prev);
+      if (!isFinite(curr) || !isFinite(prev) || prev === 0) return null;
+      return ((curr - prev) / prev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "2": {
+    formula: "(Net Income ÷ Revenue) × 100",
+    inputs: [
+      { id: "netIncome", label: "Net Income ($)" },
+      { id: "revenue", label: "Total Revenue ($)" },
+    ],
+    calculate: v => {
+      const ni = parseFloat(v.netIncome), rev = parseFloat(v.revenue);
+      if (!isFinite(ni) || !isFinite(rev) || rev === 0) return null;
+      return (ni / rev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "3": {
+    formula: "((Revenue − COGS) ÷ Revenue) × 100",
+    inputs: [
+      { id: "revenue", label: "Revenue ($)" },
+      { id: "cogs", label: "Cost of Goods Sold — COGS ($)" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), cogs = parseFloat(v.cogs);
+      if (!isFinite(rev) || !isFinite(cogs) || rev === 0) return null;
+      return ((rev - cogs) / rev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "4": {
+    formula: "Net Income + Interest + Taxes + Depreciation + Amortisation",
+    inputs: [
+      { id: "netIncome", label: "Net Income ($)" },
+      { id: "interest", label: "Interest Expense ($)" },
+      { id: "taxes", label: "Taxes ($)" },
+      { id: "depreciation", label: "Depreciation ($)" },
+      { id: "amortisation", label: "Amortisation ($)" },
+    ],
+    calculate: v => {
+      const vals = [v.netIncome, v.interest, v.taxes, v.depreciation, v.amortisation].map(parseFloat);
+      if (vals.some(x => !isFinite(x))) return null;
+      return vals.reduce((a, b) => a + b, 0);
+    },
+    unit: "$", precision: 2,
+  },
+  "5": {
+    formula: "((Net Return − Cost of Investment) ÷ Cost of Investment) × 100",
+    inputs: [
+      { id: "netReturn", label: "Net Return / Profit ($)" },
+      { id: "cost", label: "Cost of Investment ($)" },
+    ],
+    calculate: v => {
+      const ret = parseFloat(v.netReturn), cost = parseFloat(v.cost);
+      if (!isFinite(ret) || !isFinite(cost) || cost === 0) return null;
+      return ((ret - cost) / cost) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "6": {
+    formula: "(Net Income ÷ Shareholders' Equity) × 100",
+    inputs: [
+      { id: "netIncome", label: "Net Income ($)" },
+      { id: "equity", label: "Shareholders' Equity ($)" },
+    ],
+    calculate: v => {
+      const ni = parseFloat(v.netIncome), eq = parseFloat(v.equity);
+      if (!isFinite(ni) || !isFinite(eq) || eq === 0) return null;
+      return (ni / eq) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "7": {
+    formula: "Current Assets ÷ Current Liabilities",
+    inputs: [
+      { id: "assets", label: "Current Assets ($)" },
+      { id: "liabilities", label: "Current Liabilities ($)" },
+    ],
+    calculate: v => {
+      const a = parseFloat(v.assets), l = parseFloat(v.liabilities);
+      if (!isFinite(a) || !isFinite(l) || l === 0) return null;
+      return a / l;
+    },
+    unit: "x", precision: 2,
+  },
+  "8": {
+    formula: "Total Debt ÷ Total Shareholders' Equity",
+    inputs: [
+      { id: "debt", label: "Total Debt ($)" },
+      { id: "equity", label: "Total Shareholders' Equity ($)" },
+    ],
+    calculate: v => {
+      const d = parseFloat(v.debt), e = parseFloat(v.equity);
+      if (!isFinite(d) || !isFinite(e) || e === 0) return null;
+      return d / e;
+    },
+    unit: "x", precision: 2,
+  },
+  "9": {
+    formula: "Net Income + Non-Cash Charges + Changes in Working Capital",
+    inputs: [
+      { id: "netIncome", label: "Net Income ($)" },
+      { id: "nonCash", label: "Non-Cash Charges (Depreciation + Amortisation) ($)" },
+      { id: "workingCapital", label: "Net Change in Working Capital ($)" },
+    ],
+    calculate: v => {
+      const ni = parseFloat(v.netIncome), nc = parseFloat(v.nonCash), wc = parseFloat(v.workingCapital);
+      if (!isFinite(ni) || !isFinite(nc) || !isFinite(wc)) return null;
+      return ni + nc + wc;
+    },
+    unit: "$", precision: 2,
+  },
+  "10": {
+    formula: "(Starting Cash − Ending Cash) ÷ Number of Months",
+    inputs: [
+      { id: "startCash", label: "Starting Cash Balance ($)" },
+      { id: "endCash", label: "Ending Cash Balance ($)" },
+      { id: "months", label: "Number of Months" },
+    ],
+    calculate: v => {
+      const start = parseFloat(v.startCash), end = parseFloat(v.endCash), months = parseFloat(v.months);
+      if (!isFinite(start) || !isFinite(end) || !isFinite(months) || months === 0) return null;
+      return (start - end) / months;
+    },
+    unit: "$/month", precision: 2,
+  },
+  "11": {
+    formula: "Current Assets ÷ Current Liabilities",
+    inputs: [
+      { id: "assets", label: "Current Assets ($)" },
+      { id: "liabilities", label: "Current Liabilities ($)" },
+    ],
+    calculate: v => {
+      const a = parseFloat(v.assets), l = parseFloat(v.liabilities);
+      if (!isFinite(a) || !isFinite(l) || l === 0) return null;
+      return a / l;
+    },
+    unit: "x", precision: 2,
+  },
+  "12": {
+    formula: "Days Inventory Outstanding (DIO) + Days Sales Outstanding (DSO) − Days Payable Outstanding (DPO)",
+    inputs: [
+      { id: "dio", label: "Days Inventory Outstanding — DIO (days)" },
+      { id: "dso", label: "Days Sales Outstanding — DSO (days)" },
+      { id: "dpo", label: "Days Payable Outstanding — DPO (days)" },
+    ],
+    calculate: v => {
+      const dio = parseFloat(v.dio), dso = parseFloat(v.dso), dpo = parseFloat(v.dpo);
+      if (!isFinite(dio) || !isFinite(dso) || !isFinite(dpo)) return null;
+      return dio + dso - dpo;
+    },
+    unit: "days", precision: 1,
+  },
+  "13": {
+    formula: "NOPAT − (Capital Invested × WACC)",
+    inputs: [
+      { id: "nopat", label: "NOPAT — Net Operating Profit After Tax ($)" },
+      { id: "capital", label: "Capital Invested ($)" },
+      { id: "wacc", label: "WACC — Weighted Avg. Cost of Capital (%)" },
+    ],
+    calculate: v => {
+      const nopat = parseFloat(v.nopat), capital = parseFloat(v.capital), wacc = parseFloat(v.wacc);
+      if (!isFinite(nopat) || !isFinite(capital) || !isFinite(wacc)) return null;
+      return nopat - capital * (wacc / 100);
+    },
+    unit: "$", precision: 2,
+  },
+  "14": {
+    formula: "Total Revenue ÷ Number of Employees",
+    inputs: [
+      { id: "revenue", label: "Total Revenue ($)" },
+      { id: "employees", label: "Number of Employees" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), emp = parseFloat(v.employees);
+      if (!isFinite(rev) || !isFinite(emp) || emp === 0) return null;
+      return rev / emp;
+    },
+    unit: "$/employee", precision: 2,
+  },
+  "15": {
+    formula: "(Accounts Receivable ÷ Revenue) × Number of Days in Period",
+    inputs: [
+      { id: "ar", label: "Accounts Receivable ($)" },
+      { id: "revenue", label: "Revenue for the Period ($)" },
+      { id: "days", label: "Number of Days in Period (e.g. 90 for quarter)" },
+    ],
+    calculate: v => {
+      const ar = parseFloat(v.ar), rev = parseFloat(v.revenue), days = parseFloat(v.days);
+      if (!isFinite(ar) || !isFinite(rev) || !isFinite(days) || rev === 0) return null;
+      return (ar / rev) * days;
+    },
+    unit: "days", precision: 1,
+  },
+
+  // ── SALES ─────────────────────────────────────────────────────────────────────
+  "16": {
+    formula: "Units Sold × Average Selling Price",
+    inputs: [
+      { id: "units", label: "Total Units / Transactions Sold" },
+      { id: "price", label: "Average Selling Price ($)" },
+    ],
+    calculate: v => {
+      const units = parseFloat(v.units), price = parseFloat(v.price);
+      if (!isFinite(units) || !isFinite(price)) return null;
+      return units * price;
+    },
+    unit: "$", precision: 2,
+  },
+  "17": {
+    formula: "((Current Sales − Prior Sales) ÷ Prior Sales) × 100",
+    inputs: [
+      { id: "curr", label: "Current Period Sales ($)" },
+      { id: "prev", label: "Prior Period Sales ($)" },
+    ],
+    calculate: v => {
+      const curr = parseFloat(v.curr), prev = parseFloat(v.prev);
+      if (!isFinite(curr) || !isFinite(prev) || prev === 0) return null;
+      return ((curr - prev) / prev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "18": {
+    formula: "(Number of Conversions ÷ Total Leads) × 100",
+    inputs: [
+      { id: "conversions", label: "Number of Conversions" },
+      { id: "leads", label: "Total Leads / Visitors" },
+    ],
+    calculate: v => {
+      const conv = parseFloat(v.conversions), leads = parseFloat(v.leads);
+      if (!isFinite(conv) || !isFinite(leads) || leads === 0) return null;
+      return (conv / leads) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "19": {
+    formula: "Total Revenue from Deals ÷ Number of Deals Closed",
+    inputs: [
+      { id: "revenue", label: "Total Revenue from Deals ($)" },
+      { id: "deals", label: "Number of Deals Closed" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), deals = parseFloat(v.deals);
+      if (!isFinite(rev) || !isFinite(deals) || deals === 0) return null;
+      return rev / deals;
+    },
+    unit: "$/deal", precision: 2,
+  },
+  "20": {
+    formula: "Total Days to Close All Deals ÷ Number of Deals Closed",
+    inputs: [
+      { id: "totalDays", label: "Total Days Across All Deals Closed" },
+      { id: "deals", label: "Number of Deals Closed" },
+    ],
+    calculate: v => {
+      const days = parseFloat(v.totalDays), deals = parseFloat(v.deals);
+      if (!isFinite(days) || !isFinite(deals) || deals === 0) return null;
+      return days / deals;
+    },
+    unit: "days", precision: 1,
+  },
+  "21": {
+    formula: "(Actual Sales ÷ Sales Quota) × 100",
+    inputs: [
+      { id: "actual", label: "Actual Sales ($)" },
+      { id: "quota", label: "Sales Quota / Target ($)" },
+    ],
+    calculate: v => {
+      const actual = parseFloat(v.actual), quota = parseFloat(v.quota);
+      if (!isFinite(actual) || !isFinite(quota) || quota === 0) return null;
+      return (actual / quota) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "22": {
+    formula: "Number of Open Deals × Average Deal Value",
+    inputs: [
+      { id: "deals", label: "Number of Open Deals in Pipeline" },
+      { id: "avgValue", label: "Average Deal Value ($)" },
+    ],
+    calculate: v => {
+      const deals = parseFloat(v.deals), avg = parseFloat(v.avgValue);
+      if (!isFinite(deals) || !isFinite(avg)) return null;
+      return deals * avg;
+    },
+    unit: "$", precision: 2,
+  },
+  "23": {
+    formula: "(Deals Won ÷ Total Deals Closed) × 100",
+    inputs: [
+      { id: "won", label: "Deals Won" },
+      { id: "total", label: "Total Deals Closed (Won + Lost)" },
+    ],
+    calculate: v => {
+      const won = parseFloat(v.won), total = parseFloat(v.total);
+      if (!isFinite(won) || !isFinite(total) || total === 0) return null;
+      return (won / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "24": {
+    formula: "((Qualified Leads This Month − Qualified Leads Last Month) ÷ Qualified Leads Last Month) × 100",
+    inputs: [
+      { id: "curr", label: "Qualified Leads This Month" },
+      { id: "prev", label: "Qualified Leads Last Month" },
+    ],
+    calculate: v => {
+      const curr = parseFloat(v.curr), prev = parseFloat(v.prev);
+      if (!isFinite(curr) || !isFinite(prev) || prev === 0) return null;
+      return ((curr - prev) / prev) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "25": {
+    formula: "(Opportunities × Avg. Deal Value × Win Rate%) ÷ Sales Cycle Length",
+    inputs: [
+      { id: "opps", label: "Number of Open Opportunities" },
+      { id: "avgDeal", label: "Average Deal Value ($)" },
+      { id: "winRate", label: "Win Rate (%)" },
+      { id: "cycleLength", label: "Average Sales Cycle Length (days)" },
+    ],
+    calculate: v => {
+      const opps = parseFloat(v.opps), avg = parseFloat(v.avgDeal),
+            wr = parseFloat(v.winRate), cycle = parseFloat(v.cycleLength);
+      if ([opps, avg, wr, cycle].some(x => !isFinite(x)) || cycle === 0) return null;
+      return (opps * avg * (wr / 100)) / cycle;
+    },
+    unit: "$/day", precision: 2,
+  },
+  "26": {
+    formula: "(Upsell / Cross-sell Revenue ÷ Total Revenue) × 100",
+    inputs: [
+      { id: "upsellRevenue", label: "Upsell / Cross-sell Revenue ($)" },
+      { id: "totalRevenue", label: "Total Revenue ($)" },
+    ],
+    calculate: v => {
+      const up = parseFloat(v.upsellRevenue), total = parseFloat(v.totalRevenue);
+      if (!isFinite(up) || !isFinite(total) || total === 0) return null;
+      return (up / total) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "27": {
+    formula: "(Won Opportunities ÷ Total Opportunities) × 100",
+    inputs: [
+      { id: "won", label: "Opportunities Won" },
+      { id: "total", label: "Total Opportunities" },
+    ],
+    calculate: v => {
+      const won = parseFloat(v.won), total = parseFloat(v.total);
+      if (!isFinite(won) || !isFinite(total) || total === 0) return null;
+      return (won / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+
+  // ── MARKETING ─────────────────────────────────────────────────────────────────
+  "28": {
+    formula: "Total Sales & Marketing Spend ÷ New Customers Acquired",
+    inputs: [
+      { id: "spend", label: "Total Sales & Marketing Spend ($)" },
+      { id: "customers", label: "New Customers Acquired" },
+    ],
+    calculate: v => {
+      const spend = parseFloat(v.spend), cust = parseFloat(v.customers);
+      if (!isFinite(spend) || !isFinite(cust) || cust === 0) return null;
+      return spend / cust;
+    },
+    unit: "$/customer", precision: 2,
+  },
+  "29": {
+    formula: "Revenue Generated from Ads ÷ Total Ad Spend",
+    inputs: [
+      { id: "revenue", label: "Revenue Generated from Ads ($)" },
+      { id: "spend", label: "Total Ad Spend ($)" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), spend = parseFloat(v.spend);
+      if (!isFinite(rev) || !isFinite(spend) || spend === 0) return null;
+      return rev / spend;
+    },
+    unit: "x", precision: 2,
+  },
+  "30": {
+    formula: "(Total Clicks ÷ Total Impressions) × 100",
+    inputs: [
+      { id: "clicks", label: "Total Clicks" },
+      { id: "impressions", label: "Total Impressions" },
+    ],
+    calculate: v => {
+      const clicks = parseFloat(v.clicks), impr = parseFloat(v.impressions);
+      if (!isFinite(clicks) || !isFinite(impr) || impr === 0) return null;
+      return (clicks / impr) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "31": {
+    formula: "Total Ad Spend ÷ Total Clicks",
+    inputs: [
+      { id: "spend", label: "Total Ad Spend ($)" },
+      { id: "clicks", label: "Total Clicks" },
+    ],
+    calculate: v => {
+      const spend = parseFloat(v.spend), clicks = parseFloat(v.clicks);
+      if (!isFinite(spend) || !isFinite(clicks) || clicks === 0) return null;
+      return spend / clicks;
+    },
+    unit: "$/click", precision: 2,
+  },
+  "32": {
+    formula: "Total Marketing Spend ÷ Total Leads Generated",
+    inputs: [
+      { id: "spend", label: "Total Marketing Spend ($)" },
+      { id: "leads", label: "Total Leads Generated" },
+    ],
+    calculate: v => {
+      const spend = parseFloat(v.spend), leads = parseFloat(v.leads);
+      if (!isFinite(spend) || !isFinite(leads) || leads === 0) return null;
+      return spend / leads;
+    },
+    unit: "$/lead", precision: 2,
+  },
+  "33": {
+    formula: "Total Leads × (MQL Qualification Rate ÷ 100)",
+    inputs: [
+      { id: "leads", label: "Total Leads" },
+      { id: "rate", label: "MQL Qualification Rate (%)" },
+    ],
+    calculate: v => {
+      const leads = parseFloat(v.leads), rate = parseFloat(v.rate);
+      if (!isFinite(leads) || !isFinite(rate)) return null;
+      return Math.round(leads * (rate / 100));
+    },
+    unit: "MQLs", precision: 0,
+  },
+  "34": {
+    formula: "(Respondents Aware of Brand ÷ Total Survey Respondents) × 100",
+    inputs: [
+      { id: "aware", label: "Respondents Aware of Brand" },
+      { id: "total", label: "Total Survey Respondents" },
+    ],
+    calculate: v => {
+      const aware = parseFloat(v.aware), total = parseFloat(v.total);
+      if (!isFinite(aware) || !isFinite(total) || total === 0) return null;
+      return (aware / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "35": {
+    formula: "Open Rate: (Emails Opened ÷ Emails Delivered) × 100  |  Click Rate: (Emails Clicked ÷ Emails Delivered) × 100",
+    inputs: [
+      { id: "opened", label: "Emails Opened" },
+      { id: "clicked", label: "Emails Clicked" },
+      { id: "delivered", label: "Emails Delivered" },
+    ],
+    calculate: v => {
+      const opened = parseFloat(v.opened), clicked = parseFloat(v.clicked), delivered = parseFloat(v.delivered);
+      if (!isFinite(opened) || !isFinite(clicked) || !isFinite(delivered) || delivered === 0) return null;
+      const openRate = (opened / delivered) * 100;
+      const clickRate = (clicked / delivered) * 100;
+      return `Open Rate: ${openRate.toFixed(1)}%   |   Click Rate: ${clickRate.toFixed(1)}%`;
+    },
+    unit: "", precision: 1, multiResult: true,
+  },
+  "36": {
+    formula: "(Marketing Attributed Revenue ÷ Total Revenue) × 100",
+    inputs: [
+      { id: "mktRevenue", label: "Marketing Attributed Revenue ($)" },
+      { id: "totalRevenue", label: "Total Revenue ($)" },
+    ],
+    calculate: v => {
+      const mkt = parseFloat(v.mktRevenue), total = parseFloat(v.totalRevenue);
+      if (!isFinite(mkt) || !isFinite(total) || total === 0) return null;
+      return (mkt / total) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "37": {
+    formula: "(Your Brand Mentions ÷ Total Market Mentions) × 100",
+    inputs: [
+      { id: "brand", label: "Your Brand Mentions" },
+      { id: "total", label: "Total Market Mentions (all brands combined)" },
+    ],
+    calculate: v => {
+      const brand = parseFloat(v.brand), total = parseFloat(v.total);
+      if (!isFinite(brand) || !isFinite(total) || total === 0) return null;
+      return (brand / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "38": {
+    formula: "(Total Engagements ÷ Total Reach) × 100",
+    inputs: [
+      { id: "engagements", label: "Total Engagements (likes + comments + shares)" },
+      { id: "reach", label: "Total Reach (unique users)" },
+    ],
+    calculate: v => {
+      const eng = parseFloat(v.engagements), reach = parseFloat(v.reach);
+      if (!isFinite(eng) || !isFinite(reach) || reach === 0) return null;
+      return (eng / reach) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "39": {
+    formula: "((Current Organic Visits − Prior Organic Visits) ÷ Prior Organic Visits) × 100",
+    inputs: [
+      { id: "curr", label: "Current Period Organic Visits" },
+      { id: "prev", label: "Prior Period Organic Visits" },
+    ],
+    calculate: v => {
+      const curr = parseFloat(v.curr), prev = parseFloat(v.prev);
+      if (!isFinite(curr) || !isFinite(prev) || prev === 0) return null;
+      return ((curr - prev) / prev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "40": {
+    formula: "Total Time on Page ÷ Total Page Views",
+    inputs: [
+      { id: "totalTime", label: "Total Time on Page (seconds)" },
+      { id: "pageViews", label: "Total Page Views" },
+    ],
+    calculate: v => {
+      const time = parseFloat(v.totalTime), views = parseFloat(v.pageViews);
+      if (!isFinite(time) || !isFinite(views) || views === 0) return null;
+      return time / views;
+    },
+    unit: "sec/view", precision: 1,
+  },
+  "41": {
+    formula: "Total Impressions ÷ Unique Reach",
+    inputs: [
+      { id: "impressions", label: "Total Impressions" },
+      { id: "reach", label: "Unique Reach (unique users)" },
+    ],
+    calculate: v => {
+      const impr = parseFloat(v.impressions), reach = parseFloat(v.reach);
+      if (!isFinite(impr) || !isFinite(reach) || reach === 0) return null;
+      return impr / reach;
+    },
+    unit: "x per user", precision: 2,
+  },
+
+  // ── CUSTOMER ──────────────────────────────────────────────────────────────────
+  "42": {
+    formula: "% Promoters − % Detractors  (where % = count ÷ total respondents × 100)",
+    inputs: [
+      { id: "promoters", label: "Promoters (gave score 9 or 10)" },
+      { id: "detractors", label: "Detractors (gave score 0 – 6)" },
+      { id: "total", label: "Total Survey Respondents" },
+    ],
+    calculate: v => {
+      const p = parseFloat(v.promoters), d = parseFloat(v.detractors), t = parseFloat(v.total);
+      if (!isFinite(p) || !isFinite(d) || !isFinite(t) || t === 0) return null;
+      return ((p / t) * 100) - ((d / t) * 100);
+    },
+    unit: "(NPS score)", precision: 0,
+  },
+  "43": {
+    formula: "(Satisfied Responses ÷ Total Responses) × 100",
+    inputs: [
+      { id: "satisfied", label: "Satisfied Responses (rated 4 or 5 on 5-pt scale)" },
+      { id: "total", label: "Total Responses" },
+    ],
+    calculate: v => {
+      const sat = parseFloat(v.satisfied), total = parseFloat(v.total);
+      if (!isFinite(sat) || !isFinite(total) || total === 0) return null;
+      return (sat / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "44": {
+    formula: "Average Purchase Value × Purchase Frequency × Customer Lifespan",
+    inputs: [
+      { id: "avgPurchase", label: "Average Purchase Value ($)" },
+      { id: "frequency", label: "Purchase Frequency (times per year)" },
+      { id: "lifespan", label: "Average Customer Lifespan (years)" },
+    ],
+    calculate: v => {
+      const avg = parseFloat(v.avgPurchase), freq = parseFloat(v.frequency), life = parseFloat(v.lifespan);
+      if (!isFinite(avg) || !isFinite(freq) || !isFinite(life)) return null;
+      return avg * freq * life;
+    },
+    unit: "$", precision: 2,
+  },
+  "45": {
+    formula: "((Customers at End − New Customers) ÷ Customers at Start) × 100",
+    inputs: [
+      { id: "endCustomers", label: "Customers at End of Period" },
+      { id: "newCustomers", label: "New Customers Acquired in Period" },
+      { id: "startCustomers", label: "Customers at Start of Period" },
+    ],
+    calculate: v => {
+      const end = parseFloat(v.endCustomers), newC = parseFloat(v.newCustomers), start = parseFloat(v.startCustomers);
+      if (!isFinite(end) || !isFinite(newC) || !isFinite(start) || start === 0) return null;
+      return ((end - newC) / start) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "46": {
+    formula: "(Customers Lost ÷ Customers at Start of Period) × 100",
+    inputs: [
+      { id: "lost", label: "Customers Lost in Period" },
+      { id: "start", label: "Customers at Start of Period" },
+    ],
+    calculate: v => {
+      const lost = parseFloat(v.lost), start = parseFloat(v.start);
+      if (!isFinite(lost) || !isFinite(start) || start === 0) return null;
+      return (lost / start) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "47": {
+    formula: "Sum of CES Scores ÷ Number of Respondents",
+    inputs: [
+      { id: "totalScore", label: "Sum of All CES Scores" },
+      { id: "respondents", label: "Number of Respondents" },
+    ],
+    calculate: v => {
+      const total = parseFloat(v.totalScore), resp = parseFloat(v.respondents);
+      if (!isFinite(total) || !isFinite(resp) || resp === 0) return null;
+      return total / resp;
+    },
+    unit: "(avg score)", precision: 2,
+  },
+  "48": {
+    formula: "Average of: Usage Score + Engagement Score + NPS Score + Support Score",
+    inputs: [
+      { id: "usage", label: "Usage Score (0 – 100)" },
+      { id: "engagement", label: "Engagement Score (0 – 100)" },
+      { id: "nps", label: "NPS Contribution Score (0 – 100)" },
+      { id: "support", label: "Support / Satisfaction Score (0 – 100)" },
+    ],
+    calculate: v => {
+      const vals = [v.usage, v.engagement, v.nps, v.support].map(parseFloat);
+      if (vals.some(x => !isFinite(x))) return null;
+      return vals.reduce((a, b) => a + b, 0) / vals.length;
+    },
+    unit: "(composite)", precision: 1,
+  },
+  "49": {
+    formula: "(Users Using Feature ÷ Total Active Users) × 100",
+    inputs: [
+      { id: "featureUsers", label: "Users Using the Feature / Product" },
+      { id: "totalUsers", label: "Total Active Users" },
+    ],
+    calculate: v => {
+      const feat = parseFloat(v.featureUsers), total = parseFloat(v.totalUsers);
+      if (!isFinite(feat) || !isFinite(total) || total === 0) return null;
+      return (feat / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "50": {
+    formula: "(Customers with More Than 1 Purchase ÷ Total Customers) × 100",
+    inputs: [
+      { id: "repeat", label: "Customers with More Than 1 Purchase" },
+      { id: "total", label: "Total Customers" },
+    ],
+    calculate: v => {
+      const repeat = parseFloat(v.repeat), total = parseFloat(v.total);
+      if (!isFinite(repeat) || !isFinite(total) || total === 0) return null;
+      return (repeat / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "51": {
+    formula: "Total Customer Interactions ÷ Total Active Customers",
+    inputs: [
+      { id: "interactions", label: "Total Customer Interactions" },
+      { id: "customers", label: "Total Active Customers" },
+    ],
+    calculate: v => {
+      const inter = parseFloat(v.interactions), cust = parseFloat(v.customers);
+      if (!isFinite(inter) || !isFinite(cust) || cust === 0) return null;
+      return inter / cust;
+    },
+    unit: "interactions/customer", precision: 2,
+  },
+  "52": {
+    formula: "(Customers Who Referred Others ÷ Total Customers) × 100",
+    inputs: [
+      { id: "referrers", label: "Customers Who Made a Referral" },
+      { id: "total", label: "Total Customers" },
+    ],
+    calculate: v => {
+      const ref = parseFloat(v.referrers), total = parseFloat(v.total);
+      if (!isFinite(ref) || !isFinite(total) || total === 0) return null;
+      return (ref / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "53": {
+    formula: "(Customer Spend with Your Company ÷ Total Customer Spend in Category) × 100",
+    inputs: [
+      { id: "yourSpend", label: "Customer Spend with Your Company ($)" },
+      { id: "totalSpend", label: "Total Customer Spend in Category ($)" },
+    ],
+    calculate: v => {
+      const yours = parseFloat(v.yourSpend), total = parseFloat(v.totalSpend);
+      if (!isFinite(yours) || !isFinite(total) || total === 0) return null;
+      return (yours / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+
+  // ── OPERATIONAL ───────────────────────────────────────────────────────────────
+  "54": {
+    formula: "Availability (%) × Performance (%) × Quality (%) ÷ 10000",
+    inputs: [
+      { id: "availability", label: "Availability (%)" },
+      { id: "performance", label: "Performance (%)" },
+      { id: "quality", label: "Quality (%)" },
+    ],
+    calculate: v => {
+      const a = parseFloat(v.availability), p = parseFloat(v.performance), q = parseFloat(v.quality);
+      if (!isFinite(a) || !isFinite(p) || !isFinite(q)) return null;
+      return (a / 100) * (p / 100) * (q / 100) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "55": {
+    formula: "Total Fulfillment Time ÷ Number of Orders",
+    inputs: [
+      { id: "totalTime", label: "Total Fulfillment Time (hours) across all orders" },
+      { id: "orders", label: "Number of Orders" },
+    ],
+    calculate: v => {
+      const time = parseFloat(v.totalTime), orders = parseFloat(v.orders);
+      if (!isFinite(time) || !isFinite(orders) || orders === 0) return null;
+      return time / orders;
+    },
+    unit: "hours/order", precision: 2,
+  },
+  "56": {
+    formula: "Cost of Goods Sold ÷ Average Inventory Value",
+    inputs: [
+      { id: "cogs", label: "Cost of Goods Sold — COGS ($)" },
+      { id: "avgInventory", label: "Average Inventory Value ($)" },
+    ],
+    calculate: v => {
+      const cogs = parseFloat(v.cogs), inv = parseFloat(v.avgInventory);
+      if (!isFinite(cogs) || !isFinite(inv) || inv === 0) return null;
+      return cogs / inv;
+    },
+    unit: "x/year", precision: 2,
+  },
+  "57": {
+    formula: "(Actual Output ÷ Maximum Possible Output) × 100",
+    inputs: [
+      { id: "actual", label: "Actual Output (units)" },
+      { id: "max", label: "Maximum Possible Output (units)" },
+    ],
+    calculate: v => {
+      const actual = parseFloat(v.actual), max = parseFloat(v.max);
+      if (!isFinite(actual) || !isFinite(max) || max === 0) return null;
+      return (actual / max) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "58": {
+    formula: "(Orders Delivered on Time ÷ Total Orders Delivered) × 100",
+    inputs: [
+      { id: "onTime", label: "Orders Delivered on Time" },
+      { id: "total", label: "Total Orders Delivered" },
+    ],
+    calculate: v => {
+      const onTime = parseFloat(v.onTime), total = parseFloat(v.total);
+      if (!isFinite(onTime) || !isFinite(total) || total === 0) return null;
+      return (onTime / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "59": {
+    formula: "Total Production Cost ÷ Total Units Produced",
+    inputs: [
+      { id: "cost", label: "Total Production Cost ($)" },
+      { id: "units", label: "Total Units Produced" },
+    ],
+    calculate: v => {
+      const cost = parseFloat(v.cost), units = parseFloat(v.units);
+      if (!isFinite(cost) || !isFinite(units) || units === 0) return null;
+      return cost / units;
+    },
+    unit: "$/unit", precision: 2,
+  },
+  "60": {
+    formula: "Total Units Produced ÷ Time Period",
+    inputs: [
+      { id: "units", label: "Total Units Produced" },
+      { id: "time", label: "Time Period (hours)" },
+    ],
+    calculate: v => {
+      const units = parseFloat(v.units), time = parseFloat(v.time);
+      if (!isFinite(units) || !isFinite(time) || time === 0) return null;
+      return units / time;
+    },
+    unit: "units/hour", precision: 2,
+  },
+  "61": {
+    formula: "Total Lead Time Across All Orders ÷ Number of Orders",
+    inputs: [
+      { id: "totalLeadTime", label: "Total Lead Time Across All Orders (days)" },
+      { id: "orders", label: "Number of Orders" },
+    ],
+    calculate: v => {
+      const time = parseFloat(v.totalLeadTime), orders = parseFloat(v.orders);
+      if (!isFinite(time) || !isFinite(orders) || orders === 0) return null;
+      return time / orders;
+    },
+    unit: "days", precision: 1,
+  },
+  "62": {
+    formula: "((Recorded Inventory − Actual Inventory) ÷ Recorded Inventory) × 100",
+    inputs: [
+      { id: "recorded", label: "Recorded Inventory Value ($)" },
+      { id: "actual", label: "Actual Inventory Value ($)" },
+    ],
+    calculate: v => {
+      const rec = parseFloat(v.recorded), actual = parseFloat(v.actual);
+      if (!isFinite(rec) || !isFinite(actual) || rec === 0) return null;
+      return ((rec - actual) / rec) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "63": {
+    formula: "(Tasks Following Defined Process ÷ Total Tasks Completed) × 100",
+    inputs: [
+      { id: "adherent", label: "Tasks Following the Defined Process" },
+      { id: "total", label: "Total Tasks Completed" },
+    ],
+    calculate: v => {
+      const adh = parseFloat(v.adherent), total = parseFloat(v.total);
+      if (!isFinite(adh) || !isFinite(total) || total === 0) return null;
+      return (adh / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "64": {
+    formula: "Total Repair / Downtime ÷ Number of Repair Incidents",
+    inputs: [
+      { id: "totalTime", label: "Total Repair / Downtime (hours)" },
+      { id: "incidents", label: "Number of Repair Incidents" },
+    ],
+    calculate: v => {
+      const time = parseFloat(v.totalTime), incidents = parseFloat(v.incidents);
+      if (!isFinite(time) || !isFinite(incidents) || incidents === 0) return null;
+      return time / incidents;
+    },
+    unit: "hours", precision: 2,
+  },
+
+  // ── HR & PEOPLE ───────────────────────────────────────────────────────────────
+  "65": {
+    formula: "(Employees Who Left ÷ Average Headcount) × 100",
+    inputs: [
+      { id: "left", label: "Employees Who Left in Period" },
+      { id: "headcount", label: "Average Headcount in Period" },
+    ],
+    calculate: v => {
+      const left = parseFloat(v.left), hc = parseFloat(v.headcount);
+      if (!isFinite(left) || !isFinite(hc) || hc === 0) return null;
+      return (left / hc) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "66": {
+    formula: "Sum of All Survey Scores ÷ Number of Respondents",
+    inputs: [
+      { id: "totalScore", label: "Sum of All Survey Scores" },
+      { id: "respondents", label: "Number of Respondents" },
+    ],
+    calculate: v => {
+      const total = parseFloat(v.totalScore), resp = parseFloat(v.respondents);
+      if (!isFinite(total) || !isFinite(resp) || resp === 0) return null;
+      return total / resp;
+    },
+    unit: "(avg score)", precision: 2,
+  },
+  "67": {
+    formula: "(Total Days Absent ÷ Total Available Working Days) × 100",
+    inputs: [
+      { id: "absent", label: "Total Days Absent (all employees combined)" },
+      { id: "available", label: "Total Available Working Days (headcount × working days)" },
+    ],
+    calculate: v => {
+      const absent = parseFloat(v.absent), avail = parseFloat(v.available);
+      if (!isFinite(absent) || !isFinite(avail) || avail === 0) return null;
+      return (absent / avail) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "68": {
+    formula: "Total Days from Job Post to Accepted Offer ÷ Number of Hires",
+    inputs: [
+      { id: "totalDays", label: "Total Days (all hires combined)" },
+      { id: "hires", label: "Number of Hires" },
+    ],
+    calculate: v => {
+      const days = parseFloat(v.totalDays), hires = parseFloat(v.hires);
+      if (!isFinite(days) || !isFinite(hires) || hires === 0) return null;
+      return days / hires;
+    },
+    unit: "days", precision: 1,
+  },
+  "69": {
+    formula: "Total Hiring Costs ÷ Number of Hires",
+    inputs: [
+      { id: "totalCost", label: "Total Hiring Costs ($)" },
+      { id: "hires", label: "Number of Hires" },
+    ],
+    calculate: v => {
+      const cost = parseFloat(v.totalCost), hires = parseFloat(v.hires);
+      if (!isFinite(cost) || !isFinite(hires) || hires === 0) return null;
+      return cost / hires;
+    },
+    unit: "$/hire", precision: 2,
+  },
+  "70": {
+    formula: "(Employees Who Completed Training ÷ Total Enrolled) × 100",
+    inputs: [
+      { id: "completed", label: "Employees Who Completed Training" },
+      { id: "enrolled", label: "Total Enrolled" },
+    ],
+    calculate: v => {
+      const comp = parseFloat(v.completed), enr = parseFloat(v.enrolled);
+      if (!isFinite(comp) || !isFinite(enr) || enr === 0) return null;
+      return (comp / enr) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "71": {
+    formula: "(Internal Promotions ÷ Total Promotions) × 100",
+    inputs: [
+      { id: "internal", label: "Number of Internal Promotions" },
+      { id: "total", label: "Total Promotions (internal + external fills)" },
+    ],
+    calculate: v => {
+      const int_ = parseFloat(v.internal), total = parseFloat(v.total);
+      if (!isFinite(int_) || !isFinite(total) || total === 0) return null;
+      return (int_ / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "72": {
+    formula: "(HR Staff ÷ Total Employees) × 100",
+    inputs: [
+      { id: "hrStaff", label: "Number of HR Staff" },
+      { id: "employees", label: "Total Number of Employees" },
+    ],
+    calculate: v => {
+      const hr = parseFloat(v.hrStaff), emp = parseFloat(v.employees);
+      if (!isFinite(hr) || !isFinite(emp) || emp === 0) return null;
+      return (hr / emp) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "73": {
+    formula: "(High Performers ÷ Total Employees) × 100",
+    inputs: [
+      { id: "highPerformers", label: "Number of High Performers" },
+      { id: "total", label: "Total Employees" },
+    ],
+    calculate: v => {
+      const hp = parseFloat(v.highPerformers), total = parseFloat(v.total);
+      if (!isFinite(hp) || !isFinite(total) || total === 0) return null;
+      return (hp / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "74": {
+    formula: "Sum of Manager Effectiveness Scores ÷ Number of Respondents",
+    inputs: [
+      { id: "totalScore", label: "Sum of All Manager Effectiveness Scores" },
+      { id: "respondents", label: "Number of Respondents" },
+    ],
+    calculate: v => {
+      const total = parseFloat(v.totalScore), resp = parseFloat(v.respondents);
+      if (!isFinite(total) || !isFinite(resp) || resp === 0) return null;
+      return total / resp;
+    },
+    unit: "(avg score)", precision: 2,
+  },
+  "75": {
+    formula: "(Top Performers Retained ÷ Total Top Performers at Start) × 100",
+    inputs: [
+      { id: "retained", label: "Top Performers Still at Company" },
+      { id: "total", label: "Total Top Performers at Start of Period" },
+    ],
+    calculate: v => {
+      const ret = parseFloat(v.retained), total = parseFloat(v.total);
+      if (!isFinite(ret) || !isFinite(total) || total === 0) return null;
+      return (ret / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+
+  // ── TECHNOLOGY / IT ───────────────────────────────────────────────────────────
+  "76": {
+    formula: "((Total Time − Downtime) ÷ Total Time) × 100",
+    inputs: [
+      { id: "totalTime", label: "Total Time in Period (hours)" },
+      { id: "downtime", label: "Total Downtime in Period (hours)" },
+    ],
+    calculate: v => {
+      const total = parseFloat(v.totalTime), down = parseFloat(v.downtime);
+      if (!isFinite(total) || !isFinite(down) || total === 0) return null;
+      return ((total - down) / total) * 100;
+    },
+    unit: "%", precision: 3,
+  },
+  "77": {
+    formula: "Total Uptime ÷ Number of Failures",
+    inputs: [
+      { id: "uptime", label: "Total Uptime (hours)" },
+      { id: "failures", label: "Number of Failures" },
+    ],
+    calculate: v => {
+      const uptime = parseFloat(v.uptime), failures = parseFloat(v.failures);
+      if (!isFinite(uptime) || !isFinite(failures) || failures === 0) return null;
+      return uptime / failures;
+    },
+    unit: "hours", precision: 2,
+  },
+  "78": {
+    formula: "(Total IT Costs ÷ Total Revenue) × 100",
+    inputs: [
+      { id: "itCosts", label: "Total IT Costs ($)" },
+      { id: "revenue", label: "Total Revenue ($)" },
+    ],
+    calculate: v => {
+      const it = parseFloat(v.itCosts), rev = parseFloat(v.revenue);
+      if (!isFinite(it) || !isFinite(rev) || rev === 0) return null;
+      return (it / rev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "79": {
+    formula: "Total Resolution Time ÷ Number of Incidents",
+    inputs: [
+      { id: "totalTime", label: "Total Resolution Time (hours)" },
+      { id: "incidents", label: "Number of Incidents" },
+    ],
+    calculate: v => {
+      const time = parseFloat(v.totalTime), inc = parseFloat(v.incidents);
+      if (!isFinite(time) || !isFinite(inc) || inc === 0) return null;
+      return time / inc;
+    },
+    unit: "hours/incident", precision: 2,
+  },
+  "80": {
+    formula: "(Remediation Cost ÷ Total Development Cost) × 100",
+    inputs: [
+      { id: "remediationCost", label: "Cost to Remediate Technical Debt ($)" },
+      { id: "devCost", label: "Total Development Cost ($)" },
+    ],
+    calculate: v => {
+      const rem = parseFloat(v.remediationCost), dev = parseFloat(v.devCost);
+      if (!isFinite(rem) || !isFinite(dev) || dev === 0) return null;
+      return (rem / dev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "81": {
+    formula: "Total Deployments ÷ Number of Weeks",
+    inputs: [
+      { id: "deployments", label: "Total Number of Deployments" },
+      { id: "weeks", label: "Number of Weeks in Period" },
+    ],
+    calculate: v => {
+      const dep = parseFloat(v.deployments), weeks = parseFloat(v.weeks);
+      if (!isFinite(dep) || !isFinite(weeks) || weeks === 0) return null;
+      return dep / weeks;
+    },
+    unit: "deploys/week", precision: 2,
+  },
+  "82": {
+    formula: "(Failed / Rolled-back Changes ÷ Total Changes Deployed) × 100",
+    inputs: [
+      { id: "failed", label: "Failed or Rolled-back Changes" },
+      { id: "total", label: "Total Changes Deployed" },
+    ],
+    calculate: v => {
+      const failed = parseFloat(v.failed), total = parseFloat(v.total);
+      if (!isFinite(failed) || !isFinite(total) || total === 0) return null;
+      return (failed / total) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "83": {
+    formula: "Total Response Time ÷ Number of API Requests",
+    inputs: [
+      { id: "totalTime", label: "Total Response Time (milliseconds)" },
+      { id: "requests", label: "Number of API Requests" },
+    ],
+    calculate: v => {
+      const time = parseFloat(v.totalTime), req = parseFloat(v.requests);
+      if (!isFinite(time) || !isFinite(req) || req === 0) return null;
+      return time / req;
+    },
+    unit: "ms", precision: 2,
+  },
+  "84": {
+    formula: "(Valid / Accurate Records ÷ Total Records) × 100",
+    inputs: [
+      { id: "valid", label: "Valid / Accurate Records" },
+      { id: "total", label: "Total Records" },
+    ],
+    calculate: v => {
+      const valid = parseFloat(v.valid), total = parseFloat(v.total);
+      if (!isFinite(valid) || !isFinite(total) || total === 0) return null;
+      return (valid / total) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "85": {
+    formula: "(Active Users ÷ Licenses Purchased) × 100",
+    inputs: [
+      { id: "activeUsers", label: "Active Users (currently using the software)" },
+      { id: "licenses", label: "Total Licenses / Seats Purchased" },
+    ],
+    calculate: v => {
+      const active = parseFloat(v.activeUsers), lic = parseFloat(v.licenses);
+      if (!isFinite(active) || !isFinite(lic) || lic === 0) return null;
+      return (active / lic) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+
+  // ── E-COMMERCE / DIGITAL ──────────────────────────────────────────────────────
+  "86": {
+    formula: "((Carts Created − Completed Purchases) ÷ Carts Created) × 100",
+    inputs: [
+      { id: "carts", label: "Carts Created / Initiated" },
+      { id: "purchases", label: "Completed Purchases" },
+    ],
+    calculate: v => {
+      const carts = parseFloat(v.carts), purchases = parseFloat(v.purchases);
+      if (!isFinite(carts) || !isFinite(purchases) || carts === 0) return null;
+      return ((carts - purchases) / carts) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "87": {
+    formula: "Total Revenue ÷ Total Number of Orders",
+    inputs: [
+      { id: "revenue", label: "Total Revenue ($)" },
+      { id: "orders", label: "Total Number of Orders" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), orders = parseFloat(v.orders);
+      if (!isFinite(rev) || !isFinite(orders) || orders === 0) return null;
+      return rev / orders;
+    },
+    unit: "$/order", precision: 2,
+  },
+  "88": {
+    formula: "Total Revenue ÷ Total Site Visitors",
+    inputs: [
+      { id: "revenue", label: "Total Revenue ($)" },
+      { id: "visitors", label: "Total Site Visitors" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), vis = parseFloat(v.visitors);
+      if (!isFinite(rev) || !isFinite(vis) || vis === 0) return null;
+      return rev / vis;
+    },
+    unit: "$/visitor", precision: 2,
+  },
+  "89": {
+    formula: "Revenue Generated from Ads ÷ Total Ad Spend",
+    inputs: [
+      { id: "revenue", label: "Revenue Generated from Ads ($)" },
+      { id: "spend", label: "Total Ad Spend ($)" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), spend = parseFloat(v.spend);
+      if (!isFinite(rev) || !isFinite(spend) || spend === 0) return null;
+      return rev / spend;
+    },
+    unit: "x", precision: 2,
+  },
+  "90": {
+    formula: "(Completed Checkouts ÷ Initiated Checkouts) × 100",
+    inputs: [
+      { id: "completed", label: "Completed Checkouts" },
+      { id: "initiated", label: "Initiated Checkouts" },
+    ],
+    calculate: v => {
+      const comp = parseFloat(v.completed), init = parseFloat(v.initiated);
+      if (!isFinite(comp) || !isFinite(init) || init === 0) return null;
+      return (comp / init) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "91": {
+    formula: "(Exits from Search Results Page ÷ Total Searches) × 100",
+    inputs: [
+      { id: "exits", label: "Exits from Search Results Page" },
+      { id: "searches", label: "Total Searches" },
+    ],
+    calculate: v => {
+      const exits = parseFloat(v.exits), searches = parseFloat(v.searches);
+      if (!isFinite(exits) || !isFinite(searches) || searches === 0) return null;
+      return (exits / searches) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "92": {
+    formula: "(Wishlist Items Purchased ÷ Total Wishlist Items Added) × 100",
+    inputs: [
+      { id: "purchased", label: "Wishlist Items Purchased" },
+      { id: "added", label: "Total Wishlist Items Added" },
+    ],
+    calculate: v => {
+      const purch = parseFloat(v.purchased), added = parseFloat(v.added);
+      if (!isFinite(purch) || !isFinite(added) || added === 0) return null;
+      return (purch / added) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "93": {
+    formula: "(Failed Payments ÷ Total Payment Attempts) × 100",
+    inputs: [
+      { id: "failed", label: "Failed Payment Attempts" },
+      { id: "total", label: "Total Payment Attempts" },
+    ],
+    calculate: v => {
+      const failed = parseFloat(v.failed), total = parseFloat(v.total);
+      if (!isFinite(failed) || !isFinite(total) || total === 0) return null;
+      return (failed / total) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "94": {
+    formula: "(Number of Refunds ÷ Total Orders) × 100",
+    inputs: [
+      { id: "refunds", label: "Number of Refunds" },
+      { id: "orders", label: "Total Orders" },
+    ],
+    calculate: v => {
+      const ref = parseFloat(v.refunds), orders = parseFloat(v.orders);
+      if (!isFinite(ref) || !isFinite(orders) || orders === 0) return null;
+      return (ref / orders) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "95": {
+    formula: "Mobile: (Mobile Conversions ÷ Mobile Visitors) × 100   |   Desktop: (Desktop Conversions ÷ Desktop Visitors) × 100",
+    inputs: [
+      { id: "mobileConv", label: "Mobile Conversions" },
+      { id: "mobileVis", label: "Mobile Visitors" },
+      { id: "desktopConv", label: "Desktop Conversions" },
+      { id: "desktopVis", label: "Desktop Visitors" },
+    ],
+    calculate: v => {
+      const mConv = parseFloat(v.mobileConv), mVis = parseFloat(v.mobileVis);
+      const dConv = parseFloat(v.desktopConv), dVis = parseFloat(v.desktopVis);
+      if ([mConv, mVis, dConv, dVis].some(x => !isFinite(x)) || mVis === 0 || dVis === 0) return null;
+      const mRate = (mConv / mVis) * 100;
+      const dRate = (dConv / dVis) * 100;
+      return `Mobile: ${mRate.toFixed(1)}%   |   Desktop: ${dRate.toFixed(1)}%`;
+    },
+    unit: "", precision: 1, multiResult: true,
+  },
+};
+
+  </script>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    const kpis = kpiData;
+
+    const categories = [
+      'Financial','Sales','Marketing','Customer',
+      'Operational','HR & People','Technology / IT','E-commerce / Digital',
+    ];
+
+    const generalTags = [
+      'Cost Management','Customer Acquisition','Customer Experience','Customer Retention',
+      'Data & Analytics','Digital Performance','Financial Health','Growth',
+      'Marketing & Brand','Pricing','Process Efficiency','Product','Profitability',
+      'Quality','Revenue','Risk','Supply Chain','Technology & Systems','Workforce',
+    ];
+
+    const chartIcons = {
+      'Line Chart': '📈','Bar Chart': '📊','Column Chart': '📊',
+      'Stacked Bar Chart': '📊','Stacked Column Chart': '📊','Grouped Bar Chart': '📊',
+      'Area Chart': '📉','Waterfall Chart': '🪜','Funnel Chart': '🔻',
+      'Donut Chart': '🍩','Gauge Chart': '🎯','Combo Chart (Bar + Line)': '📊',
+      'Bullet Chart': '🎯','Radar Chart': '🕸️','Heatmap': '🔥',
+      'Histogram': '📊','Box Plot': '📦',
+    };
+
+    const catDotColor = {
+      Financial: '#34d399', Sales: '#60a5fa', Marketing: '#a78bfa',
+      Customer: '#fb923c', Operational: '#22d3ee', 'HR & People': '#f472b6',
+      'Technology / IT': '#818cf8', 'E-commerce / Digital': '#facc15',
+    };
+
+    const typeStyleMap = {
+      Core:           { background: 'rgba(59,130,246,0.15)',   color: '#93c5fd', border: '1px solid rgba(59,130,246,0.3)' },
+      Supporting:     { background: 'rgba(100,116,139,0.15)',  color: '#94a3b8', border: '1px solid rgba(100,116,139,0.3)' },
+      Advanced:       { background: 'rgba(139,92,246,0.15)',   color: '#c4b5fd', border: '1px solid rgba(139,92,246,0.3)' },
+      'Lesser-Known': { background: 'rgba(100,116,139,0.12)', color: '#94a3b8', border: '1px solid rgba(100,116,139,0.25)' },
+    };
+
+    function KPICard({ kpi, isComparing, onCompareToggle, onSelect, onTagClick, onCategoryClick, onCalculate, selectedTags = [], selectedCategories = [] }) {
+      const icon = chartIcons[kpi.chartType] || '📊';
+      const dotColor = catDotColor[kpi.category] || '#818cf8';
+      const typeStyle = typeStyleMap[kpi.type] || typeStyleMap.Supporting;
+
+      return (
+        <div
+          onClick={() => onSelect(kpi)}
+          style={{
+            display: 'flex', flexDirection: 'column',
+            borderRadius: 12, overflow: 'hidden', border: '1px solid',
+            borderColor: isComparing ? 'rgba(139,92,246,0.5)' : 'rgba(51,65,85,0.4)',
+            background: isComparing ? 'rgba(109,40,217,0.07)' : 'rgba(15,23,42,0.6)',
+            cursor: 'pointer', transition: 'border-color 0.15s, background 0.15s',
+          }}
+          onMouseOver={e => { if (!isComparing) { e.currentTarget.style.borderColor = 'rgba(71,85,105,0.65)'; e.currentTarget.style.background = 'rgba(15,23,42,0.85)'; }}}
+          onMouseOut={e => { if (!isComparing) { e.currentTarget.style.borderColor = 'rgba(51,65,85,0.4)'; e.currentTarget.style.background = 'rgba(15,23,42,0.6)'; }}}
+        >
+          <div style={{ height: 3, background: dotColor, opacity: 0.7 }} />
+          <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#f1f5f9', lineHeight: 1.4, margin: 0, flex: 1 }}>
+                {kpi.name}
+              </h3>
+              <span style={{ ...typeStyle, padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 500, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                {kpi.type}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor, flexShrink: 0 }} />
+              <button
+                onClick={e => { e.stopPropagation(); onCategoryClick(kpi.category); }}
+                style={{ fontSize: 12, fontWeight: 500, color: dotColor, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: 3 }}
+              >
+                {kpi.category}
+              </button>
+            </div>
+            <p style={{
+              fontSize: 12, color: '#94a3b8', lineHeight: 1.55, margin: 0,
+              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+            }}>
+              {kpi.description}
+            </p>
+            {kpi.chartType && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                background: 'rgba(8,15,35,0.6)', border: '1px solid rgba(51,65,85,0.3)',
+                borderRadius: 8, padding: '8px 12px',
+              }}>
+                <span style={{ fontSize: 16, flexShrink: 0 }}>{icon}</span>
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ fontSize: 10, color: '#475569', margin: '0 0 2px', fontWeight: 500 }}>Recommended chart</p>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: dotColor, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {kpi.chartType}
+                  </p>
+                </div>
+              </div>
+            )}
+            {kpi.generalTags.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {kpi.generalTags.map(tag => {
+                  const active = selectedTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      onClick={e => { e.stopPropagation(); onTagClick(tag); }}
+                      style={{
+                        padding: '3px 9px', borderRadius: 6, fontSize: 11, cursor: 'pointer', transition: 'all 0.15s',
+                        background: active ? 'rgba(109,40,217,0.3)' : 'rgba(109,40,217,0.1)',
+                        border: active ? '1px solid rgba(139,92,246,0.6)' : '1px solid rgba(139,92,246,0.2)',
+                        color: active ? '#e9d5ff' : '#a78bfa', fontWeight: active ? 600 : 400,
+                      }}
+                    >
+                      {active ? '✓ ' : ''}{tag}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          <div style={{ padding: '0 16px 14px', display: 'flex', gap: 8 }}>
+            <button
+              onClick={e => { e.stopPropagation(); onCompareToggle(kpi); }}
+              style={{
+                flex: 1, padding: '6px 0', borderRadius: 8, fontSize: 12, fontWeight: 500,
+                cursor: 'pointer', transition: 'all 0.15s',
+                ...(isComparing
+                  ? { background: 'rgba(109,40,217,0.2)', border: '1px solid rgba(139,92,246,0.45)', color: '#c4b5fd' }
+                  : { background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(51,65,85,0.35)', color: '#64748b' })
+              }}
+            >
+              {isComparing ? '✓ In Compare' : '+ Compare'}
+            </button>
+            <button
+              onClick={e => { e.stopPropagation(); onCalculate(kpi); }}
+              style={{
+                padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 500,
+                cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+                background: dotColor + '22', border: '1px solid ' + dotColor + '55', color: dotColor,
+              }}
+              onMouseOver={e => { e.currentTarget.style.background = dotColor + '38'; }}
+              onMouseOut={e => { e.currentTarget.style.background = dotColor + '22'; }}
+            >
+              Calculate
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    function KPIDetail({ kpi, onClose, onCompareToggle, isComparing, onTagClick, onCategoryClick, onCalculate }) {
+      if (!kpi) return null;
+      const dotColor = catDotColor[kpi.category] || '#818cf8';
+      const badge = typeStyleMap[kpi.type] || typeStyleMap.Supporting;
+      const icon = chartIcons[kpi.chartType] || '📊';
+      const chartExplainer =
+        kpi.chartRecommendation?.split('—')[1]?.trim() ||
+        kpi.chartRecommendation?.split('–')[1]?.trim() ||
+        kpi.chartRecommendation || '';
+
+      return (
+        <div
+          onClick={onClose}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 50,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+            backgroundColor: 'rgba(0,0,10,0.72)', backdropFilter: 'blur(6px)',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: 560, maxHeight: '88vh', borderRadius: 16,
+              border: '1px solid rgba(51,65,85,0.6)', backgroundColor: '#0d1526',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.6)', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+            }}
+          >
+            <div style={{ height: 3, background: dotColor, flexShrink: 0 }} />
+            <div style={{ padding: '24px 28px 20px', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: dotColor, display: 'inline-block' }} />
+                    <button
+                      onClick={() => onCategoryClick(kpi.category)}
+                      style={{ fontSize: 12, fontWeight: 600, color: dotColor, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: 3 }}
+                    >
+                      {kpi.category}
+                    </button>
+                    <span style={{ color: '#334155' }}>·</span>
+                    <span style={{ ...badge, padding: '2px 9px', borderRadius: 6, fontSize: 11, fontWeight: 500 }}>{kpi.type}</span>
+                  </div>
+                  <h2 style={{ fontSize: 22, fontWeight: 700, color: '#f1f5f9', margin: 0, lineHeight: 1.3 }}>{kpi.name}</h2>
+                </div>
+                <button
+                  onClick={onClose}
+                  style={{ padding: 6, borderRadius: 8, background: 'none', border: 'none', color: '#475569', cursor: 'pointer', flexShrink: 0, marginTop: 2 }}
+                  onMouseOver={e => e.currentTarget.style.color = '#94a3b8'}
+                  onMouseOut={e => e.currentTarget.style.color = '#475569'}
+                >
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div style={{ height: 1, background: 'rgba(51,65,85,0.4)', flexShrink: 0 }} />
+            <div style={{ flex: 1, overflowY: 'auto', padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+              <div>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569', marginBottom: 8 }}>What it measures</p>
+                <p style={{ fontSize: 14, color: '#cbd5e1', lineHeight: 1.65, margin: 0 }}>{kpi.description}</p>
+              </div>
+              {kpi.chartType && (
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569', marginBottom: 10 }}>Recommended visualisation</p>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, background: 'rgba(8,15,35,0.6)', border: '1px solid rgba(51,65,85,0.35)', borderRadius: 10, padding: '14px 16px' }}>
+                    <span style={{ fontSize: 22, lineHeight: 1, flexShrink: 0, marginTop: 2 }}>{icon}</span>
+                    <div>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: dotColor, margin: '0 0 6px' }}>{kpi.chartType}</p>
+                      {chartExplainer && <p style={{ fontSize: 13, color: '#94a3b8', margin: 0, lineHeight: 1.6 }}>{chartExplainer}</p>}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {kpi.generalTags.length > 0 && (
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569', marginBottom: 10 }}>Focus areas</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {kpi.generalTags.map(tag => (
+                      <button
+                        key={tag}
+                        onClick={() => onTagClick(tag)}
+                        style={{
+                          padding: '5px 12px', borderRadius: 7, fontSize: 12, cursor: 'pointer',
+                          background: 'rgba(109,40,217,0.12)', border: '1px solid rgba(139,92,246,0.25)', color: '#c4b5fd', transition: 'all 0.15s',
+                        }}
+                        onMouseOver={e => { e.currentTarget.style.background = 'rgba(109,40,217,0.25)'; e.currentTarget.style.borderColor = 'rgba(139,92,246,0.5)'; }}
+                        onMouseOut={e => { e.currentTarget.style.background = 'rgba(109,40,217,0.12)'; e.currentTarget.style.borderColor = 'rgba(139,92,246,0.25)'; }}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {kpi.variableTags.length > 0 && (
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569', marginBottom: 10 }}>Key variables</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {kpi.variableTags.map(tag => (
+                      <span key={tag} style={{ padding: '5px 12px', borderRadius: 7, fontSize: 12, background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(51,65,85,0.4)', color: '#64748b' }}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div style={{ padding: '16px 28px 24px', borderTop: '1px solid rgba(51,65,85,0.35)', flexShrink: 0, display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => onCompareToggle(kpi)}
+                style={{
+                  flex: 1, padding: '11px 0', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
+                  background: isComparing ? 'rgba(109,40,217,0.25)' : 'rgba(109,40,217,0.15)',
+                  border: '1px solid rgba(139,92,246,0.4)', color: '#c4b5fd',
+                }}
+              >
+                {isComparing ? '✓ Remove from Compare' : '+ Add to Compare'}
+              </button>
+              <button
+                onClick={() => onCalculate(kpi)}
+                style={{
+                  padding: '11px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
+                  background: dotColor + '33', border: '1px solid ' + dotColor + '88', color: dotColor, flexShrink: 0,
+                }}
+                onMouseOver={e => e.currentTarget.style.background = dotColor + '55'}
+                onMouseOut={e => e.currentTarget.style.background = dotColor + '33'}
+              >
+                Calculate
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function CompareView({ compareList, onRemove, onClose }) {
+      if (compareList.length === 0) return null;
+      const items = compareList.slice(0, 3);
+      const DIVIDER = '1px solid rgba(51,65,85,0.35)';
+
+      return (
+        <div
+          onClick={onClose}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 50,
+            display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+            padding: '48px 24px', overflowY: 'auto',
+            backgroundColor: 'rgba(0,0,10,0.78)', backdropFilter: 'blur(6px)',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: 900, borderRadius: 16,
+              border: '1px solid rgba(51,65,85,0.55)', backgroundColor: '#0d1526',
+              boxShadow: '0 30px 70px rgba(0,0,0,0.6)', overflow: 'hidden',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '22px 28px', borderBottom: DIVIDER }}>
+              <div>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: '#f1f5f9', margin: 0 }}>KPI Comparison</h2>
+                <p style={{ fontSize: 13, color: '#475569', marginTop: 4 }}>Comparing {compareList.length} KPI{compareList.length > 1 ? 's' : ''} side by side</p>
+              </div>
+              <button
+                onClick={onClose}
+                style={{ padding: 6, borderRadius: 8, background: 'none', border: 'none', color: '#475569', cursor: 'pointer' }}
+                onMouseOver={e => e.currentTarget.style.color = '#94a3b8'}
+                onMouseOut={e => e.currentTarget.style.color = '#475569'}
+              >
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <colgroup>
+                  <col style={{ width: 140 }} />
+                  {items.map((_, i) => <col key={i} />)}
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th style={{ padding: '20px', borderBottom: DIVIDER, background: 'rgba(8,15,35,0.4)' }} />
+                    {items.map(kpi => {
+                      const dot = catDotColor[kpi.category] || '#818cf8';
+                      return (
+                        <th key={kpi.id} style={{ padding: '20px 24px', borderBottom: DIVIDER, borderLeft: DIVIDER, background: 'rgba(8,15,35,0.4)', textAlign: 'left', verticalAlign: 'top' }}>
+                          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+                            <div>
+                              <p style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', margin: '0 0 8px', lineHeight: 1.35 }}>{kpi.name}</p>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: dot, display: 'inline-block', flexShrink: 0 }} />
+                                <span style={{ fontSize: 12, color: dot, fontWeight: 500 }}>{kpi.category}</span>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => onRemove(kpi)}
+                              style={{ background: 'none', border: 'none', color: '#334155', cursor: 'pointer', padding: 2, flexShrink: 0 }}
+                              onMouseOver={e => e.currentTarget.style.color = '#64748b'}
+                              onMouseOut={e => e.currentTarget.style.color = '#334155'}
+                            >
+                              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: '20px', borderBottom: DIVIDER, fontSize: 11, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', verticalAlign: 'middle' }}>Type</td>
+                    {items.map(kpi => {
+                      const s = typeStyleMap[kpi.type] || typeStyleMap.Supporting;
+                      return (
+                        <td key={kpi.id} style={{ padding: '20px 24px', borderBottom: DIVIDER, borderLeft: DIVIDER, verticalAlign: 'middle' }}>
+                          <span style={{ ...s, padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500 }}>{kpi.type}</span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '20px', borderBottom: DIVIDER, fontSize: 11, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', verticalAlign: 'top', paddingTop: 22 }}>Description</td>
+                    {items.map(kpi => (
+                      <td key={kpi.id} style={{ padding: '20px 24px', borderBottom: DIVIDER, borderLeft: DIVIDER, fontSize: 13, color: '#cbd5e1', lineHeight: 1.65, verticalAlign: 'top' }}>
+                        {kpi.description}
+                      </td>
+                    ))}
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '20px', borderBottom: DIVIDER, fontSize: 11, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', verticalAlign: 'top', paddingTop: 22 }}>Best Chart</td>
+                    {items.map(kpi => {
+                      const dot = catDotColor[kpi.category] || '#818cf8';
+                      const icon = chartIcons[kpi.chartType] || '📊';
+                      const explainer = kpi.chartRecommendation?.split('—')[1]?.trim() || kpi.chartRecommendation?.split('–')[1]?.trim() || '';
+                      return (
+                        <td key={kpi.id} style={{ padding: '20px 24px', borderBottom: DIVIDER, borderLeft: DIVIDER, verticalAlign: 'top' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: explainer ? 8 : 0 }}>
+                            <span style={{ fontSize: 18 }}>{icon}</span>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: dot }}>{kpi.chartType || '—'}</span>
+                          </div>
+                          {explainer && <p style={{ fontSize: 12, color: '#64748b', margin: 0, lineHeight: 1.6 }}>{explainer}</p>}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '20px', borderBottom: DIVIDER, fontSize: 11, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', verticalAlign: 'top', paddingTop: 22 }}>Focus Areas</td>
+                    {items.map(kpi => (
+                      <td key={kpi.id} style={{ padding: '20px 24px', borderBottom: DIVIDER, borderLeft: DIVIDER, verticalAlign: 'top' }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                          {kpi.generalTags.map(tag => (
+                            <span key={tag} style={{ padding: '4px 10px', borderRadius: 6, fontSize: 12, background: 'rgba(109,40,217,0.12)', border: '1px solid rgba(139,92,246,0.25)', color: '#c4b5fd' }}>
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '20px', fontSize: 11, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', verticalAlign: 'top', paddingTop: 22 }}>Key Variables</td>
+                    {items.map(kpi => (
+                      <td key={kpi.id} style={{ padding: '20px 24px', borderLeft: DIVIDER, verticalAlign: 'top' }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                          {kpi.variableTags.slice(0, 6).map(tag => (
+                            <span key={tag} style={{ padding: '4px 10px', borderRadius: 6, fontSize: 12, background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(51,65,85,0.4)', color: '#64748b' }}>
+                              {tag}
+                            </span>
+                          ))}
+                          {kpi.variableTags.length > 6 && (
+                            <span style={{ fontSize: 12, color: '#334155', padding: '4px 0' }}>+{kpi.variableTags.length - 6} more</span>
+                          )}
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function formatNumber(n, precision) {
+      const fixed = Math.abs(n).toFixed(precision);
+      const parts = fixed.split('.');
+      parts[0] = parts[0].replace(/B(?=(d{3})+(?!d))/g, ',');
+      return (n < 0 ? '-' : '') + parts.join('.');
+    }
+
+    function KPICalculator({ kpi, onClose }) {
+      const formulaDef = kpiFormulas[kpi.id];
+      const [values, setValues] = useState({});
+      const [result, setResult] = useState(null);
+      const [error, setError] = useState(null);
+      const dotColor = catDotColor[kpi.category] || '#818cf8';
+
+      if (!formulaDef) return null;
+
+      const handleChange = (id, value) => { setValues(prev => ({ ...prev, [id]: value })); setResult(null); setError(null); };
+      const handleCalculate = () => {
+        const r = formulaDef.calculate(values);
+        if (r === null) { setError('Please fill in all fields with valid numbers.'); setResult(null); }
+        else { setResult(r); setError(null); }
+      };
+      const handleKeyDown = e => { if (e.key === 'Enter') handleCalculate(); if (e.key === 'Escape') onClose(); };
+      const displayResult = () => {
+        if (typeof result === 'string') return result;
+        const formatted = formatNumber(result, formulaDef.precision);
+        return formulaDef.unit ? formatted + ' ' + formulaDef.unit : formatted;
+      };
+
+      return (
+        <div
+          onClick={onClose} onKeyDown={handleKeyDown}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 60,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+            backgroundColor: 'rgba(0,0,10,0.75)', backdropFilter: 'blur(6px)',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: 480, maxHeight: '90vh', borderRadius: 16,
+              border: '1px solid rgba(51,65,85,0.6)', backgroundColor: '#0d1526',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.65)', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+            }}
+          >
+            <div style={{ height: 3, background: dotColor, flexShrink: 0 }} />
+            <div style={{ padding: '20px 24px 16px', flexShrink: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569', margin: '0 0 6px' }}>KPI Calculator</p>
+                  <h2 style={{ fontSize: 18, fontWeight: 700, color: '#f1f5f9', margin: 0, lineHeight: 1.3 }}>{kpi.name}</h2>
+                </div>
+                <button
+                  onClick={onClose}
+                  style={{ padding: 6, borderRadius: 8, background: 'none', border: 'none', color: '#475569', cursor: 'pointer', flexShrink: 0, marginTop: 2 }}
+                  onMouseOver={e => e.currentTarget.style.color = '#94a3b8'}
+                  onMouseOut={e => e.currentTarget.style.color = '#475569'}
+                >
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div style={{ height: 1, background: 'rgba(51,65,85,0.4)', flexShrink: 0 }} />
+            <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <div style={{ background: 'rgba(8,15,35,0.8)', border: '1px solid ' + dotColor + '55', borderRadius: 10, padding: '14px 16px' }}>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569', margin: '0 0 8px' }}>Formula</p>
+                <p style={{ fontSize: 13, color: dotColor, margin: 0, lineHeight: 1.65, fontFamily: "'Courier New', Courier, monospace", fontWeight: 500 }}>
+                  {formulaDef.formula}
+                </p>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {formulaDef.inputs.map(input => (
+                  <div key={input.id}>
+                    <label style={{ display: 'block', fontSize: 12, color: '#94a3b8', marginBottom: 5, fontWeight: 500 }}>{input.label}</label>
+                    <input
+                      type="number"
+                      value={values[input.id] ?? ''}
+                      onChange={e => handleChange(input.id, e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Enter value..."
+                      style={{
+                        width: '100%', padding: '9px 12px', borderRadius: 8, fontSize: 13,
+                        background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(71,85,105,0.5)',
+                        color: '#e2e8f0', outline: 'none', transition: 'border-color 0.15s',
+                      }}
+                      onFocus={e => e.currentTarget.style.borderColor = dotColor + '90'}
+                      onBlur={e => e.currentTarget.style.borderColor = 'rgba(71,85,105,0.5)'}
+                    />
+                  </div>
+                ))}
+              </div>
+              {error && (
+                <p style={{ fontSize: 12, color: '#f87171', margin: 0, padding: '8px 12px', background: 'rgba(239,68,68,0.08)', borderRadius: 8, border: '1px solid rgba(239,68,68,0.2)' }}>
+                  {error}
+                </p>
+              )}
+              {result !== null && (
+                <div style={{ background: dotColor + '20', border: '1px solid ' + dotColor + '66', borderRadius: 10, padding: 16, textAlign: 'center' }}>
+                  <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569', margin: '0 0 10px' }}>Result</p>
+                  <p style={{ fontSize: typeof result === 'string' ? 15 : 30, fontWeight: 700, color: dotColor, margin: 0, lineHeight: 1.25, letterSpacing: typeof result === 'string' ? 0 : '-0.5px' }}>
+                    {displayResult()}
+                  </p>
+                </div>
+              )}
+            </div>
+            <div style={{ padding: '14px 24px 20px', borderTop: '1px solid rgba(51,65,85,0.35)', flexShrink: 0 }}>
+              <button
+                onClick={handleCalculate}
+                style={{
+                  width: '100%', padding: '11px 0', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
+                  background: dotColor + '33', border: '1px solid ' + dotColor + '88', color: dotColor,
+                }}
+                onMouseOver={e => e.currentTarget.style.background = dotColor + '55'}
+                onMouseOut={e => e.currentTarget.style.background = dotColor + '33'}
+              >
+                Calculate
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const CONTAINER = { maxWidth: 1100, margin: '0 auto', width: '100%', padding: '0 24px' };
+
+    function App() {
+      const [mode, setMode] = useState('tags');
+      const [searchQuery, setSearchQuery] = useState('');
+      const [selectedCategories, setSelectedCategories] = useState([]);
+      const [selectedTags, setSelectedTags] = useState([]);
+      const [showTagsPanel, setShowTagsPanel] = useState(false);
+      const [showAll, setShowAll] = useState(true);
+      const [selectedKPI, setSelectedKPI] = useState(null);
+      const [compareList, setCompareList] = useState([]);
+      const [showCompare, setShowCompare] = useState(false);
+      const [calculatorKPI, setCalculatorKPI] = useState(null);
+
+      const filteredKPIs = useMemo(() => {
+        let result = kpis;
+        if (mode === 'tags') {
+          if (showAll) return [...result].sort((a, b) => a.name.localeCompare(b.name));
+          if (selectedCategories.length > 0)
+            result = result.filter(k => selectedCategories.includes(k.category));
+          if (selectedTags.length > 0)
+            result = result.filter(k => selectedTags.every(t => k.generalTags.includes(t)));
+          if (selectedCategories.length === 0 && selectedTags.length === 0) return [];
+        } else {
+          const q = searchQuery.trim().toLowerCase();
+          if (!q) return [];
+          result = result.filter(k =>
+            k.name.toLowerCase().includes(q) ||
+            k.description.toLowerCase().includes(q) ||
+            k.generalTags.some(t => t.toLowerCase().includes(q)) ||
+            k.category.toLowerCase().includes(q)
+          );
+        }
+        return [...result].sort((a, b) => a.name.localeCompare(b.name));
+      }, [mode, selectedCategories, selectedTags, searchQuery]);
+
+      const toggleCategory = cat => {
+        setShowAll(false);
+        setSelectedCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
+      };
+      const toggleTag = tag => {
+        setShowAll(false);
+        setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+      };
+      const toggleCompare = kpi =>
+        setCompareList(prev => {
+          const exists = prev.find(k => k.id === kpi.id);
+          if (exists) return prev.filter(k => k.id !== kpi.id);
+          if (prev.length >= 3) return [...prev.slice(1), kpi];
+          return [...prev, kpi];
+        });
+      const handleTagClick = tag => {
+        setMode('tags'); setShowAll(false);
+        setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+        setSelectedKPI(null);
+      };
+      const handleCategoryClick = cat => {
+        setMode('tags'); setShowAll(false);
+        setSelectedCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
+        setSelectedKPI(null);
+      };
+
+      const isComparing = kpi => compareList.some(k => k.id === kpi.id);
+      const totalFilters = selectedCategories.length + selectedTags.length;
+      const hasResults = filteredKPIs.length > 0;
+      const showEmptyState = mode === 'tags' ? (!showAll && totalFilters === 0) : !searchQuery.trim();
+
+      return (
+        <div style={{ minHeight: '100vh', backgroundColor: '#0a0f1e' }}>
+          <header style={{
+            position: 'sticky', top: 0, zIndex: 40,
+            backgroundColor: 'rgba(10,15,30,0.97)',
+            borderBottom: '1px solid rgba(51,65,85,0.35)',
+            backdropFilter: 'blur(12px)',
+          }}>
+            <div style={{ ...CONTAINER, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#818cf8" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <span style={{ fontWeight: 700, color: '#f1f5f9', fontSize: 14 }}>KPI Finder</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <button
+                  onClick={() => compareList.length > 0 && setShowCompare(true)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
+                    border: '1px solid', cursor: compareList.length > 0 ? 'pointer' : 'not-allowed', transition: 'all 0.15s',
+                    ...(compareList.length > 0
+                      ? { background: 'rgba(109,40,217,0.15)', borderColor: 'rgba(139,92,246,0.4)', color: '#c4b5fd' }
+                      : { background: 'rgba(30,41,59,0.4)', borderColor: 'rgba(71,85,105,0.3)', color: '#475569' })
+                  }}
+                >
+                  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 0v10" />
+                  </svg>
+                  Compare
+                  {compareList.length > 0 && (
+                    <span style={{ width: 18, height: 18, borderRadius: '50%', background: '#7c3aed', color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {compareList.length}
+                    </span>
+                  )}
+                </button>
+                {compareList.length > 0 && (
+                  <button
+                    onClick={() => setCompareList([])}
+                    title="Clear all comparisons"
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      width: 30, height: 30, borderRadius: 8,
+                      border: '1px solid rgba(139,92,246,0.3)', cursor: 'pointer', transition: 'all 0.15s',
+                      background: 'rgba(109,40,217,0.1)', color: '#94a3b8',
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.4)'; e.currentTarget.style.color = '#fca5a5'; }}
+                    onMouseOut={e => { e.currentTarget.style.background = 'rgba(109,40,217,0.1)'; e.currentTarget.style.borderColor = 'rgba(139,92,246,0.3)'; e.currentTarget.style.color = '#94a3b8'; }}
+                  >
+                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+          </header>
+
+          <div style={{ borderBottom: '1px solid rgba(51,65,85,0.2)', paddingBottom: 32 }}>
+            <div style={{ ...CONTAINER, paddingTop: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
+              <div style={{ textAlign: 'center' }}>
+                <h1 style={{ fontSize: 26, fontWeight: 700, color: '#f1f5f9', marginBottom: 6 }}>Find the right KPI</h1>
+                <p style={{ fontSize: 13, color: '#64748b' }}>Browse by department &amp; focus area, or search by name</p>
+              </div>
+
+              <div style={{ display: 'flex', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(51,65,85,0.4)', borderRadius: 10, padding: 4, gap: 4 }}>
+                {[{ id: 'tags', label: 'Browse by Tags' }, { id: 'search', label: 'Search by Name' }].map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => setMode(m.id)}
+                    style={{
+                      padding: '7px 20px', borderRadius: 7, fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.15s',
+                      ...(mode === m.id
+                        ? { background: 'rgba(99,102,241,0.2)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.35)' }
+                        : { background: 'transparent', color: '#64748b', border: '1px solid transparent' })
+                    }}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+
+              {mode === 'search' && (
+                <div style={{ position: 'relative', width: '100%', maxWidth: 500 }}>
+                  <svg style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#64748b" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    autoFocus
+                    type="text"
+                    placeholder="e.g. Revenue Growth, Churn Rate, NPS..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    style={{
+                      width: '100%', paddingLeft: 42, paddingRight: 16, paddingTop: 11, paddingBottom: 11,
+                      borderRadius: 10, fontSize: 13, outline: 'none',
+                      background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(71,85,105,0.5)', color: '#e2e8f0',
+                    }}
+                  />
+                </div>
+              )}
+
+              {mode === 'tags' && (
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Department</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
+                      <button
+                        onClick={() => { setShowAll(true); setSelectedCategories([]); setSelectedTags([]); }}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                          padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
+                          cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
+                          ...(showAll
+                            ? { background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.5)', color: '#a5b4fc' }
+                            : { background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(71,85,105,0.35)', color: '#64748b' })
+                        }}
+                      >
+                        {showAll && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#818cf8', display: 'inline-block' }} />}
+                        All
+                      </button>
+                      {categories.map(cat => {
+                        const active = selectedCategories.includes(cat);
+                        const dotColor = catDotColor[cat] || '#818cf8';
+                        return (
+                          <button
+                            key={cat}
+                            onClick={() => toggleCategory(cat)}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 6,
+                              padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
+                              cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
+                              ...(active
+                                ? { background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.4)', color: '#a5b4fc' }
+                                : { background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(71,85,105,0.35)', color: '#64748b' })
+                            }}
+                          >
+                            {active && <span style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor, display: 'inline-block', flexShrink: 0 }} />}
+                            {cat}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setShowTagsPanel(v => !v)}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748b', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s' }}
+                    onMouseOver={e => e.currentTarget.style.color = '#94a3b8'}
+                    onMouseOut={e => e.currentTarget.style.color = '#64748b'}
+                  >
+                    <svg style={{ transform: showTagsPanel ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }} width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                    {showTagsPanel ? 'Hide' : 'Show'} focus areas
+                    {selectedTags.length > 0 && (
+                      <span style={{ padding: '1px 7px', borderRadius: 6, background: 'rgba(109,40,217,0.2)', color: '#c4b5fd', fontSize: 11, fontWeight: 600 }}>
+                        {selectedTags.length}
+                      </span>
+                    )}
+                  </button>
+
+                  {showTagsPanel && (
+                    <div style={{ textAlign: 'center' }}>
+                      <p style={{ fontSize: 11, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Focus Area</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
+                        {generalTags.map(tag => {
+                          const active = selectedTags.includes(tag);
+                          return (
+                            <button
+                              key={tag}
+                              onClick={() => toggleTag(tag)}
+                              style={{
+                                padding: '6px 14px', borderRadius: 8, fontSize: 13,
+                                cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
+                                ...(active
+                                  ? { background: 'rgba(109,40,217,0.15)', border: '1px solid rgba(139,92,246,0.45)', color: '#c4b5fd' }
+                                  : { background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(71,85,105,0.35)', color: '#64748b' })
+                              }}
+                            >
+                              {tag}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {totalFilters > 0 && (
+                    <button
+                      onClick={() => { setSelectedCategories([]); setSelectedTags([]); }}
+                      style={{ fontSize: 12, color: '#475569', background: 'none', border: 'none', cursor: 'pointer' }}
+                      onMouseOver={e => e.currentTarget.style.color = '#94a3b8'}
+                      onMouseOut={e => e.currentTarget.style.color = '#475569'}
+                    >
+                      × Clear {totalFilters} filter{totalFilters > 1 ? 's' : ''}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div style={{ ...CONTAINER, paddingTop: 28, paddingBottom: 48 }}>
+            {showEmptyState ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 80, textAlign: 'center' }}>
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(71,85,105,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#475569" strokeWidth="1.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d={mode === 'tags'
+                      ? 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z'
+                      : 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'} />
+                  </svg>
+                </div>
+                <p style={{ color: '#64748b', fontSize: 14 }}>
+                  {mode === 'tags' ? 'Select a department or focus area to see matching KPIs' : 'Type a KPI name or keyword above'}
+                </p>
+              </div>
+            ) : !hasResults ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 80, textAlign: 'center' }}>
+                <p style={{ color: '#64748b', fontSize: 14 }}>No KPIs match your {mode === 'tags' ? 'filters' : 'search'}</p>
+                <button
+                  onClick={() => mode === 'tags' ? (setSelectedCategories([]), setSelectedTags([])) : setSearchQuery('')}
+                  style={{ marginTop: 8, fontSize: 13, color: '#818cf8', background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  Clear and try again
+                </button>
+              </div>
+            ) : (
+              <>
+                <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>
+                  <span style={{ color: '#e2e8f0', fontWeight: 600 }}>{filteredKPIs.length}</span> KPI{filteredKPIs.length !== 1 ? 's' : ''} found
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+                  {filteredKPIs.map(kpi => (
+                    <KPICard
+                      key={kpi.id}
+                      kpi={kpi}
+                      isComparing={isComparing(kpi)}
+                      onCompareToggle={toggleCompare}
+                      onSelect={setSelectedKPI}
+                      onTagClick={handleTagClick}
+                      onCategoryClick={handleCategoryClick}
+                      onCalculate={setCalculatorKPI}
+                      selectedTags={selectedTags}
+                      selectedCategories={selectedCategories}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {selectedKPI && (
+            <KPIDetail
+              kpi={selectedKPI}
+              onClose={() => setSelectedKPI(null)}
+              onCompareToggle={kpi => { toggleCompare(kpi); setSelectedKPI(null); }}
+              isComparing={isComparing(selectedKPI)}
+              onTagClick={handleTagClick}
+              onCategoryClick={handleCategoryClick}
+              onCalculate={kpi => { setSelectedKPI(null); setCalculatorKPI(kpi); }}
+            />
+          )}
+
+          {showCompare && compareList.length > 0 && (
+            <CompareView compareList={compareList} onRemove={toggleCompare} onClose={() => setShowCompare(false)} />
+          )}
+
+          {calculatorKPI && (
+            <KPICalculator kpi={calculatorKPI} onClose={() => setCalculatorKPI(null)} />
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
