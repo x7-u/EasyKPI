@@ -1,5 +1,7 @@
 # EasyKPI
 
+**🌐 Live site → [x7-u.github.io/EasyKPI](https://x7-u.github.io/EasyKPI/)**
+
 A clean, fast KPI reference tool built for entry-level data analysts. Stop googling "what does X metric mean" mid-dashboard — EasyKPI puts 95+ KPIs across 8 business departments at your fingertips, with chart recommendations and side-by-side comparisons built in.
 
 ---
@@ -53,33 +55,19 @@ If you've ever had a manager say "can you add churn rate to the dashboard?" and 
 
 - **No live data** — EasyKPI is a reference tool. It tells you *about* KPIs; it doesn't connect to your data or calculate anything
 - **Fixed library** — the 95 KPIs are hand-curated and static. You can't add custom KPIs yet
-- **Runs on localhost** — the app runs on a local dev server and requires Node.js installed on your machine
-- **Windows launcher only** — `EasyKPI.exe` is a Windows binary. Mac and Linux users will need to use the terminal method below
+- **No live data** — EasyKPI is a reference tool, not a BI platform
+- **Fixed library** — the 95 KPIs are hand-curated and static; you can't add custom KPIs yet
 - **No export** — KPI details can't currently be downloaded or saved to PDF, CSV, or any other format
 
 ---
 
 ## Getting started
 
-### Requirements
+No install needed — just open the live site:
 
-- [Node.js](https://nodejs.org/) (v18 or later)
+**https://x7-u.github.io/EasyKPI/**
 
-### Option 1 — Double-click launcher (Windows)
-
-1. Download or clone this repository
-2. Double-click **EasyKPI.exe**
-3. On first run it will automatically install dependencies — this takes about 30 seconds
-4. The app opens in your browser at `http://localhost:5173`
-
-### Option 2 — Terminal (Mac / Linux / Windows)
-
-```bash
-npm install
-npm run dev
-```
-
-Then open [http://localhost:5173](http://localhost:5173) in your browser.
+Works in any browser on any device.
 
 ---
 
@@ -109,7 +97,7 @@ Longer term: connect to a spreadsheet or BI source and see actual KPI values wit
 
 ## Tech stack
 
-React · Vite · Tailwind CSS
+Plain HTML, CSS, and JavaScript — no frameworks, no dependencies, no build step.
 
 ---
 
