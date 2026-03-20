@@ -1,13 +1,4287 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KPI Finder — Data Analytics</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KPI Finder</title>
+  <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0f1e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #f1f5f9; }
+  button { font-family: inherit; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(71,85,105,0.4); border-radius: 3px; }
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  /* Header */
+  #app-header {
+    position: sticky; top: 0; z-index: 40;
+    background: rgba(10,15,30,0.97);
+    border-bottom: 1px solid rgba(51,65,85,0.35);
+    backdrop-filter: blur(12px);
+  }
+  .header-inner {
+    max-width: 1100px; margin: 0 auto; padding: 0 24px;
+    height: 56px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-text { font-weight: 700; color: #f1f5f9; font-size: 14px; }
+  .header-actions { display: flex; align-items: center; gap: 6px; }
+  .compare-nav-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    border: 1px solid; transition: all 0.15s;
+  }
+  .compare-nav-btn.has-items {
+    background: rgba(109,40,217,0.15); border-color: rgba(139,92,246,0.4); color: #c4b5fd; cursor: pointer;
+  }
+  .compare-nav-btn.empty {
+    background: rgba(30,41,59,0.4); border-color: rgba(71,85,105,0.3); color: #475569; cursor: not-allowed;
+  }
+  .compare-count {
+    width: 18px; height: 18px; border-radius: 50%; background: #7c3aed;
+    color: #fff; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .compare-clear-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid rgba(139,92,246,0.3); cursor: pointer; transition: all 0.15s;
+    background: rgba(109,40,217,0.1); color: #94a3b8;
+  }
+  .compare-clear-btn:hover {
+    background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #fca5a5;
+  }
+
+  /* Filters */
+  #filter-section { border-bottom: 1px solid rgba(51,65,85,0.2); padding-bottom: 32px; }
+  .filter-inner {
+    max-width: 1100px; margin: 0 auto; padding: 40px 24px 0;
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+  }
+  .hero-title { font-size: 26px; font-weight: 700; color: #f1f5f9; margin-bottom: 6px; text-align: center; }
+  .hero-sub { font-size: 13px; color: #64748b; text-align: center; }
+  .mode-toggle {
+    display: flex; background: rgba(15,23,42,0.8);
+    border: 1px solid rgba(51,65,85,0.4); border-radius: 10px; padding: 4px; gap: 4px;
+  }
+  .mode-btn {
+    padding: 7px 20px; border-radius: 7px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
+  }
+  .mode-btn.active { background: rgba(99,102,241,0.2); color: #a5b4fc; border-color: rgba(99,102,241,0.35); }
+  .mode-btn.inactive { background: transparent; color: #64748b; }
+
+  /* Search */
+  #search-section { position: relative; width: 100%; max-width: 500px; }
+  .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+  #search-input {
+    width: 100%; padding: 11px 16px 11px 42px; border-radius: 10px; font-size: 13px;
+    outline: none; background: rgba(15,23,42,0.8);
+    border: 1px solid rgba(71,85,105,0.5); color: #e2e8f0;
+  }
+  #search-input::placeholder { color: #475569; }
+
+  /* Tag filters */
+  #tags-section { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .filter-group-label {
+    font-size: 11px; font-weight: 600; color: #475569;
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; text-align: center;
+  }
+  .pills-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .filter-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap; border: 1px solid;
+  }
+  .filter-pill.active { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.5); color: #a5b4fc; }
+  .filter-pill.inactive { background: rgba(15,23,42,0.6); border-color: rgba(71,85,105,0.35); color: #64748b; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .focus-toggle-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: #64748b; background: none; border: none; cursor: pointer; transition: color 0.15s;
+  }
+  .focus-toggle-btn:hover { color: #94a3b8; }
+  .focus-toggle-arrow { transition: transform 0.2s; }
+  .focus-count-badge {
+    padding: 1px 7px; border-radius: 6px;
+    background: rgba(109,40,217,0.2); color: #c4b5fd; font-size: 11px; font-weight: 600;
+  }
+  #tags-panel { text-align: center; }
+  .tag-pill-focus {
+    padding: 6px 14px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap; border: 1px solid;
+  }
+  .tag-pill-focus.active { background: rgba(109,40,217,0.15); border-color: rgba(139,92,246,0.45); color: #c4b5fd; }
+  .tag-pill-focus.inactive { background: rgba(15,23,42,0.6); border-color: rgba(71,85,105,0.35); color: #64748b; }
+  .clear-filters-btn {
+    font-size: 12px; color: #475569; background: none; border: none; cursor: pointer;
+  }
+  .clear-filters-btn:hover { color: #94a3b8; }
+
+  /* Results */
+  #results-section { max-width: 1100px; margin: 0 auto; padding: 28px 24px 48px; }
+  .results-count { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+  .results-count strong { color: #e2e8f0; font-weight: 600; }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding-top: 80px; text-align: center;
+  }
+  .empty-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: rgba(15,23,42,0.6); border: 1px solid rgba(71,85,105,0.3);
+    display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+  }
+  .empty-text { color: #64748b; font-size: 14px; }
+  .try-again-btn {
+    margin-top: 8px; font-size: 13px; color: #818cf8;
+    background: none; border: none; cursor: pointer;
+  }
+
+  /* KPI Card */
+  .kpi-card {
+    display: flex; flex-direction: column; border-radius: 12px; overflow: hidden;
+    border: 1px solid rgba(51,65,85,0.4); background: rgba(15,23,42,0.6);
+    cursor: pointer; transition: border-color 0.15s, background 0.15s;
+  }
+  .kpi-card:hover { border-color: rgba(71,85,105,0.65); background: rgba(15,23,42,0.85); }
+  .kpi-card.comparing { border-color: rgba(139,92,246,0.5); background: rgba(109,40,217,0.07); }
+  .kpi-card.comparing:hover { border-color: rgba(139,92,246,0.5); background: rgba(109,40,217,0.07); }
+  .card-accent { height: 3px; opacity: 0.7; }
+  .card-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .card-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .card-title { font-size: 14px; font-weight: 600; color: #f1f5f9; line-height: 1.4; flex: 1; }
+  .type-badge { padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+  .card-category { display: flex; align-items: center; gap: 6px; }
+  .cat-link {
+    font-size: 12px; font-weight: 500; background: none; border: none; cursor: pointer; padding: 0;
+    text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px;
+  }
+  .card-desc {
+    font-size: 12px; color: #94a3b8; line-height: 1.55;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .chart-rec {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(8,15,35,0.6); border: 1px solid rgba(51,65,85,0.3);
+    border-radius: 8px; padding: 8px 12px;
+  }
+  .chart-rec-icon { font-size: 16px; flex-shrink: 0; }
+  .chart-rec-label { font-size: 10px; color: #475569; margin: 0 0 2px; font-weight: 500; }
+  .chart-rec-type { font-size: 12px; font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag-pill-card {
+    padding: 3px 9px; border-radius: 6px; font-size: 11px; cursor: pointer;
+    transition: all 0.15s; border: 1px solid; background: none;
+  }
+  .tag-pill-card.active { background: rgba(109,40,217,0.3); border-color: rgba(139,92,246,0.6); color: #e9d5ff; font-weight: 600; }
+  .tag-pill-card.inactive { background: rgba(109,40,217,0.1); border-color: rgba(139,92,246,0.2); color: #a78bfa; }
+  .card-footer { padding: 0 16px 14px; display: flex; gap: 8px; }
+  .card-compare-btn {
+    flex: 1; padding: 6px 0; border-radius: 8px; font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; border: 1px solid;
+  }
+  .card-compare-btn.active { background: rgba(109,40,217,0.2); border-color: rgba(139,92,246,0.45); color: #c4b5fd; }
+  .card-compare-btn.inactive { background: rgba(15,23,42,0.8); border-color: rgba(51,65,85,0.35); color: #64748b; }
+  .card-calc-btn {
+    padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; flex-shrink: 0; border: 1px solid;
+  }
+
+  /* Modals */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+    background: rgba(0,0,10,0.72); backdrop-filter: blur(6px);
+  }
+  .modal-overlay.top-align { align-items: flex-start; padding: 48px 24px; overflow-y: auto; }
+  .modal-box {
+    position: relative; width: 100%; border-radius: 16px;
+    border: 1px solid rgba(51,65,85,0.6); background: #0d1526;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+    display: flex; flex-direction: column; max-height: 88vh; overflow: hidden;
+  }
+  .modal-accent { height: 3px; flex-shrink: 0; }
+  .modal-header {
+    padding: 24px 28px 20px; flex-shrink: 0;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  }
+  .modal-header-compact { padding: 20px 24px 16px; }
+  .modal-title { font-size: 22px; font-weight: 700; color: #f1f5f9; line-height: 1.3; }
+  .modal-divider { height: 1px; background: rgba(51,65,85,0.4); flex-shrink: 0; }
+  .modal-body { flex: 1; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 24px; }
+  .modal-body-compact { padding: 20px 24px; gap: 18px; }
+  .modal-footer {
+    padding: 16px 28px 24px; border-top: 1px solid rgba(51,65,85,0.35);
+    flex-shrink: 0; display: flex; gap: 10px;
+  }
+  .modal-footer-compact { padding: 14px 24px 20px; }
+  .close-btn {
+    padding: 6px; border-radius: 8px; background: none; border: none;
+    color: #475569; cursor: pointer; flex-shrink: 0; font-size: 16px; line-height: 1;
+  }
+  .close-btn:hover { color: #94a3b8; }
+  .section-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #475569; margin-bottom: 8px;
+  }
+  .chart-rec-box {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: rgba(8,15,35,0.6); border: 1px solid rgba(51,65,85,0.35);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .focus-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .focus-pill {
+    padding: 5px 12px; border-radius: 7px; font-size: 12px; cursor: pointer;
+    background: rgba(109,40,217,0.12); border: 1px solid rgba(139,92,246,0.25); color: #c4b5fd;
+    transition: all 0.15s;
+  }
+  .focus-pill:hover { background: rgba(109,40,217,0.25); border-color: rgba(139,92,246,0.5); }
+  .var-pill {
+    padding: 5px 12px; border-radius: 7px; font-size: 12px;
+    background: rgba(15,23,42,0.8); border: 1px solid rgba(51,65,85,0.4); color: #64748b;
+  }
+  .detail-compare-btn {
+    flex: 1; padding: 11px 0; border-radius: 10px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; border: 1px solid rgba(139,92,246,0.4); color: #c4b5fd;
+  }
+  .detail-compare-btn.active { background: rgba(109,40,217,0.25); }
+  .detail-compare-btn.inactive { background: rgba(109,40,217,0.15); }
+  .detail-calc-btn {
+    padding: 11px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; flex-shrink: 0; border: 1px solid;
+  }
+
+  /* Compare table */
+  .compare-box { max-width: 900px; max-height: none; overflow: hidden; }
+  .compare-table { width: 100%; border-collapse: collapse; }
+  .compare-label-th { padding: 20px; border-bottom: 1px solid rgba(51,65,85,0.35); background: rgba(8,15,35,0.4); }
+  .compare-kpi-th {
+    padding: 20px 24px; border-bottom: 1px solid rgba(51,65,85,0.35);
+    border-left: 1px solid rgba(51,65,85,0.35); background: rgba(8,15,35,0.4);
+    text-align: left; vertical-align: top;
+  }
+  .compare-label-td {
+    padding: 20px; border-bottom: 1px solid rgba(51,65,85,0.35);
+    font-size: 11px; font-weight: 600; color: #475569;
+    text-transform: uppercase; letter-spacing: 0.08em; vertical-align: middle;
+  }
+  .compare-label-td.top { vertical-align: top; padding-top: 22px; }
+  .compare-cell {
+    padding: 20px 24px; border-bottom: 1px solid rgba(51,65,85,0.35);
+    border-left: 1px solid rgba(51,65,85,0.35); vertical-align: middle;
+  }
+  .compare-cell.top { vertical-align: top; }
+  .compare-cell.last { border-bottom: none; }
+  .compare-label-td.last { border-bottom: none; }
+  .remove-compare-btn {
+    background: none; border: none; color: #334155; cursor: pointer;
+    padding: 2px; flex-shrink: 0; font-size: 14px; line-height: 1;
+  }
+  .remove-compare-btn:hover { color: #64748b; }
+
+  /* Calculator */
+  .formula-box {
+    background: rgba(8,15,35,0.8); border: 1px solid; border-radius: 10px; padding: 14px 16px;
+  }
+  .formula-text {
+    font-size: 13px; margin: 0; line-height: 1.65;
+    font-family: 'Courier New', Courier, monospace; font-weight: 500;
+  }
+  .calc-input {
+    width: 100%; padding: 9px 12px; border-radius: 8px; font-size: 13px;
+    background: rgba(15,23,42,0.9); border: 1px solid; color: #e2e8f0;
+    outline: none; transition: border-color 0.15s; font-family: inherit;
+  }
+  .calc-error {
+    font-size: 12px; color: #f87171; padding: 8px 12px;
+    background: rgba(239,68,68,0.08); border-radius: 8px; border: 1px solid rgba(239,68,68,0.2);
+  }
+  .calc-result-box { border-radius: 10px; padding: 16px; text-align: center; }
+  .calc-result-value { font-weight: 700; line-height: 1.25; letter-spacing: -0.5px; }
+  .calc-run-btn {
+    width: 100%; padding: 11px 0; border-radius: 10px;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; border: 1px solid;
+  }
+</style>
+</head>
+<body>
+
+<header id="app-header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#818cf8" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      </div>
+      <span class="logo-text">KPI Finder</span>
+    </div>
+    <div class="header-actions">
+      <button id="compare-nav-btn" class="compare-nav-btn empty" data-action="open-compare">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 0v10" />
+        </svg>
+        Compare
+        <span id="compare-nav-count" class="compare-count" style="display:none;"></span>
+      </button>
+      <button id="compare-clear-btn" class="compare-clear-btn" data-action="clear-compare" title="Clear all comparisons" style="display:none;">&#x2715;</button>
+    </div>
+  </div>
+</header>
+
+<div id="filter-section">
+  <div class="filter-inner">
+    <div>
+      <h1 class="hero-title">Find the right KPI</h1>
+      <p class="hero-sub">Browse by department &amp; focus area, or search by name</p>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-action="toggle-mode" data-mode="tags">Browse by Tags</button>
+      <button class="mode-btn inactive" data-action="toggle-mode" data-mode="search">Search by Name</button>
+    </div>
+
+    <div id="search-section" style="display:none;width:100%;max-width:500px;">
+      <div style="position:relative;">
+        <svg class="search-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#64748b" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input id="search-input" type="text" placeholder="e.g. Revenue Growth, Churn Rate, NPS..." autocomplete="off" />
+      </div>
+    </div>
+
+    <div id="tags-section" style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+      <div style="text-align:center;">
+        <p class="filter-group-label">Department</p>
+        <div class="pills-row">
+          <button id="all-btn" class="filter-pill active" data-action="set-all">
+            <span class="dot" style="background:#818cf8;"></span> All
+          </button>
+          <div id="cat-pills" style="display:contents;"></div>
+        </div>
+      </div>
+
+      <button class="focus-toggle-btn" data-action="toggle-focus-panel">
+        <svg id="focus-arrow" class="focus-toggle-arrow" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+        <span id="focus-toggle-label">Show focus areas</span>
+        <span id="focus-count-badge" class="focus-count-badge" style="display:none;"></span>
+      </button>
+
+      <div id="focus-tags-panel" style="display:none;text-align:center;">
+        <p class="filter-group-label">Focus Area</p>
+        <div class="pills-row" id="focus-tag-pills"></div>
+      </div>
+
+      <button id="clear-filters-btn" class="clear-filters-btn" data-action="clear-filters" style="display:none;"></button>
+    </div>
+  </div>
+</div>
+
+<div id="results-section"></div>
+
+<div id="modal-detail" class="modal-overlay" style="display:none;"></div>
+<div id="modal-compare" class="modal-overlay top-align" style="display:none;"></div>
+<div id="modal-calc" class="modal-overlay" style="display:none;"></div>
+
+<script>
+
+  const KPI_DATA = [
+  {
+    "id": "1",
+    "category": "Financial",
+    "name": "Revenue Growth Rate",
+    "type": "Core",
+    "description": "% increase in revenue over a period",
+    "variableTags": [
+      "Sales Volume",
+      "Price",
+      "New Customers",
+      "Market Expansion",
+      "Product Mix",
+      "Discounts",
+      "Seasonality"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Growth",
+      "Pricing"
+    ],
+    "chartRecommendation": "Line Chart — tracks the trend of revenue changes period-over-period",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "2",
+    "category": "Financial",
+    "name": "Net Profit Margin",
+    "type": "Core",
+    "description": "Net income as a % of revenue",
+    "variableTags": [
+      "Revenue",
+      "COGS",
+      "Operating Costs",
+      "Interest Expense",
+      "Tax Rate",
+      "Depreciation"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Cost Management",
+      "Revenue"
+    ],
+    "chartRecommendation": "Line Chart — monitors margin trend; overlay with a target reference line",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "3",
+    "category": "Financial",
+    "name": "Gross Profit Margin",
+    "type": "Core",
+    "description": "Revenue minus COGS, as a % of revenue",
+    "variableTags": [
+      "Revenue",
+      "Cost of Goods Sold (COGS)",
+      "Pricing Strategy",
+      "Raw Material Costs",
+      "Production Efficiency"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Cost Management",
+      "Pricing"
+    ],
+    "chartRecommendation": "Combo Chart (Bar + Line) — bars show absolute gross profit, line shows margin %",
+    "chartType": "Combo Chart (Bar + Line)"
+  },
+  {
+    "id": "4",
+    "category": "Financial",
+    "name": "EBITDA",
+    "type": "Core",
+    "description": "Earnings before interest, taxes, depreciation & amortisation",
+    "variableTags": [
+      "Revenue",
+      "Operating Expenses",
+      "Headcount",
+      "Depreciation",
+      "Amortisation",
+      "Capital Investments"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Cost Management",
+      "Revenue"
+    ],
+    "chartRecommendation": "Waterfall Chart — breaks down how revenue flows through to EBITDA",
+    "chartType": "Waterfall Chart"
+  },
+  {
+    "id": "5",
+    "category": "Financial",
+    "name": "Return on Investment (ROI)",
+    "type": "Core",
+    "description": "Gain from investment relative to its cost",
+    "variableTags": [
+      "Net Gain",
+      "Investment Cost",
+      "Time Period",
+      "Risk Adjustment",
+      "Opportunity Cost"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Growth",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Bullet Chart — compares actual ROI against a benchmark or target",
+    "chartType": "Bullet Chart"
+  },
+  {
+    "id": "6",
+    "category": "Financial",
+    "name": "Return on Equity (ROE)",
+    "type": "Core",
+    "description": "Net income relative to shareholder equity",
+    "variableTags": [
+      "Net Income",
+      "Shareholder Equity",
+      "Financial Leverage",
+      "Dividend Policy",
+      "Retained Earnings"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Financial Health"
+    ],
+    "chartRecommendation": "Line Chart — shows ROE trend across reporting periods",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "7",
+    "category": "Financial",
+    "name": "Current Ratio",
+    "type": "Core",
+    "description": "Current assets divided by current liabilities (liquidity)",
+    "variableTags": [
+      "Cash & Equivalents",
+      "Accounts Receivable",
+      "Inventory",
+      "Short-Term Debt",
+      "Accounts Payable"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Risk"
+    ],
+    "chartRecommendation": "Gauge Chart — instantly shows whether the ratio is above or below the safe threshold",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "8",
+    "category": "Financial",
+    "name": "Debt-to-Equity Ratio",
+    "type": "Core",
+    "description": "Total liabilities vs. shareholder equity",
+    "variableTags": [
+      "Total Debt",
+      "Shareholder Equity",
+      "Borrowings",
+      "Retained Earnings",
+      "Capital Structure"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Risk"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — visualises the split between debt and equity financing over time",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "9",
+    "category": "Financial",
+    "name": "Operating Cash Flow",
+    "type": "Core",
+    "description": "Cash generated from core business operations",
+    "variableTags": [
+      "Net Income",
+      "Depreciation",
+      "Working Capital Changes",
+      "CapEx",
+      "Accounts Receivable",
+      "Payables"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Revenue",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Waterfall Chart — shows cash inflows and outflows leading to net operating cash",
+    "chartType": "Waterfall Chart"
+  },
+  {
+    "id": "10",
+    "category": "Financial",
+    "name": "Burn Rate",
+    "type": "Core",
+    "description": "How fast a company spends its cash reserves (startups)",
+    "variableTags": [
+      "Monthly Expenses",
+      "Revenue",
+      "Headcount",
+      "Operational Costs",
+      "Marketing Spend",
+      "R&D Spend"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Cost Management",
+      "Growth"
+    ],
+    "chartRecommendation": "Area Chart — illustrates cash depletion over time, making the runway visible",
+    "chartType": "Area Chart"
+  },
+  {
+    "id": "11",
+    "category": "Financial",
+    "name": "Working Capital Ratio",
+    "type": "Lesser-Known",
+    "description": "Short-term financial health indicator",
+    "variableTags": [
+      "Current Assets",
+      "Current Liabilities",
+      "Inventory",
+      "Accounts Receivable",
+      "Short-Term Borrowings"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Risk"
+    ],
+    "chartRecommendation": "Gauge Chart — highlights whether short-term financial health is in the safe zone",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "12",
+    "category": "Financial",
+    "name": "Cash Conversion Cycle (CCC)",
+    "type": "Lesser-Known",
+    "description": "Time to convert inventory into cash flow",
+    "variableTags": [
+      "Inventory Days Outstanding",
+      "Days Sales Outstanding",
+      "Days Payable Outstanding",
+      "Supply Chain Speed"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Process Efficiency",
+      "Supply Chain"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — each segment shows DIO, DSO, and DPO components",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "13",
+    "category": "Financial",
+    "name": "Economic Value Added (EVA)",
+    "type": "Lesser-Known",
+    "description": "Profit after deducting cost of capital",
+    "variableTags": [
+      "Net Operating Profit After Tax (NOPAT)",
+      "Weighted Average Cost of Capital (WACC)",
+      "Invested Capital"
+    ],
+    "generalTags": [
+      "Profitability",
+      "Financial Health"
+    ],
+    "chartRecommendation": "Bar Chart — compares EVA across periods or business units",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "14",
+    "category": "Financial",
+    "name": "Revenue per Employee",
+    "type": "Lesser-Known",
+    "description": "Efficiency of workforce relative to output",
+    "variableTags": [
+      "Total Revenue",
+      "Headcount",
+      "Productivity",
+      "Automation Level",
+      "Industry Benchmarks"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Workforce",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Bar Chart — compares productivity across teams, departments, or companies",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "15",
+    "category": "Financial",
+    "name": "Days Sales Outstanding (DSO)",
+    "type": "Lesser-Known",
+    "description": "Average days to collect payment after a sale",
+    "variableTags": [
+      "Accounts Receivable",
+      "Daily Sales Revenue",
+      "Payment Terms",
+      "Credit Policy",
+      "Customer Payment Behaviour"
+    ],
+    "generalTags": [
+      "Financial Health",
+      "Customer Retention",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Line Chart — tracks collection efficiency trend; flag spikes as early warning",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "16",
+    "category": "Sales",
+    "name": "Total Sales / Revenue",
+    "type": "Core",
+    "description": "Overall income generated",
+    "variableTags": [
+      "Sales Volume",
+      "Unit Price",
+      "Product Mix",
+      "Discounts",
+      "Seasonal Demand",
+      "Channel Mix"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Growth",
+      "Pricing"
+    ],
+    "chartRecommendation": "Line Chart — the classic revenue trend line across weeks, months, or quarters",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "17",
+    "category": "Sales",
+    "name": "Sales Growth Rate",
+    "type": "Core",
+    "description": "Period-over-period increase in sales",
+    "variableTags": [
+      "New Customers",
+      "Upsells",
+      "Market Expansion",
+      "Price Changes",
+      "Seasonal Trends",
+      "Churn"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Growth",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Column Chart — period-over-period growth bars make acceleration or slowdown clear",
+    "chartType": "Column Chart"
+  },
+  {
+    "id": "18",
+    "category": "Sales",
+    "name": "Conversion Rate",
+    "type": "Core",
+    "description": "% of leads that become paying customers",
+    "variableTags": [
+      "Lead Quality",
+      "Sales Team Performance",
+      "Product-Market Fit",
+      "Pricing",
+      "Follow-Up Process"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Growth",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Funnel Chart — maps the drop-off at each stage from lead to closed customer",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "19",
+    "category": "Sales",
+    "name": "Average Deal Size",
+    "type": "Core",
+    "description": "Mean value of closed sales",
+    "variableTags": [
+      "Product Mix",
+      "Negotiation Outcome",
+      "Upselling",
+      "Customer Segment",
+      "Pricing Strategy"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Pricing",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Box Plot — shows distribution of deal sizes and highlights outliers",
+    "chartType": "Box Plot"
+  },
+  {
+    "id": "20",
+    "category": "Sales",
+    "name": "Sales Cycle Length",
+    "type": "Core",
+    "description": "Average time to close a deal",
+    "variableTags": [
+      "Lead Quality",
+      "Product Complexity",
+      "Number of Decision Makers",
+      "Sales Process",
+      "Buyer Urgency"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Customer Acquisition",
+      "Workforce"
+    ],
+    "chartRecommendation": "Histogram — shows frequency distribution of deal durations",
+    "chartType": "Histogram"
+  },
+  {
+    "id": "21",
+    "category": "Sales",
+    "name": "Quota Attainment",
+    "type": "Core",
+    "description": "% of sales reps hitting their targets",
+    "variableTags": [
+      "Sales Team Performance",
+      "Quota Setting",
+      "Territory Assignment",
+      "Market Conditions",
+      "Enablement"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Growth",
+      "Revenue"
+    ],
+    "chartRecommendation": "Bullet Chart — each rep's actual attainment vs. quota target in a compact bar",
+    "chartType": "Bullet Chart"
+  },
+  {
+    "id": "22",
+    "category": "Sales",
+    "name": "Pipeline Value",
+    "type": "Core",
+    "description": "Total value of deals in the sales pipeline",
+    "variableTags": [
+      "Lead Volume",
+      "Average Deal Size",
+      "Stage Distribution",
+      "Win Rate",
+      "Time in Pipeline"
+    ],
+    "generalTags": [
+      "Growth",
+      "Revenue",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Funnel Chart — total value stacked by pipeline stage shows coverage at a glance",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "23",
+    "category": "Sales",
+    "name": "Win Rate",
+    "type": "Lesser-Known",
+    "description": "% of deals won vs. total deals pursued",
+    "variableTags": [
+      "Competitive Landscape",
+      "Sales Skills",
+      "Product Quality",
+      "Pricing",
+      "Proposal Quality"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Pricing",
+      "Product"
+    ],
+    "chartRecommendation": "Gauge Chart — quickly communicates whether the win rate is above or below target",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "24",
+    "category": "Sales",
+    "name": "Lead Velocity Rate (LVR)",
+    "type": "Lesser-Known",
+    "description": "Month-over-month growth in qualified leads",
+    "variableTags": [
+      "Marketing Spend",
+      "Campaign Performance",
+      "Market Demand",
+      "Channel Effectiveness",
+      "Content Quality"
+    ],
+    "generalTags": [
+      "Growth",
+      "Customer Acquisition",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Line Chart — month-on-month growth in qualified leads as a trend",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "25",
+    "category": "Sales",
+    "name": "Sales Velocity",
+    "type": "Lesser-Known",
+    "description": "Speed at which leads move through the pipeline",
+    "variableTags": [
+      "Pipeline Value",
+      "Win Rate",
+      "Average Deal Size",
+      "Sales Cycle Length",
+      "Lead Quality"
+    ],
+    "generalTags": [
+      "Growth",
+      "Revenue",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Line Chart — plots the pace at which value moves through the pipeline over time",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "26",
+    "category": "Sales",
+    "name": "Upsell / Cross-sell Rate",
+    "type": "Lesser-Known",
+    "description": "% of customers purchasing additional products",
+    "variableTags": [
+      "Customer Satisfaction",
+      "Product Portfolio Breadth",
+      "Sales Training",
+      "Timing",
+      "Recommendation Engine"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Customer Retention",
+      "Product"
+    ],
+    "chartRecommendation": "Stacked Column Chart — separates base revenue from upsell/cross-sell contributions",
+    "chartType": "Stacked Column Chart"
+  },
+  {
+    "id": "27",
+    "category": "Sales",
+    "name": "Opportunity-to-Win Ratio",
+    "type": "Lesser-Known",
+    "description": "Efficiency of converting opportunities to closed deals",
+    "variableTags": [
+      "Sales Process Quality",
+      "Product-Market Fit",
+      "Competitive Positioning",
+      "Pricing",
+      "Relationship Strength"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Process Efficiency",
+      "Pricing"
+    ],
+    "chartRecommendation": "Funnel Chart — opportunities narrowing down to won deals illustrates conversion depth",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "28",
+    "category": "Marketing",
+    "name": "Customer Acquisition Cost (CAC)",
+    "type": "Core",
+    "description": "Cost to acquire one new customer",
+    "variableTags": [
+      "Marketing Spend",
+      "Sales Costs",
+      "New Customers Acquired",
+      "Channel Efficiency",
+      "Campaign Performance"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Cost Management",
+      "Growth"
+    ],
+    "chartRecommendation": "Line Chart — monitors CAC trend alongside CAC:LTV ratio for context",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "29",
+    "category": "Marketing",
+    "name": "Return on Ad Spend (ROAS)",
+    "type": "Core",
+    "description": "Revenue generated per £/$ spent on ads",
+    "variableTags": [
+      "Ad Revenue Generated",
+      "Ad Spend",
+      "Conversion Rate",
+      "Average Order Value",
+      "Attribution Model"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Revenue",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Bar Chart — compares ROAS across campaigns, channels, or time periods",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "30",
+    "category": "Marketing",
+    "name": "Click-Through Rate (CTR)",
+    "type": "Core",
+    "description": "% of people who click on an ad or link",
+    "variableTags": [
+      "Ad Creative Quality",
+      "Targeting Accuracy",
+      "Relevance Score",
+      "Placement",
+      "Audience Segment"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Digital Performance",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Line Chart — trends CTR over time, often broken down by channel or ad type",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "31",
+    "category": "Marketing",
+    "name": "Cost Per Click (CPC)",
+    "type": "Core",
+    "description": "Average cost per individual ad click",
+    "variableTags": [
+      "Bidding Strategy",
+      "Ad Quality Score",
+      "Keyword Competition",
+      "Targeting",
+      "Platform Algorithm"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Cost Management",
+      "Digital Performance"
+    ],
+    "chartRecommendation": "Line Chart — tracks cost efficiency trend across campaigns or bidding periods",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "32",
+    "category": "Marketing",
+    "name": "Cost Per Lead (CPL)",
+    "type": "Core",
+    "description": "Cost to generate one lead",
+    "variableTags": [
+      "Ad Spend",
+      "Landing Page Conversion Rate",
+      "Campaign Targeting",
+      "Offer Value",
+      "Form Complexity"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Cost Management",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Bar Chart — compares CPL across campaigns or channels to identify best performers",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "33",
+    "category": "Marketing",
+    "name": "Marketing Qualified Leads (MQLs)",
+    "type": "Core",
+    "description": "Leads deemed likely to convert",
+    "variableTags": [
+      "Lead Volume",
+      "Lead Scoring Criteria",
+      "Campaign Quality",
+      "ICP Alignment",
+      "Behavioural Triggers"
+    ],
+    "generalTags": [
+      "Customer Acquisition",
+      "Growth",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Column Chart — volume of MQLs by period; overlay with SQL conversion rate",
+    "chartType": "Column Chart"
+  },
+  {
+    "id": "34",
+    "category": "Marketing",
+    "name": "Brand Awareness",
+    "type": "Core",
+    "description": "Measured via surveys, reach, and impressions",
+    "variableTags": [
+      "Reach",
+      "Impressions",
+      "Share of Voice",
+      "PR Activity",
+      "Social Mentions",
+      "Ad Frequency"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Growth",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Area Chart — builds a picture of cumulative reach and awareness growth over time",
+    "chartType": "Area Chart"
+  },
+  {
+    "id": "35",
+    "category": "Marketing",
+    "name": "Email Open Rate / Click Rate",
+    "type": "Core",
+    "description": "Engagement with email campaigns",
+    "variableTags": [
+      "Subject Line Quality",
+      "Send Time",
+      "List Quality",
+      "Segmentation",
+      "Sender Reputation",
+      "Preview Text"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Customer Retention",
+      "Digital Performance"
+    ],
+    "chartRecommendation": "Line Chart — dual-line chart with open rate and click rate on the same axis",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "36",
+    "category": "Marketing",
+    "name": "Marketing Attributed Revenue",
+    "type": "Lesser-Known",
+    "description": "Revenue directly tied to marketing efforts",
+    "variableTags": [
+      "Campaign Attribution Model",
+      "Revenue Generated",
+      "Channel Mix",
+      "Multi-Touch Weighting",
+      "Sales Alignment"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Marketing & Brand",
+      "Data & Analytics"
+    ],
+    "chartRecommendation": "Waterfall Chart — shows which campaigns and channels contributed to total revenue",
+    "chartType": "Waterfall Chart"
+  },
+  {
+    "id": "37",
+    "category": "Marketing",
+    "name": "Share of Voice (SOV)",
+    "type": "Lesser-Known",
+    "description": "Brand's presence vs. competitors in the market",
+    "variableTags": [
+      "Brand Mentions",
+      "Competitor Activity",
+      "Marketing Spend",
+      "PR Coverage",
+      "Social Following"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Growth",
+      "Pricing"
+    ],
+    "chartRecommendation": "Donut Chart — shows brand's share vs. named competitors as proportional slices",
+    "chartType": "Donut Chart"
+  },
+  {
+    "id": "38",
+    "category": "Marketing",
+    "name": "Content Engagement Rate",
+    "type": "Lesser-Known",
+    "description": "Interactions per piece of content published",
+    "variableTags": [
+      "Content Quality",
+      "Topic Relevance",
+      "Audience Targeting",
+      "Distribution Channel",
+      "Posting Frequency"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Digital Performance",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Bar Chart — ranks content pieces or topics by engagement rate",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "39",
+    "category": "Marketing",
+    "name": "Organic Traffic Growth",
+    "type": "Lesser-Known",
+    "description": "Increase in unpaid website visitors over time",
+    "variableTags": [
+      "SEO Performance",
+      "Content Volume",
+      "Backlink Profile",
+      "Keyword Rankings",
+      "Domain Authority"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Growth",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Area Chart — cumulative organic visitor growth makes the upward trend tangible",
+    "chartType": "Area Chart"
+  },
+  {
+    "id": "40",
+    "category": "Marketing",
+    "name": "Time on Page",
+    "type": "Lesser-Known",
+    "description": "Average duration visitors spend on a web page",
+    "variableTags": [
+      "Content Quality",
+      "Readability",
+      "Media Richness",
+      "Internal Links",
+      "Page Layout",
+      "Audience Intent"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Bar Chart — ranks pages by average time spent, highlighting top-performing content",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "41",
+    "category": "Marketing",
+    "name": "Ad Frequency",
+    "type": "Lesser-Known",
+    "description": "Average number of times a person sees your ad",
+    "variableTags": [
+      "Campaign Budget",
+      "Audience Size",
+      "Ad Scheduling",
+      "Impression Cap Settings",
+      "Targeting Overlap"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Digital Performance",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — monitors ad frequency to detect audience fatigue",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "42",
+    "category": "Customer",
+    "name": "Net Promoter Score (NPS)",
+    "type": "Core",
+    "description": "Likelihood of customers recommending you (scale 0–10)",
+    "variableTags": [
+      "Customer Satisfaction",
+      "Product Quality",
+      "Support Quality",
+      "Ease of Use",
+      "Brand Perception"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Customer Retention",
+      "Growth"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — segments of Promoters, Passives, and Detractors per period",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "43",
+    "category": "Customer",
+    "name": "Customer Satisfaction Score (CSAT)",
+    "type": "Core",
+    "description": "Satisfaction rating post-interaction",
+    "variableTags": [
+      "Service Quality",
+      "Response Time",
+      "Resolution Rate",
+      "Agent Training",
+      "Product Quality"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Quality",
+      "Customer Retention"
+    ],
+    "chartRecommendation": "Gauge Chart — clearly shows current satisfaction level against the target band",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "44",
+    "category": "Customer",
+    "name": "Customer Lifetime Value (CLV / LTV)",
+    "type": "Core",
+    "description": "Total revenue expected from a customer over their relationship",
+    "variableTags": [
+      "Purchase Frequency",
+      "Average Order Value",
+      "Retention Rate",
+      "Gross Margin",
+      "Churn Rate"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Customer Retention",
+      "Growth"
+    ],
+    "chartRecommendation": "Bar Chart — compares LTV across customer segments or cohorts",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "45",
+    "category": "Customer",
+    "name": "Customer Retention Rate",
+    "type": "Core",
+    "description": "% of customers retained over a period",
+    "variableTags": [
+      "Product Value",
+      "Customer Service Quality",
+      "Pricing Competitiveness",
+      "Competition",
+      "Loyalty Programmes"
+    ],
+    "generalTags": [
+      "Customer Retention",
+      "Revenue",
+      "Growth"
+    ],
+    "chartRecommendation": "Line Chart — retention trend over time; often shown alongside churn rate",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "46",
+    "category": "Customer",
+    "name": "Customer Churn Rate",
+    "type": "Core",
+    "description": "% of customers lost over a period",
+    "variableTags": [
+      "Product Issues",
+      "Pricing",
+      "Competition",
+      "Customer Experience",
+      "Onboarding Quality",
+      "Contract Terms"
+    ],
+    "generalTags": [
+      "Customer Retention",
+      "Revenue",
+      "Risk"
+    ],
+    "chartRecommendation": "Line Chart — churn trend with period annotations for product or pricing changes",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "47",
+    "category": "Customer",
+    "name": "Customer Effort Score (CES)",
+    "type": "Core",
+    "description": "How easy it is to do business with you",
+    "variableTags": [
+      "Process Complexity",
+      "Support Quality",
+      "Self-Service Options",
+      "UX Design",
+      "Response Time"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Process Efficiency",
+      "Product"
+    ],
+    "chartRecommendation": "Gauge Chart — CES sits on a simple scale, making a gauge the clearest display",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "48",
+    "category": "Customer",
+    "name": "Customer Health Score",
+    "type": "Lesser-Known",
+    "description": "Composite score predicting churn or expansion",
+    "variableTags": [
+      "Product Usage Frequency",
+      "Support Ticket Volume",
+      "Payment History",
+      "Engagement Depth",
+      "NPS"
+    ],
+    "generalTags": [
+      "Customer Retention",
+      "Data & Analytics",
+      "Risk"
+    ],
+    "chartRecommendation": "Heatmap — a grid of customers vs. health dimensions reveals at-risk patterns",
+    "chartType": "Heatmap"
+  },
+  {
+    "id": "49",
+    "category": "Customer",
+    "name": "Product Adoption Rate",
+    "type": "Lesser-Known",
+    "description": "% of customers actively using a product/feature",
+    "variableTags": [
+      "Onboarding Quality",
+      "Product Usability",
+      "In-App Guidance",
+      "Training Resources",
+      "Feature Discoverability"
+    ],
+    "generalTags": [
+      "Product",
+      "Customer Retention",
+      "Growth"
+    ],
+    "chartRecommendation": "Line Chart — adoption curve over time shows whether growth is accelerating",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "50",
+    "category": "Customer",
+    "name": "Repeat Purchase Rate",
+    "type": "Lesser-Known",
+    "description": "% of customers who buy more than once",
+    "variableTags": [
+      "Product Satisfaction",
+      "Loyalty Programmes",
+      "Email Marketing",
+      "Re-engagement Campaigns",
+      "Pricing"
+    ],
+    "generalTags": [
+      "Customer Retention",
+      "Revenue",
+      "Marketing & Brand"
+    ],
+    "chartRecommendation": "Line Chart — tracks loyalty and retention trends in transactional businesses",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "51",
+    "category": "Customer",
+    "name": "Customer Engagement Score",
+    "type": "Lesser-Known",
+    "description": "Behavioural scoring across all touchpoints",
+    "variableTags": [
+      "Login Frequency",
+      "Feature Usage",
+      "Email Opens",
+      "Support Interactions",
+      "Community Participation"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Customer Retention",
+      "Digital Performance"
+    ],
+    "chartRecommendation": "Radar Chart — maps engagement across multiple dimensions (logins, features, support)",
+    "chartType": "Radar Chart"
+  },
+  {
+    "id": "52",
+    "category": "Customer",
+    "name": "Referral Rate",
+    "type": "Lesser-Known",
+    "description": "% of new customers acquired through existing customers",
+    "variableTags": [
+      "Customer Satisfaction",
+      "Referral Programme Design",
+      "Incentives",
+      "Brand Advocacy",
+      "Ease of Sharing"
+    ],
+    "generalTags": [
+      "Growth",
+      "Customer Acquisition",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Line Chart — referral rate trend highlights the impact of programme changes",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "53",
+    "category": "Customer",
+    "name": "Wallet Share",
+    "type": "Lesser-Known",
+    "description": "% of a customer's total spend captured by your business",
+    "variableTags": [
+      "Customer Loyalty",
+      "Product Range",
+      "Competitive Pricing",
+      "Cross-sell Success",
+      "Switching Costs"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Customer Retention",
+      "Pricing"
+    ],
+    "chartRecommendation": "Donut Chart — your share vs. competitors in a customer's total spend",
+    "chartType": "Donut Chart"
+  },
+  {
+    "id": "54",
+    "category": "Operational",
+    "name": "Overall Equipment Effectiveness (OEE)",
+    "type": "Core",
+    "description": "Manufacturing productivity metric (Availability × Performance × Quality)",
+    "variableTags": [
+      "Machine Availability",
+      "Performance Rate",
+      "Quality Rate",
+      "Planned Downtime",
+      "Unplanned Downtime"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Quality",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Gauge Chart — instantly communicates how close to world-class OEE the plant is",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "55",
+    "category": "Operational",
+    "name": "Order Fulfillment Cycle Time",
+    "type": "Core",
+    "description": "Time from order placement to delivery",
+    "variableTags": [
+      "Order Processing Speed",
+      "Inventory Levels",
+      "Picking & Packing Efficiency",
+      "Shipping Partner SLA"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Customer Experience",
+      "Supply Chain"
+    ],
+    "chartRecommendation": "Bar Chart — compares cycle times across product types, warehouses, or periods",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "56",
+    "category": "Operational",
+    "name": "Inventory Turnover",
+    "type": "Core",
+    "description": "How often inventory is sold/replaced per period",
+    "variableTags": [
+      "Sales Volume",
+      "Inventory Levels",
+      "Demand Forecasting Accuracy",
+      "Reorder Points",
+      "Seasonality"
+    ],
+    "generalTags": [
+      "Supply Chain",
+      "Cost Management",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Line Chart — turnover trend identifies over-stocking or supply chain issues",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "57",
+    "category": "Operational",
+    "name": "Capacity Utilisation Rate",
+    "type": "Core",
+    "description": "% of production capacity currently in use",
+    "variableTags": [
+      "Production Volume",
+      "Total Capacity",
+      "Demand Levels",
+      "Scheduled Downtime",
+      "Workforce Availability"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Cost Management",
+      "Growth"
+    ],
+    "chartRecommendation": "Gauge Chart — shows what % of capacity is in use vs. the optimal range",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "58",
+    "category": "Operational",
+    "name": "On-Time Delivery Rate",
+    "type": "Core",
+    "description": "% of orders delivered on schedule",
+    "variableTags": [
+      "Supply Chain Reliability",
+      "Logistics Partners",
+      "Inventory Levels",
+      "Demand Planning",
+      "Lead Times"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Supply Chain",
+      "Quality"
+    ],
+    "chartRecommendation": "Line Chart — delivery performance trend; dips signal logistics problems",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "59",
+    "category": "Operational",
+    "name": "Cost per Unit Produced",
+    "type": "Core",
+    "description": "Efficiency of production",
+    "variableTags": [
+      "Labour Costs",
+      "Raw Material Costs",
+      "Overheads",
+      "Production Volume",
+      "Waste Rate",
+      "Energy Costs"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Process Efficiency",
+      "Profitability"
+    ],
+    "chartRecommendation": "Line Chart — cost efficiency trend over time; link to volume for context",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "60",
+    "category": "Operational",
+    "name": "Throughput Rate",
+    "type": "Lesser-Known",
+    "description": "Units produced per unit of time",
+    "variableTags": [
+      "Machine Speed",
+      "Labour Efficiency",
+      "Process Bottlenecks",
+      "Downtime",
+      "Shift Scheduling"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Quality",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — production rate over time; useful for spotting bottleneck periods",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "61",
+    "category": "Operational",
+    "name": "Supplier Lead Time",
+    "type": "Lesser-Known",
+    "description": "Time between ordering and receiving from suppliers",
+    "variableTags": [
+      "Supplier Performance",
+      "Order Volume",
+      "Logistics Reliability",
+      "Geography",
+      "Contract Terms"
+    ],
+    "generalTags": [
+      "Supply Chain",
+      "Process Efficiency",
+      "Risk"
+    ],
+    "chartRecommendation": "Box Plot — shows the distribution and variability of lead times per supplier",
+    "chartType": "Box Plot"
+  },
+  {
+    "id": "62",
+    "category": "Operational",
+    "name": "Shrinkage Rate",
+    "type": "Lesser-Known",
+    "description": "Inventory lost to theft, damage, or administrative error",
+    "variableTags": [
+      "Theft Incidence",
+      "Physical Damage",
+      "Spoilage",
+      "Administrative Errors",
+      "Warehouse Procedures"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Risk",
+      "Supply Chain"
+    ],
+    "chartRecommendation": "Bar Chart — compares shrinkage by category, location, or time period",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "63",
+    "category": "Operational",
+    "name": "Process Adherence Rate",
+    "type": "Lesser-Known",
+    "description": "% of tasks completed per defined process / SOP",
+    "variableTags": [
+      "Employee Training",
+      "SOP Clarity",
+      "Monitoring Mechanisms",
+      "Management Enforcement",
+      "Culture"
+    ],
+    "generalTags": [
+      "Process Efficiency",
+      "Quality",
+      "Workforce"
+    ],
+    "chartRecommendation": "Gauge Chart — simple % adherence shown against a target compliance level",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "64",
+    "category": "Operational",
+    "name": "Mean Time to Repair (MTTR)",
+    "type": "Lesser-Known",
+    "description": "Average time to fix a failed system or process",
+    "variableTags": [
+      "Technical Expertise",
+      "Spare Parts Availability",
+      "System Complexity",
+      "Diagnostic Speed",
+      "Tooling"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Process Efficiency",
+      "Risk"
+    ],
+    "chartRecommendation": "Line Chart — MTTR trend; spikes flag systemic issues or resource shortfalls",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "65",
+    "category": "HR & People",
+    "name": "Employee Turnover Rate",
+    "type": "Core",
+    "description": "% of employees leaving over a period",
+    "variableTags": [
+      "Job Satisfaction",
+      "Compensation Competitiveness",
+      "Career Development",
+      "Culture",
+      "Management Quality"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Cost Management",
+      "Growth"
+    ],
+    "chartRecommendation": "Line Chart — turnover trend across periods; annotate with culture or pay events",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "66",
+    "category": "HR & People",
+    "name": "Employee Satisfaction / Engagement Score",
+    "type": "Core",
+    "description": "Workplace sentiment measure",
+    "variableTags": [
+      "Management Quality",
+      "Work Environment",
+      "Benefits & Perks",
+      "Workload",
+      "Recognition",
+      "Purpose"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Customer Experience",
+      "Growth"
+    ],
+    "chartRecommendation": "Gauge Chart — benchmark current score against industry and internal targets",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "67",
+    "category": "HR & People",
+    "name": "Absenteeism Rate",
+    "type": "Core",
+    "description": "% of unplanned employee absences",
+    "variableTags": [
+      "Employee Wellbeing",
+      "Workload Pressure",
+      "Culture",
+      "Health Policies",
+      "Remote Work Flexibility"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Process Efficiency",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — monthly or quarterly absenteeism trend",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "68",
+    "category": "HR & People",
+    "name": "Time to Hire",
+    "type": "Core",
+    "description": "Days from job posting to offer acceptance",
+    "variableTags": [
+      "Recruitment Process Efficiency",
+      "Job Market Conditions",
+      "Sourcing Channels",
+      "Role Complexity"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Process Efficiency",
+      "Growth"
+    ],
+    "chartRecommendation": "Bar Chart — average days to hire across roles, departments, or time periods",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "69",
+    "category": "HR & People",
+    "name": "Cost per Hire",
+    "type": "Core",
+    "description": "Total recruiting cost per new employee",
+    "variableTags": [
+      "Advertising Spend",
+      "Agency Fees",
+      "Recruiter Time",
+      "Interview Hours",
+      "Onboarding Costs"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Workforce",
+      "Growth"
+    ],
+    "chartRecommendation": "Bar Chart — compares hiring cost across roles or sourcing channels",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "70",
+    "category": "HR & People",
+    "name": "Training Completion Rate",
+    "type": "Core",
+    "description": "% of staff completing required training",
+    "variableTags": [
+      "Training Accessibility",
+      "Content Quality",
+      "Management Enforcement",
+      "Workload",
+      "Motivation"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Quality",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — completed vs. in-progress vs. not-started by team",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "71",
+    "category": "HR & People",
+    "name": "Internal Promotion Rate",
+    "type": "Lesser-Known",
+    "description": "% of roles filled internally vs. externally",
+    "variableTags": [
+      "Career Development Investment",
+      "Succession Planning",
+      "Talent Pipeline Depth",
+      "Internal Mobility Policy"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Growth",
+      "Customer Retention"
+    ],
+    "chartRecommendation": "Column Chart — compares internal vs. external hires per period or department",
+    "chartType": "Column Chart"
+  },
+  {
+    "id": "72",
+    "category": "HR & People",
+    "name": "HR-to-Employee Ratio",
+    "type": "Lesser-Known",
+    "description": "Number of HR staff per 100 employees",
+    "variableTags": [
+      "Company Size",
+      "HR Automation Level",
+      "Outsourced Functions",
+      "Workforce Complexity",
+      "HR Strategy"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Process Efficiency",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — monitors ratio as headcount scales",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "73",
+    "category": "HR & People",
+    "name": "Talent Density",
+    "type": "Lesser-Known",
+    "description": "% of high performers relative to total workforce",
+    "variableTags": [
+      "Hiring Standards",
+      "Training Investment",
+      "Performance Management Rigour",
+      "Culture",
+      "Attrition of Low Performers"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Quality",
+      "Growth"
+    ],
+    "chartRecommendation": "Bar Chart — % high performers by department or team",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "74",
+    "category": "HR & People",
+    "name": "Manager Effectiveness Score",
+    "type": "Lesser-Known",
+    "description": "Employee ratings of their direct managers",
+    "variableTags": [
+      "Leadership Training",
+      "Feedback Culture",
+      "Communication Skills",
+      "Team Performance",
+      "Empathy"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Customer Experience",
+      "Quality"
+    ],
+    "chartRecommendation": "Radar Chart — maps effectiveness across multiple competency dimensions per manager",
+    "chartType": "Radar Chart"
+  },
+  {
+    "id": "75",
+    "category": "HR & People",
+    "name": "Retention Rate of Top Performers",
+    "type": "Lesser-Known",
+    "description": "Specifically tracking high-value staff retention",
+    "variableTags": [
+      "Compensation",
+      "Recognition",
+      "Career Opportunities",
+      "Engaging Work",
+      "Manager Relationships",
+      "Culture"
+    ],
+    "generalTags": [
+      "Workforce",
+      "Growth",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — trend line with annotations for reward or culture changes",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "76",
+    "category": "Technology / IT",
+    "name": "System Uptime / Availability",
+    "type": "Core",
+    "description": "% of time systems are operational",
+    "variableTags": [
+      "Infrastructure Quality",
+      "Maintenance Frequency",
+      "Redundancy Design",
+      "Traffic Load",
+      "Incident Rate"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Risk",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Gauge Chart — % uptime displayed against the SLA target (e.g., 99.9%)",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "77",
+    "category": "Technology / IT",
+    "name": "Mean Time Between Failures (MTBF)",
+    "type": "Core",
+    "description": "Reliability of systems between failure events",
+    "variableTags": [
+      "Hardware Quality",
+      "Software Quality",
+      "Maintenance Schedule",
+      "System Age",
+      "Environmental Conditions"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Risk",
+      "Quality"
+    ],
+    "chartRecommendation": "Line Chart — MTBF trend shows whether system reliability is improving",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "78",
+    "category": "Technology / IT",
+    "name": "IT Cost as % of Revenue",
+    "type": "Core",
+    "description": "Technology spend efficiency relative to revenue",
+    "variableTags": [
+      "IT Headcount",
+      "Software Licences",
+      "Infrastructure Costs",
+      "Revenue",
+      "Cloud Spend",
+      "Vendor Contracts"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Technology & Systems",
+      "Profitability"
+    ],
+    "chartRecommendation": "Line Chart — tracks IT spend efficiency as the business scales",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "79",
+    "category": "Technology / IT",
+    "name": "Incident Resolution Time",
+    "type": "Core",
+    "description": "Average time to resolve IT issues",
+    "variableTags": [
+      "Team Size",
+      "Technical Expertise",
+      "Tooling Quality",
+      "Incident Severity",
+      "Documentation",
+      "On-Call Rota"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Process Efficiency",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Bar Chart — average resolution time by incident category or severity",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "80",
+    "category": "Technology / IT",
+    "name": "Technical Debt Ratio",
+    "type": "Lesser-Known",
+    "description": "Cost of fixing existing code vs. cost of new development",
+    "variableTags": [
+      "Code Quality",
+      "Development Speed Pressure",
+      "Refactoring Investment",
+      "Test Coverage",
+      "Legacy Systems"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Cost Management",
+      "Quality"
+    ],
+    "chartRecommendation": "Area Chart — growing area signals accumulating debt needing remediation",
+    "chartType": "Area Chart"
+  },
+  {
+    "id": "81",
+    "category": "Technology / IT",
+    "name": "Deployment Frequency",
+    "type": "Lesser-Known",
+    "description": "How often new code / updates are released to production",
+    "variableTags": [
+      "CI/CD Pipeline Maturity",
+      "Team Size",
+      "Release Process",
+      "Automation Level",
+      "Feature Flag Usage"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Process Efficiency",
+      "Growth"
+    ],
+    "chartRecommendation": "Column Chart — deployments per week or month shows CI/CD maturity over time",
+    "chartType": "Column Chart"
+  },
+  {
+    "id": "82",
+    "category": "Technology / IT",
+    "name": "Change Failure Rate",
+    "type": "Lesser-Known",
+    "description": "% of deployments causing failures or rollbacks",
+    "variableTags": [
+      "Code Review Quality",
+      "Testing Rigour",
+      "Deployment Process",
+      "Rollback Capability",
+      "Team Experience"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Quality",
+      "Risk"
+    ],
+    "chartRecommendation": "Line Chart — failure rate trend tied to release process improvements",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "83",
+    "category": "Technology / IT",
+    "name": "API Response Time",
+    "type": "Lesser-Known",
+    "description": "Speed of application programming interfaces",
+    "variableTags": [
+      "Server Load",
+      "Code Efficiency",
+      "Network Latency",
+      "Caching Strategy",
+      "Database Query Performance"
+    ],
+    "generalTags": [
+      "Technology & Systems",
+      "Digital Performance",
+      "Customer Experience"
+    ],
+    "chartRecommendation": "Line Chart — latency trend with percentile overlays (p50, p95, p99)",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "84",
+    "category": "Technology / IT",
+    "name": "Data Quality Score",
+    "type": "Lesser-Known",
+    "description": "Accuracy, completeness, and consistency of data",
+    "variableTags": [
+      "Data Governance Framework",
+      "Source System Quality",
+      "Validation Rules",
+      "ETL Processes",
+      "Data Ownership"
+    ],
+    "generalTags": [
+      "Data & Analytics",
+      "Technology & Systems",
+      "Quality"
+    ],
+    "chartRecommendation": "Gauge Chart — composite score displayed against a target quality threshold",
+    "chartType": "Gauge Chart"
+  },
+  {
+    "id": "85",
+    "category": "Technology / IT",
+    "name": "License Utilisation Rate",
+    "type": "Lesser-Known",
+    "description": "% of purchased software licences actively used",
+    "variableTags": [
+      "User Adoption Rate",
+      "Licence Allocation Policy",
+      "Software Needs Assessment",
+      "Offboarding Process"
+    ],
+    "generalTags": [
+      "Cost Management",
+      "Technology & Systems",
+      "Process Efficiency"
+    ],
+    "chartRecommendation": "Stacked Bar Chart — used vs. unused licences by software product",
+    "chartType": "Stacked Bar Chart"
+  },
+  {
+    "id": "86",
+    "category": "E-commerce / Digital",
+    "name": "Cart Abandonment Rate",
+    "type": "Core",
+    "description": "% of shoppers who add items but don't complete purchase",
+    "variableTags": [
+      "Checkout UX",
+      "Unexpected Shipping Costs",
+      "Payment Options",
+      "Site Speed",
+      "Trust Signals",
+      "Price Sensitivity"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Revenue"
+    ],
+    "chartRecommendation": "Funnel Chart — shows where customers drop off across the cart-to-checkout journey",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "87",
+    "category": "E-commerce / Digital",
+    "name": "Average Order Value (AOV)",
+    "type": "Core",
+    "description": "Mean spend per transaction",
+    "variableTags": [
+      "Product Mix",
+      "Upselling Tactics",
+      "Cross-sell Recommendations",
+      "Promotions",
+      "Bundling",
+      "Minimum Order Thresholds"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Pricing",
+      "Digital Performance"
+    ],
+    "chartRecommendation": "Line Chart — AOV trend over time; overlay with promotional periods",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "88",
+    "category": "E-commerce / Digital",
+    "name": "Revenue per Visitor (RPV)",
+    "type": "Core",
+    "description": "Revenue generated per site visitor",
+    "variableTags": [
+      "Conversion Rate",
+      "Average Order Value",
+      "Traffic Quality",
+      "Product Catalogue",
+      "Landing Page Relevance"
+    ],
+    "generalTags": [
+      "Revenue",
+      "Digital Performance",
+      "Customer Acquisition"
+    ],
+    "chartRecommendation": "Line Chart — RPV trend with traffic source breakdown",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "89",
+    "category": "E-commerce / Digital",
+    "name": "Return on Ad Spend (ROAS)",
+    "type": "Core",
+    "description": "E-commerce advertising efficiency",
+    "variableTags": [
+      "Ad Creative Quality",
+      "Audience Targeting",
+      "Landing Page Conversion",
+      "Average Order Value",
+      "Attribution Model"
+    ],
+    "generalTags": [
+      "Marketing & Brand",
+      "Revenue",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Bar Chart — compares ROAS across campaigns, channels, or time periods",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "90",
+    "category": "E-commerce / Digital",
+    "name": "Checkout Completion Rate",
+    "type": "Core",
+    "description": "% of users completing the checkout flow",
+    "variableTags": [
+      "UX Design",
+      "Payment Options Available",
+      "Page Load Speed",
+      "Trust Signals",
+      "Form Complexity",
+      "Guest Checkout"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Revenue"
+    ],
+    "chartRecommendation": "Funnel Chart — step-by-step drop-off from cart entry to payment confirmation",
+    "chartType": "Funnel Chart"
+  },
+  {
+    "id": "91",
+    "category": "E-commerce / Digital",
+    "name": "Search Exit Rate",
+    "type": "Lesser-Known",
+    "description": "% of users who leave after using the site search",
+    "variableTags": [
+      "Search Relevance Algorithm",
+      "Product Availability",
+      "Search UX Design",
+      "Catalogue Breadth",
+      "Synonym Handling"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Product"
+    ],
+    "chartRecommendation": "Bar Chart — ranks search queries by exit rate to identify gaps in the catalogue",
+    "chartType": "Bar Chart"
+  },
+  {
+    "id": "92",
+    "category": "E-commerce / Digital",
+    "name": "Wishlist Conversion Rate",
+    "type": "Lesser-Known",
+    "description": "% of wishlist items that are eventually purchased",
+    "variableTags": [
+      "Price Change Alerts",
+      "Email Reminders",
+      "Stock Availability",
+      "Promotions",
+      "Time Since Wishlisted"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Retention",
+      "Revenue"
+    ],
+    "chartRecommendation": "Line Chart — conversion rate trend from wishlisted items to purchases",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "93",
+    "category": "E-commerce / Digital",
+    "name": "Payment Failure Rate",
+    "type": "Lesser-Known",
+    "description": "% of transactions that fail at payment stage",
+    "variableTags": [
+      "Payment Gateway Reliability",
+      "Card Issuer Decline Rates",
+      "Technical Integration Quality",
+      "Fraud Filters"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Risk",
+      "Technology & Systems"
+    ],
+    "chartRecommendation": "Line Chart — failure rate trend; spikes indicate gateway or technical issues",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "94",
+    "category": "E-commerce / Digital",
+    "name": "Refund Rate",
+    "type": "Lesser-Known",
+    "description": "% of orders resulting in a refund",
+    "variableTags": [
+      "Product Quality",
+      "Accuracy of Product Descriptions",
+      "Customer Expectations",
+      "Delivery Condition",
+      "Returns Policy"
+    ],
+    "generalTags": [
+      "Customer Experience",
+      "Quality",
+      "Cost Management"
+    ],
+    "chartRecommendation": "Line Chart — tracks refund rate trend alongside product or policy changes",
+    "chartType": "Line Chart"
+  },
+  {
+    "id": "95",
+    "category": "E-commerce / Digital",
+    "name": "Mobile vs. Desktop Conversion Split",
+    "type": "Lesser-Known",
+    "description": "Channel-specific conversion rate insights across devices",
+    "variableTags": [
+      "Mobile UX Quality",
+      "Page Load Speed on Mobile",
+      "Device-Specific Features",
+      "Checkout Simplicity",
+      "Screen Size Optimisation"
+    ],
+    "generalTags": [
+      "Digital Performance",
+      "Customer Experience",
+      "Data & Analytics"
+    ],
+    "chartRecommendation": "Grouped Bar Chart — side-by-side conversion rates for mobile and desktop by period",
+    "chartType": "Grouped Bar Chart"
+  }
+];
+
+  // KPI calculation formulas for all 95 KPIs
+// Each entry: formula (display string), inputs (array), calculate (fn), unit, precision
+const KPI_FORMULAS = {
+
+  // ── FINANCIAL ────────────────────────────────────────────────────────────────
+  "1": {
+    formula: "((Current Revenue − Prior Revenue) ÷ Prior Revenue) × 100",
+    inputs: [
+      { id: "curr", label: "Current Period Revenue ($)" },
+      { id: "prev", label: "Prior Period Revenue ($)" },
+    ],
+    calculate: v => {
+      const curr = parseFloat(v.curr), prev = parseFloat(v.prev);
+      if (!isFinite(curr) || !isFinite(prev) || prev === 0) return null;
+      return ((curr - prev) / prev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "2": {
+    formula: "(Net Income ÷ Revenue) × 100",
+    inputs: [
+      { id: "netIncome", label: "Net Income ($)" },
+      { id: "revenue", label: "Total Revenue ($)" },
+    ],
+    calculate: v => {
+      const ni = parseFloat(v.netIncome), rev = parseFloat(v.revenue);
+      if (!isFinite(ni) || !isFinite(rev) || rev === 0) return null;
+      return (ni / rev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "3": {
+    formula: "((Revenue − COGS) ÷ Revenue) × 100",
+    inputs: [
+      { id: "revenue", label: "Revenue ($)" },
+      { id: "cogs", label: "Cost of Goods Sold — COGS ($)" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), cogs = parseFloat(v.cogs);
+      if (!isFinite(rev) || !isFinite(cogs) || rev === 0) return null;
+      return ((rev - cogs) / rev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "4": {
+    formula: "Net Income + Interest + Taxes + Depreciation + Amortisation",
+    inputs: [
+      { id: "netIncome", label: "Net Income ($)" },
+      { id: "interest", label: "Interest Expense ($)" },
+      { id: "taxes", label: "Taxes ($)" },
+      { id: "depreciation", label: "Depreciation ($)" },
+      { id: "amortisation", label: "Amortisation ($)" },
+    ],
+    calculate: v => {
+      const vals = [v.netIncome, v.interest, v.taxes, v.depreciation, v.amortisation].map(parseFloat);
+      if (vals.some(x => !isFinite(x))) return null;
+      return vals.reduce((a, b) => a + b, 0);
+    },
+    unit: "$", precision: 2,
+  },
+  "5": {
+    formula: "((Net Return − Cost of Investment) ÷ Cost of Investment) × 100",
+    inputs: [
+      { id: "netReturn", label: "Net Return / Profit ($)" },
+      { id: "cost", label: "Cost of Investment ($)" },
+    ],
+    calculate: v => {
+      const ret = parseFloat(v.netReturn), cost = parseFloat(v.cost);
+      if (!isFinite(ret) || !isFinite(cost) || cost === 0) return null;
+      return ((ret - cost) / cost) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "6": {
+    formula: "(Net Income ÷ Shareholders' Equity) × 100",
+    inputs: [
+      { id: "netIncome", label: "Net Income ($)" },
+      { id: "equity", label: "Shareholders' Equity ($)" },
+    ],
+    calculate: v => {
+      const ni = parseFloat(v.netIncome), eq = parseFloat(v.equity);
+      if (!isFinite(ni) || !isFinite(eq) || eq === 0) return null;
+      return (ni / eq) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "7": {
+    formula: "Current Assets ÷ Current Liabilities",
+    inputs: [
+      { id: "assets", label: "Current Assets ($)" },
+      { id: "liabilities", label: "Current Liabilities ($)" },
+    ],
+    calculate: v => {
+      const a = parseFloat(v.assets), l = parseFloat(v.liabilities);
+      if (!isFinite(a) || !isFinite(l) || l === 0) return null;
+      return a / l;
+    },
+    unit: "x", precision: 2,
+  },
+  "8": {
+    formula: "Total Debt ÷ Total Shareholders' Equity",
+    inputs: [
+      { id: "debt", label: "Total Debt ($)" },
+      { id: "equity", label: "Total Shareholders' Equity ($)" },
+    ],
+    calculate: v => {
+      const d = parseFloat(v.debt), e = parseFloat(v.equity);
+      if (!isFinite(d) || !isFinite(e) || e === 0) return null;
+      return d / e;
+    },
+    unit: "x", precision: 2,
+  },
+  "9": {
+    formula: "Net Income + Non-Cash Charges + Changes in Working Capital",
+    inputs: [
+      { id: "netIncome", label: "Net Income ($)" },
+      { id: "nonCash", label: "Non-Cash Charges (Depreciation + Amortisation) ($)" },
+      { id: "workingCapital", label: "Net Change in Working Capital ($)" },
+    ],
+    calculate: v => {
+      const ni = parseFloat(v.netIncome), nc = parseFloat(v.nonCash), wc = parseFloat(v.workingCapital);
+      if (!isFinite(ni) || !isFinite(nc) || !isFinite(wc)) return null;
+      return ni + nc + wc;
+    },
+    unit: "$", precision: 2,
+  },
+  "10": {
+    formula: "(Starting Cash − Ending Cash) ÷ Number of Months",
+    inputs: [
+      { id: "startCash", label: "Starting Cash Balance ($)" },
+      { id: "endCash", label: "Ending Cash Balance ($)" },
+      { id: "months", label: "Number of Months" },
+    ],
+    calculate: v => {
+      const start = parseFloat(v.startCash), end = parseFloat(v.endCash), months = parseFloat(v.months);
+      if (!isFinite(start) || !isFinite(end) || !isFinite(months) || months === 0) return null;
+      return (start - end) / months;
+    },
+    unit: "$/month", precision: 2,
+  },
+  "11": {
+    formula: "Current Assets ÷ Current Liabilities",
+    inputs: [
+      { id: "assets", label: "Current Assets ($)" },
+      { id: "liabilities", label: "Current Liabilities ($)" },
+    ],
+    calculate: v => {
+      const a = parseFloat(v.assets), l = parseFloat(v.liabilities);
+      if (!isFinite(a) || !isFinite(l) || l === 0) return null;
+      return a / l;
+    },
+    unit: "x", precision: 2,
+  },
+  "12": {
+    formula: "Days Inventory Outstanding (DIO) + Days Sales Outstanding (DSO) − Days Payable Outstanding (DPO)",
+    inputs: [
+      { id: "dio", label: "Days Inventory Outstanding — DIO (days)" },
+      { id: "dso", label: "Days Sales Outstanding — DSO (days)" },
+      { id: "dpo", label: "Days Payable Outstanding — DPO (days)" },
+    ],
+    calculate: v => {
+      const dio = parseFloat(v.dio), dso = parseFloat(v.dso), dpo = parseFloat(v.dpo);
+      if (!isFinite(dio) || !isFinite(dso) || !isFinite(dpo)) return null;
+      return dio + dso - dpo;
+    },
+    unit: "days", precision: 1,
+  },
+  "13": {
+    formula: "NOPAT − (Capital Invested × WACC)",
+    inputs: [
+      { id: "nopat", label: "NOPAT — Net Operating Profit After Tax ($)" },
+      { id: "capital", label: "Capital Invested ($)" },
+      { id: "wacc", label: "WACC — Weighted Avg. Cost of Capital (%)" },
+    ],
+    calculate: v => {
+      const nopat = parseFloat(v.nopat), capital = parseFloat(v.capital), wacc = parseFloat(v.wacc);
+      if (!isFinite(nopat) || !isFinite(capital) || !isFinite(wacc)) return null;
+      return nopat - capital * (wacc / 100);
+    },
+    unit: "$", precision: 2,
+  },
+  "14": {
+    formula: "Total Revenue ÷ Number of Employees",
+    inputs: [
+      { id: "revenue", label: "Total Revenue ($)" },
+      { id: "employees", label: "Number of Employees" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), emp = parseFloat(v.employees);
+      if (!isFinite(rev) || !isFinite(emp) || emp === 0) return null;
+      return rev / emp;
+    },
+    unit: "$/employee", precision: 2,
+  },
+  "15": {
+    formula: "(Accounts Receivable ÷ Revenue) × Number of Days in Period",
+    inputs: [
+      { id: "ar", label: "Accounts Receivable ($)" },
+      { id: "revenue", label: "Revenue for the Period ($)" },
+      { id: "days", label: "Number of Days in Period (e.g. 90 for quarter)" },
+    ],
+    calculate: v => {
+      const ar = parseFloat(v.ar), rev = parseFloat(v.revenue), days = parseFloat(v.days);
+      if (!isFinite(ar) || !isFinite(rev) || !isFinite(days) || rev === 0) return null;
+      return (ar / rev) * days;
+    },
+    unit: "days", precision: 1,
+  },
+
+  // ── SALES ─────────────────────────────────────────────────────────────────────
+  "16": {
+    formula: "Units Sold × Average Selling Price",
+    inputs: [
+      { id: "units", label: "Total Units / Transactions Sold" },
+      { id: "price", label: "Average Selling Price ($)" },
+    ],
+    calculate: v => {
+      const units = parseFloat(v.units), price = parseFloat(v.price);
+      if (!isFinite(units) || !isFinite(price)) return null;
+      return units * price;
+    },
+    unit: "$", precision: 2,
+  },
+  "17": {
+    formula: "((Current Sales − Prior Sales) ÷ Prior Sales) × 100",
+    inputs: [
+      { id: "curr", label: "Current Period Sales ($)" },
+      { id: "prev", label: "Prior Period Sales ($)" },
+    ],
+    calculate: v => {
+      const curr = parseFloat(v.curr), prev = parseFloat(v.prev);
+      if (!isFinite(curr) || !isFinite(prev) || prev === 0) return null;
+      return ((curr - prev) / prev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "18": {
+    formula: "(Number of Conversions ÷ Total Leads) × 100",
+    inputs: [
+      { id: "conversions", label: "Number of Conversions" },
+      { id: "leads", label: "Total Leads / Visitors" },
+    ],
+    calculate: v => {
+      const conv = parseFloat(v.conversions), leads = parseFloat(v.leads);
+      if (!isFinite(conv) || !isFinite(leads) || leads === 0) return null;
+      return (conv / leads) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "19": {
+    formula: "Total Revenue from Deals ÷ Number of Deals Closed",
+    inputs: [
+      { id: "revenue", label: "Total Revenue from Deals ($)" },
+      { id: "deals", label: "Number of Deals Closed" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), deals = parseFloat(v.deals);
+      if (!isFinite(rev) || !isFinite(deals) || deals === 0) return null;
+      return rev / deals;
+    },
+    unit: "$/deal", precision: 2,
+  },
+  "20": {
+    formula: "Total Days to Close All Deals ÷ Number of Deals Closed",
+    inputs: [
+      { id: "totalDays", label: "Total Days Across All Deals Closed" },
+      { id: "deals", label: "Number of Deals Closed" },
+    ],
+    calculate: v => {
+      const days = parseFloat(v.totalDays), deals = parseFloat(v.deals);
+      if (!isFinite(days) || !isFinite(deals) || deals === 0) return null;
+      return days / deals;
+    },
+    unit: "days", precision: 1,
+  },
+  "21": {
+    formula: "(Actual Sales ÷ Sales Quota) × 100",
+    inputs: [
+      { id: "actual", label: "Actual Sales ($)" },
+      { id: "quota", label: "Sales Quota / Target ($)" },
+    ],
+    calculate: v => {
+      const actual = parseFloat(v.actual), quota = parseFloat(v.quota);
+      if (!isFinite(actual) || !isFinite(quota) || quota === 0) return null;
+      return (actual / quota) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "22": {
+    formula: "Number of Open Deals × Average Deal Value",
+    inputs: [
+      { id: "deals", label: "Number of Open Deals in Pipeline" },
+      { id: "avgValue", label: "Average Deal Value ($)" },
+    ],
+    calculate: v => {
+      const deals = parseFloat(v.deals), avg = parseFloat(v.avgValue);
+      if (!isFinite(deals) || !isFinite(avg)) return null;
+      return deals * avg;
+    },
+    unit: "$", precision: 2,
+  },
+  "23": {
+    formula: "(Deals Won ÷ Total Deals Closed) × 100",
+    inputs: [
+      { id: "won", label: "Deals Won" },
+      { id: "total", label: "Total Deals Closed (Won + Lost)" },
+    ],
+    calculate: v => {
+      const won = parseFloat(v.won), total = parseFloat(v.total);
+      if (!isFinite(won) || !isFinite(total) || total === 0) return null;
+      return (won / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "24": {
+    formula: "((Qualified Leads This Month − Qualified Leads Last Month) ÷ Qualified Leads Last Month) × 100",
+    inputs: [
+      { id: "curr", label: "Qualified Leads This Month" },
+      { id: "prev", label: "Qualified Leads Last Month" },
+    ],
+    calculate: v => {
+      const curr = parseFloat(v.curr), prev = parseFloat(v.prev);
+      if (!isFinite(curr) || !isFinite(prev) || prev === 0) return null;
+      return ((curr - prev) / prev) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "25": {
+    formula: "(Opportunities × Avg. Deal Value × Win Rate%) ÷ Sales Cycle Length",
+    inputs: [
+      { id: "opps", label: "Number of Open Opportunities" },
+      { id: "avgDeal", label: "Average Deal Value ($)" },
+      { id: "winRate", label: "Win Rate (%)" },
+      { id: "cycleLength", label: "Average Sales Cycle Length (days)" },
+    ],
+    calculate: v => {
+      const opps = parseFloat(v.opps), avg = parseFloat(v.avgDeal),
+            wr = parseFloat(v.winRate), cycle = parseFloat(v.cycleLength);
+      if ([opps, avg, wr, cycle].some(x => !isFinite(x)) || cycle === 0) return null;
+      return (opps * avg * (wr / 100)) / cycle;
+    },
+    unit: "$/day", precision: 2,
+  },
+  "26": {
+    formula: "(Upsell / Cross-sell Revenue ÷ Total Revenue) × 100",
+    inputs: [
+      { id: "upsellRevenue", label: "Upsell / Cross-sell Revenue ($)" },
+      { id: "totalRevenue", label: "Total Revenue ($)" },
+    ],
+    calculate: v => {
+      const up = parseFloat(v.upsellRevenue), total = parseFloat(v.totalRevenue);
+      if (!isFinite(up) || !isFinite(total) || total === 0) return null;
+      return (up / total) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "27": {
+    formula: "(Won Opportunities ÷ Total Opportunities) × 100",
+    inputs: [
+      { id: "won", label: "Opportunities Won" },
+      { id: "total", label: "Total Opportunities" },
+    ],
+    calculate: v => {
+      const won = parseFloat(v.won), total = parseFloat(v.total);
+      if (!isFinite(won) || !isFinite(total) || total === 0) return null;
+      return (won / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+
+  // ── MARKETING ─────────────────────────────────────────────────────────────────
+  "28": {
+    formula: "Total Sales & Marketing Spend ÷ New Customers Acquired",
+    inputs: [
+      { id: "spend", label: "Total Sales & Marketing Spend ($)" },
+      { id: "customers", label: "New Customers Acquired" },
+    ],
+    calculate: v => {
+      const spend = parseFloat(v.spend), cust = parseFloat(v.customers);
+      if (!isFinite(spend) || !isFinite(cust) || cust === 0) return null;
+      return spend / cust;
+    },
+    unit: "$/customer", precision: 2,
+  },
+  "29": {
+    formula: "Revenue Generated from Ads ÷ Total Ad Spend",
+    inputs: [
+      { id: "revenue", label: "Revenue Generated from Ads ($)" },
+      { id: "spend", label: "Total Ad Spend ($)" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), spend = parseFloat(v.spend);
+      if (!isFinite(rev) || !isFinite(spend) || spend === 0) return null;
+      return rev / spend;
+    },
+    unit: "x", precision: 2,
+  },
+  "30": {
+    formula: "(Total Clicks ÷ Total Impressions) × 100",
+    inputs: [
+      { id: "clicks", label: "Total Clicks" },
+      { id: "impressions", label: "Total Impressions" },
+    ],
+    calculate: v => {
+      const clicks = parseFloat(v.clicks), impr = parseFloat(v.impressions);
+      if (!isFinite(clicks) || !isFinite(impr) || impr === 0) return null;
+      return (clicks / impr) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "31": {
+    formula: "Total Ad Spend ÷ Total Clicks",
+    inputs: [
+      { id: "spend", label: "Total Ad Spend ($)" },
+      { id: "clicks", label: "Total Clicks" },
+    ],
+    calculate: v => {
+      const spend = parseFloat(v.spend), clicks = parseFloat(v.clicks);
+      if (!isFinite(spend) || !isFinite(clicks) || clicks === 0) return null;
+      return spend / clicks;
+    },
+    unit: "$/click", precision: 2,
+  },
+  "32": {
+    formula: "Total Marketing Spend ÷ Total Leads Generated",
+    inputs: [
+      { id: "spend", label: "Total Marketing Spend ($)" },
+      { id: "leads", label: "Total Leads Generated" },
+    ],
+    calculate: v => {
+      const spend = parseFloat(v.spend), leads = parseFloat(v.leads);
+      if (!isFinite(spend) || !isFinite(leads) || leads === 0) return null;
+      return spend / leads;
+    },
+    unit: "$/lead", precision: 2,
+  },
+  "33": {
+    formula: "Total Leads × (MQL Qualification Rate ÷ 100)",
+    inputs: [
+      { id: "leads", label: "Total Leads" },
+      { id: "rate", label: "MQL Qualification Rate (%)" },
+    ],
+    calculate: v => {
+      const leads = parseFloat(v.leads), rate = parseFloat(v.rate);
+      if (!isFinite(leads) || !isFinite(rate)) return null;
+      return Math.round(leads * (rate / 100));
+    },
+    unit: "MQLs", precision: 0,
+  },
+  "34": {
+    formula: "(Respondents Aware of Brand ÷ Total Survey Respondents) × 100",
+    inputs: [
+      { id: "aware", label: "Respondents Aware of Brand" },
+      { id: "total", label: "Total Survey Respondents" },
+    ],
+    calculate: v => {
+      const aware = parseFloat(v.aware), total = parseFloat(v.total);
+      if (!isFinite(aware) || !isFinite(total) || total === 0) return null;
+      return (aware / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "35": {
+    formula: "Open Rate: (Emails Opened ÷ Emails Delivered) × 100  |  Click Rate: (Emails Clicked ÷ Emails Delivered) × 100",
+    inputs: [
+      { id: "opened", label: "Emails Opened" },
+      { id: "clicked", label: "Emails Clicked" },
+      { id: "delivered", label: "Emails Delivered" },
+    ],
+    calculate: v => {
+      const opened = parseFloat(v.opened), clicked = parseFloat(v.clicked), delivered = parseFloat(v.delivered);
+      if (!isFinite(opened) || !isFinite(clicked) || !isFinite(delivered) || delivered === 0) return null;
+      const openRate = (opened / delivered) * 100;
+      const clickRate = (clicked / delivered) * 100;
+      return `Open Rate: ${openRate.toFixed(1)}%   |   Click Rate: ${clickRate.toFixed(1)}%`;
+    },
+    unit: "", precision: 1, multiResult: true,
+  },
+  "36": {
+    formula: "(Marketing Attributed Revenue ÷ Total Revenue) × 100",
+    inputs: [
+      { id: "mktRevenue", label: "Marketing Attributed Revenue ($)" },
+      { id: "totalRevenue", label: "Total Revenue ($)" },
+    ],
+    calculate: v => {
+      const mkt = parseFloat(v.mktRevenue), total = parseFloat(v.totalRevenue);
+      if (!isFinite(mkt) || !isFinite(total) || total === 0) return null;
+      return (mkt / total) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "37": {
+    formula: "(Your Brand Mentions ÷ Total Market Mentions) × 100",
+    inputs: [
+      { id: "brand", label: "Your Brand Mentions" },
+      { id: "total", label: "Total Market Mentions (all brands combined)" },
+    ],
+    calculate: v => {
+      const brand = parseFloat(v.brand), total = parseFloat(v.total);
+      if (!isFinite(brand) || !isFinite(total) || total === 0) return null;
+      return (brand / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "38": {
+    formula: "(Total Engagements ÷ Total Reach) × 100",
+    inputs: [
+      { id: "engagements", label: "Total Engagements (likes + comments + shares)" },
+      { id: "reach", label: "Total Reach (unique users)" },
+    ],
+    calculate: v => {
+      const eng = parseFloat(v.engagements), reach = parseFloat(v.reach);
+      if (!isFinite(eng) || !isFinite(reach) || reach === 0) return null;
+      return (eng / reach) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "39": {
+    formula: "((Current Organic Visits − Prior Organic Visits) ÷ Prior Organic Visits) × 100",
+    inputs: [
+      { id: "curr", label: "Current Period Organic Visits" },
+      { id: "prev", label: "Prior Period Organic Visits" },
+    ],
+    calculate: v => {
+      const curr = parseFloat(v.curr), prev = parseFloat(v.prev);
+      if (!isFinite(curr) || !isFinite(prev) || prev === 0) return null;
+      return ((curr - prev) / prev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "40": {
+    formula: "Total Time on Page ÷ Total Page Views",
+    inputs: [
+      { id: "totalTime", label: "Total Time on Page (seconds)" },
+      { id: "pageViews", label: "Total Page Views" },
+    ],
+    calculate: v => {
+      const time = parseFloat(v.totalTime), views = parseFloat(v.pageViews);
+      if (!isFinite(time) || !isFinite(views) || views === 0) return null;
+      return time / views;
+    },
+    unit: "sec/view", precision: 1,
+  },
+  "41": {
+    formula: "Total Impressions ÷ Unique Reach",
+    inputs: [
+      { id: "impressions", label: "Total Impressions" },
+      { id: "reach", label: "Unique Reach (unique users)" },
+    ],
+    calculate: v => {
+      const impr = parseFloat(v.impressions), reach = parseFloat(v.reach);
+      if (!isFinite(impr) || !isFinite(reach) || reach === 0) return null;
+      return impr / reach;
+    },
+    unit: "x per user", precision: 2,
+  },
+
+  // ── CUSTOMER ──────────────────────────────────────────────────────────────────
+  "42": {
+    formula: "% Promoters − % Detractors  (where % = count ÷ total respondents × 100)",
+    inputs: [
+      { id: "promoters", label: "Promoters (gave score 9 or 10)" },
+      { id: "detractors", label: "Detractors (gave score 0 – 6)" },
+      { id: "total", label: "Total Survey Respondents" },
+    ],
+    calculate: v => {
+      const p = parseFloat(v.promoters), d = parseFloat(v.detractors), t = parseFloat(v.total);
+      if (!isFinite(p) || !isFinite(d) || !isFinite(t) || t === 0) return null;
+      return ((p / t) * 100) - ((d / t) * 100);
+    },
+    unit: "(NPS score)", precision: 0,
+  },
+  "43": {
+    formula: "(Satisfied Responses ÷ Total Responses) × 100",
+    inputs: [
+      { id: "satisfied", label: "Satisfied Responses (rated 4 or 5 on 5-pt scale)" },
+      { id: "total", label: "Total Responses" },
+    ],
+    calculate: v => {
+      const sat = parseFloat(v.satisfied), total = parseFloat(v.total);
+      if (!isFinite(sat) || !isFinite(total) || total === 0) return null;
+      return (sat / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "44": {
+    formula: "Average Purchase Value × Purchase Frequency × Customer Lifespan",
+    inputs: [
+      { id: "avgPurchase", label: "Average Purchase Value ($)" },
+      { id: "frequency", label: "Purchase Frequency (times per year)" },
+      { id: "lifespan", label: "Average Customer Lifespan (years)" },
+    ],
+    calculate: v => {
+      const avg = parseFloat(v.avgPurchase), freq = parseFloat(v.frequency), life = parseFloat(v.lifespan);
+      if (!isFinite(avg) || !isFinite(freq) || !isFinite(life)) return null;
+      return avg * freq * life;
+    },
+    unit: "$", precision: 2,
+  },
+  "45": {
+    formula: "((Customers at End − New Customers) ÷ Customers at Start) × 100",
+    inputs: [
+      { id: "endCustomers", label: "Customers at End of Period" },
+      { id: "newCustomers", label: "New Customers Acquired in Period" },
+      { id: "startCustomers", label: "Customers at Start of Period" },
+    ],
+    calculate: v => {
+      const end = parseFloat(v.endCustomers), newC = parseFloat(v.newCustomers), start = parseFloat(v.startCustomers);
+      if (!isFinite(end) || !isFinite(newC) || !isFinite(start) || start === 0) return null;
+      return ((end - newC) / start) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "46": {
+    formula: "(Customers Lost ÷ Customers at Start of Period) × 100",
+    inputs: [
+      { id: "lost", label: "Customers Lost in Period" },
+      { id: "start", label: "Customers at Start of Period" },
+    ],
+    calculate: v => {
+      const lost = parseFloat(v.lost), start = parseFloat(v.start);
+      if (!isFinite(lost) || !isFinite(start) || start === 0) return null;
+      return (lost / start) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "47": {
+    formula: "Sum of CES Scores ÷ Number of Respondents",
+    inputs: [
+      { id: "totalScore", label: "Sum of All CES Scores" },
+      { id: "respondents", label: "Number of Respondents" },
+    ],
+    calculate: v => {
+      const total = parseFloat(v.totalScore), resp = parseFloat(v.respondents);
+      if (!isFinite(total) || !isFinite(resp) || resp === 0) return null;
+      return total / resp;
+    },
+    unit: "(avg score)", precision: 2,
+  },
+  "48": {
+    formula: "Average of: Usage Score + Engagement Score + NPS Score + Support Score",
+    inputs: [
+      { id: "usage", label: "Usage Score (0 – 100)" },
+      { id: "engagement", label: "Engagement Score (0 – 100)" },
+      { id: "nps", label: "NPS Contribution Score (0 – 100)" },
+      { id: "support", label: "Support / Satisfaction Score (0 – 100)" },
+    ],
+    calculate: v => {
+      const vals = [v.usage, v.engagement, v.nps, v.support].map(parseFloat);
+      if (vals.some(x => !isFinite(x))) return null;
+      return vals.reduce((a, b) => a + b, 0) / vals.length;
+    },
+    unit: "(composite)", precision: 1,
+  },
+  "49": {
+    formula: "(Users Using Feature ÷ Total Active Users) × 100",
+    inputs: [
+      { id: "featureUsers", label: "Users Using the Feature / Product" },
+      { id: "totalUsers", label: "Total Active Users" },
+    ],
+    calculate: v => {
+      const feat = parseFloat(v.featureUsers), total = parseFloat(v.totalUsers);
+      if (!isFinite(feat) || !isFinite(total) || total === 0) return null;
+      return (feat / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "50": {
+    formula: "(Customers with More Than 1 Purchase ÷ Total Customers) × 100",
+    inputs: [
+      { id: "repeat", label: "Customers with More Than 1 Purchase" },
+      { id: "total", label: "Total Customers" },
+    ],
+    calculate: v => {
+      const repeat = parseFloat(v.repeat), total = parseFloat(v.total);
+      if (!isFinite(repeat) || !isFinite(total) || total === 0) return null;
+      return (repeat / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "51": {
+    formula: "Total Customer Interactions ÷ Total Active Customers",
+    inputs: [
+      { id: "interactions", label: "Total Customer Interactions" },
+      { id: "customers", label: "Total Active Customers" },
+    ],
+    calculate: v => {
+      const inter = parseFloat(v.interactions), cust = parseFloat(v.customers);
+      if (!isFinite(inter) || !isFinite(cust) || cust === 0) return null;
+      return inter / cust;
+    },
+    unit: "interactions/customer", precision: 2,
+  },
+  "52": {
+    formula: "(Customers Who Referred Others ÷ Total Customers) × 100",
+    inputs: [
+      { id: "referrers", label: "Customers Who Made a Referral" },
+      { id: "total", label: "Total Customers" },
+    ],
+    calculate: v => {
+      const ref = parseFloat(v.referrers), total = parseFloat(v.total);
+      if (!isFinite(ref) || !isFinite(total) || total === 0) return null;
+      return (ref / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "53": {
+    formula: "(Customer Spend with Your Company ÷ Total Customer Spend in Category) × 100",
+    inputs: [
+      { id: "yourSpend", label: "Customer Spend with Your Company ($)" },
+      { id: "totalSpend", label: "Total Customer Spend in Category ($)" },
+    ],
+    calculate: v => {
+      const yours = parseFloat(v.yourSpend), total = parseFloat(v.totalSpend);
+      if (!isFinite(yours) || !isFinite(total) || total === 0) return null;
+      return (yours / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+
+  // ── OPERATIONAL ───────────────────────────────────────────────────────────────
+  "54": {
+    formula: "Availability (%) × Performance (%) × Quality (%) ÷ 10000",
+    inputs: [
+      { id: "availability", label: "Availability (%)" },
+      { id: "performance", label: "Performance (%)" },
+      { id: "quality", label: "Quality (%)" },
+    ],
+    calculate: v => {
+      const a = parseFloat(v.availability), p = parseFloat(v.performance), q = parseFloat(v.quality);
+      if (!isFinite(a) || !isFinite(p) || !isFinite(q)) return null;
+      return (a / 100) * (p / 100) * (q / 100) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "55": {
+    formula: "Total Fulfillment Time ÷ Number of Orders",
+    inputs: [
+      { id: "totalTime", label: "Total Fulfillment Time (hours) across all orders" },
+      { id: "orders", label: "Number of Orders" },
+    ],
+    calculate: v => {
+      const time = parseFloat(v.totalTime), orders = parseFloat(v.orders);
+      if (!isFinite(time) || !isFinite(orders) || orders === 0) return null;
+      return time / orders;
+    },
+    unit: "hours/order", precision: 2,
+  },
+  "56": {
+    formula: "Cost of Goods Sold ÷ Average Inventory Value",
+    inputs: [
+      { id: "cogs", label: "Cost of Goods Sold — COGS ($)" },
+      { id: "avgInventory", label: "Average Inventory Value ($)" },
+    ],
+    calculate: v => {
+      const cogs = parseFloat(v.cogs), inv = parseFloat(v.avgInventory);
+      if (!isFinite(cogs) || !isFinite(inv) || inv === 0) return null;
+      return cogs / inv;
+    },
+    unit: "x/year", precision: 2,
+  },
+  "57": {
+    formula: "(Actual Output ÷ Maximum Possible Output) × 100",
+    inputs: [
+      { id: "actual", label: "Actual Output (units)" },
+      { id: "max", label: "Maximum Possible Output (units)" },
+    ],
+    calculate: v => {
+      const actual = parseFloat(v.actual), max = parseFloat(v.max);
+      if (!isFinite(actual) || !isFinite(max) || max === 0) return null;
+      return (actual / max) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "58": {
+    formula: "(Orders Delivered on Time ÷ Total Orders Delivered) × 100",
+    inputs: [
+      { id: "onTime", label: "Orders Delivered on Time" },
+      { id: "total", label: "Total Orders Delivered" },
+    ],
+    calculate: v => {
+      const onTime = parseFloat(v.onTime), total = parseFloat(v.total);
+      if (!isFinite(onTime) || !isFinite(total) || total === 0) return null;
+      return (onTime / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "59": {
+    formula: "Total Production Cost ÷ Total Units Produced",
+    inputs: [
+      { id: "cost", label: "Total Production Cost ($)" },
+      { id: "units", label: "Total Units Produced" },
+    ],
+    calculate: v => {
+      const cost = parseFloat(v.cost), units = parseFloat(v.units);
+      if (!isFinite(cost) || !isFinite(units) || units === 0) return null;
+      return cost / units;
+    },
+    unit: "$/unit", precision: 2,
+  },
+  "60": {
+    formula: "Total Units Produced ÷ Time Period",
+    inputs: [
+      { id: "units", label: "Total Units Produced" },
+      { id: "time", label: "Time Period (hours)" },
+    ],
+    calculate: v => {
+      const units = parseFloat(v.units), time = parseFloat(v.time);
+      if (!isFinite(units) || !isFinite(time) || time === 0) return null;
+      return units / time;
+    },
+    unit: "units/hour", precision: 2,
+  },
+  "61": {
+    formula: "Total Lead Time Across All Orders ÷ Number of Orders",
+    inputs: [
+      { id: "totalLeadTime", label: "Total Lead Time Across All Orders (days)" },
+      { id: "orders", label: "Number of Orders" },
+    ],
+    calculate: v => {
+      const time = parseFloat(v.totalLeadTime), orders = parseFloat(v.orders);
+      if (!isFinite(time) || !isFinite(orders) || orders === 0) return null;
+      return time / orders;
+    },
+    unit: "days", precision: 1,
+  },
+  "62": {
+    formula: "((Recorded Inventory − Actual Inventory) ÷ Recorded Inventory) × 100",
+    inputs: [
+      { id: "recorded", label: "Recorded Inventory Value ($)" },
+      { id: "actual", label: "Actual Inventory Value ($)" },
+    ],
+    calculate: v => {
+      const rec = parseFloat(v.recorded), actual = parseFloat(v.actual);
+      if (!isFinite(rec) || !isFinite(actual) || rec === 0) return null;
+      return ((rec - actual) / rec) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "63": {
+    formula: "(Tasks Following Defined Process ÷ Total Tasks Completed) × 100",
+    inputs: [
+      { id: "adherent", label: "Tasks Following the Defined Process" },
+      { id: "total", label: "Total Tasks Completed" },
+    ],
+    calculate: v => {
+      const adh = parseFloat(v.adherent), total = parseFloat(v.total);
+      if (!isFinite(adh) || !isFinite(total) || total === 0) return null;
+      return (adh / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "64": {
+    formula: "Total Repair / Downtime ÷ Number of Repair Incidents",
+    inputs: [
+      { id: "totalTime", label: "Total Repair / Downtime (hours)" },
+      { id: "incidents", label: "Number of Repair Incidents" },
+    ],
+    calculate: v => {
+      const time = parseFloat(v.totalTime), incidents = parseFloat(v.incidents);
+      if (!isFinite(time) || !isFinite(incidents) || incidents === 0) return null;
+      return time / incidents;
+    },
+    unit: "hours", precision: 2,
+  },
+
+  // ── HR & PEOPLE ───────────────────────────────────────────────────────────────
+  "65": {
+    formula: "(Employees Who Left ÷ Average Headcount) × 100",
+    inputs: [
+      { id: "left", label: "Employees Who Left in Period" },
+      { id: "headcount", label: "Average Headcount in Period" },
+    ],
+    calculate: v => {
+      const left = parseFloat(v.left), hc = parseFloat(v.headcount);
+      if (!isFinite(left) || !isFinite(hc) || hc === 0) return null;
+      return (left / hc) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "66": {
+    formula: "Sum of All Survey Scores ÷ Number of Respondents",
+    inputs: [
+      { id: "totalScore", label: "Sum of All Survey Scores" },
+      { id: "respondents", label: "Number of Respondents" },
+    ],
+    calculate: v => {
+      const total = parseFloat(v.totalScore), resp = parseFloat(v.respondents);
+      if (!isFinite(total) || !isFinite(resp) || resp === 0) return null;
+      return total / resp;
+    },
+    unit: "(avg score)", precision: 2,
+  },
+  "67": {
+    formula: "(Total Days Absent ÷ Total Available Working Days) × 100",
+    inputs: [
+      { id: "absent", label: "Total Days Absent (all employees combined)" },
+      { id: "available", label: "Total Available Working Days (headcount × working days)" },
+    ],
+    calculate: v => {
+      const absent = parseFloat(v.absent), avail = parseFloat(v.available);
+      if (!isFinite(absent) || !isFinite(avail) || avail === 0) return null;
+      return (absent / avail) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "68": {
+    formula: "Total Days from Job Post to Accepted Offer ÷ Number of Hires",
+    inputs: [
+      { id: "totalDays", label: "Total Days (all hires combined)" },
+      { id: "hires", label: "Number of Hires" },
+    ],
+    calculate: v => {
+      const days = parseFloat(v.totalDays), hires = parseFloat(v.hires);
+      if (!isFinite(days) || !isFinite(hires) || hires === 0) return null;
+      return days / hires;
+    },
+    unit: "days", precision: 1,
+  },
+  "69": {
+    formula: "Total Hiring Costs ÷ Number of Hires",
+    inputs: [
+      { id: "totalCost", label: "Total Hiring Costs ($)" },
+      { id: "hires", label: "Number of Hires" },
+    ],
+    calculate: v => {
+      const cost = parseFloat(v.totalCost), hires = parseFloat(v.hires);
+      if (!isFinite(cost) || !isFinite(hires) || hires === 0) return null;
+      return cost / hires;
+    },
+    unit: "$/hire", precision: 2,
+  },
+  "70": {
+    formula: "(Employees Who Completed Training ÷ Total Enrolled) × 100",
+    inputs: [
+      { id: "completed", label: "Employees Who Completed Training" },
+      { id: "enrolled", label: "Total Enrolled" },
+    ],
+    calculate: v => {
+      const comp = parseFloat(v.completed), enr = parseFloat(v.enrolled);
+      if (!isFinite(comp) || !isFinite(enr) || enr === 0) return null;
+      return (comp / enr) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "71": {
+    formula: "(Internal Promotions ÷ Total Promotions) × 100",
+    inputs: [
+      { id: "internal", label: "Number of Internal Promotions" },
+      { id: "total", label: "Total Promotions (internal + external fills)" },
+    ],
+    calculate: v => {
+      const int_ = parseFloat(v.internal), total = parseFloat(v.total);
+      if (!isFinite(int_) || !isFinite(total) || total === 0) return null;
+      return (int_ / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "72": {
+    formula: "(HR Staff ÷ Total Employees) × 100",
+    inputs: [
+      { id: "hrStaff", label: "Number of HR Staff" },
+      { id: "employees", label: "Total Number of Employees" },
+    ],
+    calculate: v => {
+      const hr = parseFloat(v.hrStaff), emp = parseFloat(v.employees);
+      if (!isFinite(hr) || !isFinite(emp) || emp === 0) return null;
+      return (hr / emp) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "73": {
+    formula: "(High Performers ÷ Total Employees) × 100",
+    inputs: [
+      { id: "highPerformers", label: "Number of High Performers" },
+      { id: "total", label: "Total Employees" },
+    ],
+    calculate: v => {
+      const hp = parseFloat(v.highPerformers), total = parseFloat(v.total);
+      if (!isFinite(hp) || !isFinite(total) || total === 0) return null;
+      return (hp / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "74": {
+    formula: "Sum of Manager Effectiveness Scores ÷ Number of Respondents",
+    inputs: [
+      { id: "totalScore", label: "Sum of All Manager Effectiveness Scores" },
+      { id: "respondents", label: "Number of Respondents" },
+    ],
+    calculate: v => {
+      const total = parseFloat(v.totalScore), resp = parseFloat(v.respondents);
+      if (!isFinite(total) || !isFinite(resp) || resp === 0) return null;
+      return total / resp;
+    },
+    unit: "(avg score)", precision: 2,
+  },
+  "75": {
+    formula: "(Top Performers Retained ÷ Total Top Performers at Start) × 100",
+    inputs: [
+      { id: "retained", label: "Top Performers Still at Company" },
+      { id: "total", label: "Total Top Performers at Start of Period" },
+    ],
+    calculate: v => {
+      const ret = parseFloat(v.retained), total = parseFloat(v.total);
+      if (!isFinite(ret) || !isFinite(total) || total === 0) return null;
+      return (ret / total) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+
+  // ── TECHNOLOGY / IT ───────────────────────────────────────────────────────────
+  "76": {
+    formula: "((Total Time − Downtime) ÷ Total Time) × 100",
+    inputs: [
+      { id: "totalTime", label: "Total Time in Period (hours)" },
+      { id: "downtime", label: "Total Downtime in Period (hours)" },
+    ],
+    calculate: v => {
+      const total = parseFloat(v.totalTime), down = parseFloat(v.downtime);
+      if (!isFinite(total) || !isFinite(down) || total === 0) return null;
+      return ((total - down) / total) * 100;
+    },
+    unit: "%", precision: 3,
+  },
+  "77": {
+    formula: "Total Uptime ÷ Number of Failures",
+    inputs: [
+      { id: "uptime", label: "Total Uptime (hours)" },
+      { id: "failures", label: "Number of Failures" },
+    ],
+    calculate: v => {
+      const uptime = parseFloat(v.uptime), failures = parseFloat(v.failures);
+      if (!isFinite(uptime) || !isFinite(failures) || failures === 0) return null;
+      return uptime / failures;
+    },
+    unit: "hours", precision: 2,
+  },
+  "78": {
+    formula: "(Total IT Costs ÷ Total Revenue) × 100",
+    inputs: [
+      { id: "itCosts", label: "Total IT Costs ($)" },
+      { id: "revenue", label: "Total Revenue ($)" },
+    ],
+    calculate: v => {
+      const it = parseFloat(v.itCosts), rev = parseFloat(v.revenue);
+      if (!isFinite(it) || !isFinite(rev) || rev === 0) return null;
+      return (it / rev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "79": {
+    formula: "Total Resolution Time ÷ Number of Incidents",
+    inputs: [
+      { id: "totalTime", label: "Total Resolution Time (hours)" },
+      { id: "incidents", label: "Number of Incidents" },
+    ],
+    calculate: v => {
+      const time = parseFloat(v.totalTime), inc = parseFloat(v.incidents);
+      if (!isFinite(time) || !isFinite(inc) || inc === 0) return null;
+      return time / inc;
+    },
+    unit: "hours/incident", precision: 2,
+  },
+  "80": {
+    formula: "(Remediation Cost ÷ Total Development Cost) × 100",
+    inputs: [
+      { id: "remediationCost", label: "Cost to Remediate Technical Debt ($)" },
+      { id: "devCost", label: "Total Development Cost ($)" },
+    ],
+    calculate: v => {
+      const rem = parseFloat(v.remediationCost), dev = parseFloat(v.devCost);
+      if (!isFinite(rem) || !isFinite(dev) || dev === 0) return null;
+      return (rem / dev) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "81": {
+    formula: "Total Deployments ÷ Number of Weeks",
+    inputs: [
+      { id: "deployments", label: "Total Number of Deployments" },
+      { id: "weeks", label: "Number of Weeks in Period" },
+    ],
+    calculate: v => {
+      const dep = parseFloat(v.deployments), weeks = parseFloat(v.weeks);
+      if (!isFinite(dep) || !isFinite(weeks) || weeks === 0) return null;
+      return dep / weeks;
+    },
+    unit: "deploys/week", precision: 2,
+  },
+  "82": {
+    formula: "(Failed / Rolled-back Changes ÷ Total Changes Deployed) × 100",
+    inputs: [
+      { id: "failed", label: "Failed or Rolled-back Changes" },
+      { id: "total", label: "Total Changes Deployed" },
+    ],
+    calculate: v => {
+      const failed = parseFloat(v.failed), total = parseFloat(v.total);
+      if (!isFinite(failed) || !isFinite(total) || total === 0) return null;
+      return (failed / total) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "83": {
+    formula: "Total Response Time ÷ Number of API Requests",
+    inputs: [
+      { id: "totalTime", label: "Total Response Time (milliseconds)" },
+      { id: "requests", label: "Number of API Requests" },
+    ],
+    calculate: v => {
+      const time = parseFloat(v.totalTime), req = parseFloat(v.requests);
+      if (!isFinite(time) || !isFinite(req) || req === 0) return null;
+      return time / req;
+    },
+    unit: "ms", precision: 2,
+  },
+  "84": {
+    formula: "(Valid / Accurate Records ÷ Total Records) × 100",
+    inputs: [
+      { id: "valid", label: "Valid / Accurate Records" },
+      { id: "total", label: "Total Records" },
+    ],
+    calculate: v => {
+      const valid = parseFloat(v.valid), total = parseFloat(v.total);
+      if (!isFinite(valid) || !isFinite(total) || total === 0) return null;
+      return (valid / total) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "85": {
+    formula: "(Active Users ÷ Licenses Purchased) × 100",
+    inputs: [
+      { id: "activeUsers", label: "Active Users (currently using the software)" },
+      { id: "licenses", label: "Total Licenses / Seats Purchased" },
+    ],
+    calculate: v => {
+      const active = parseFloat(v.activeUsers), lic = parseFloat(v.licenses);
+      if (!isFinite(active) || !isFinite(lic) || lic === 0) return null;
+      return (active / lic) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+
+  // ── E-COMMERCE / DIGITAL ──────────────────────────────────────────────────────
+  "86": {
+    formula: "((Carts Created − Completed Purchases) ÷ Carts Created) × 100",
+    inputs: [
+      { id: "carts", label: "Carts Created / Initiated" },
+      { id: "purchases", label: "Completed Purchases" },
+    ],
+    calculate: v => {
+      const carts = parseFloat(v.carts), purchases = parseFloat(v.purchases);
+      if (!isFinite(carts) || !isFinite(purchases) || carts === 0) return null;
+      return ((carts - purchases) / carts) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "87": {
+    formula: "Total Revenue ÷ Total Number of Orders",
+    inputs: [
+      { id: "revenue", label: "Total Revenue ($)" },
+      { id: "orders", label: "Total Number of Orders" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), orders = parseFloat(v.orders);
+      if (!isFinite(rev) || !isFinite(orders) || orders === 0) return null;
+      return rev / orders;
+    },
+    unit: "$/order", precision: 2,
+  },
+  "88": {
+    formula: "Total Revenue ÷ Total Site Visitors",
+    inputs: [
+      { id: "revenue", label: "Total Revenue ($)" },
+      { id: "visitors", label: "Total Site Visitors" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), vis = parseFloat(v.visitors);
+      if (!isFinite(rev) || !isFinite(vis) || vis === 0) return null;
+      return rev / vis;
+    },
+    unit: "$/visitor", precision: 2,
+  },
+  "89": {
+    formula: "Revenue Generated from Ads ÷ Total Ad Spend",
+    inputs: [
+      { id: "revenue", label: "Revenue Generated from Ads ($)" },
+      { id: "spend", label: "Total Ad Spend ($)" },
+    ],
+    calculate: v => {
+      const rev = parseFloat(v.revenue), spend = parseFloat(v.spend);
+      if (!isFinite(rev) || !isFinite(spend) || spend === 0) return null;
+      return rev / spend;
+    },
+    unit: "x", precision: 2,
+  },
+  "90": {
+    formula: "(Completed Checkouts ÷ Initiated Checkouts) × 100",
+    inputs: [
+      { id: "completed", label: "Completed Checkouts" },
+      { id: "initiated", label: "Initiated Checkouts" },
+    ],
+    calculate: v => {
+      const comp = parseFloat(v.completed), init = parseFloat(v.initiated);
+      if (!isFinite(comp) || !isFinite(init) || init === 0) return null;
+      return (comp / init) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "91": {
+    formula: "(Exits from Search Results Page ÷ Total Searches) × 100",
+    inputs: [
+      { id: "exits", label: "Exits from Search Results Page" },
+      { id: "searches", label: "Total Searches" },
+    ],
+    calculate: v => {
+      const exits = parseFloat(v.exits), searches = parseFloat(v.searches);
+      if (!isFinite(exits) || !isFinite(searches) || searches === 0) return null;
+      return (exits / searches) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "92": {
+    formula: "(Wishlist Items Purchased ÷ Total Wishlist Items Added) × 100",
+    inputs: [
+      { id: "purchased", label: "Wishlist Items Purchased" },
+      { id: "added", label: "Total Wishlist Items Added" },
+    ],
+    calculate: v => {
+      const purch = parseFloat(v.purchased), added = parseFloat(v.added);
+      if (!isFinite(purch) || !isFinite(added) || added === 0) return null;
+      return (purch / added) * 100;
+    },
+    unit: "%", precision: 1,
+  },
+  "93": {
+    formula: "(Failed Payments ÷ Total Payment Attempts) × 100",
+    inputs: [
+      { id: "failed", label: "Failed Payment Attempts" },
+      { id: "total", label: "Total Payment Attempts" },
+    ],
+    calculate: v => {
+      const failed = parseFloat(v.failed), total = parseFloat(v.total);
+      if (!isFinite(failed) || !isFinite(total) || total === 0) return null;
+      return (failed / total) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "94": {
+    formula: "(Number of Refunds ÷ Total Orders) × 100",
+    inputs: [
+      { id: "refunds", label: "Number of Refunds" },
+      { id: "orders", label: "Total Orders" },
+    ],
+    calculate: v => {
+      const ref = parseFloat(v.refunds), orders = parseFloat(v.orders);
+      if (!isFinite(ref) || !isFinite(orders) || orders === 0) return null;
+      return (ref / orders) * 100;
+    },
+    unit: "%", precision: 2,
+  },
+  "95": {
+    formula: "Mobile: (Mobile Conversions ÷ Mobile Visitors) × 100   |   Desktop: (Desktop Conversions ÷ Desktop Visitors) × 100",
+    inputs: [
+      { id: "mobileConv", label: "Mobile Conversions" },
+      { id: "mobileVis", label: "Mobile Visitors" },
+      { id: "desktopConv", label: "Desktop Conversions" },
+      { id: "desktopVis", label: "Desktop Visitors" },
+    ],
+    calculate: v => {
+      const mConv = parseFloat(v.mobileConv), mVis = parseFloat(v.mobileVis);
+      const dConv = parseFloat(v.desktopConv), dVis = parseFloat(v.desktopVis);
+      if ([mConv, mVis, dConv, dVis].some(x => !isFinite(x)) || mVis === 0 || dVis === 0) return null;
+      const mRate = (mConv / mVis) * 100;
+      const dRate = (dConv / dVis) * 100;
+      return `Mobile: ${mRate.toFixed(1)}%   |   Desktop: ${dRate.toFixed(1)}%`;
+    },
+    unit: "", precision: 1, multiResult: true,
+  },
+};
+
+
+  const CATEGORIES = [
+    'Financial','Sales','Marketing','Customer',
+    'Operational','HR & People','Technology / IT','E-commerce / Digital'
+  ];
+  const GENERAL_TAGS = [
+    'Cost Management','Customer Acquisition','Customer Experience','Customer Retention',
+    'Data & Analytics','Digital Performance','Financial Health','Growth',
+    'Marketing & Brand','Pricing','Process Efficiency','Product','Profitability',
+    'Quality','Revenue','Risk','Supply Chain','Technology & Systems','Workforce'
+  ];
+  const CHART_ICONS = {
+    'Line Chart':'📈','Bar Chart':'📊','Column Chart':'📊','Stacked Bar Chart':'📊',
+    'Stacked Column Chart':'📊','Grouped Bar Chart':'📊','Area Chart':'📉',
+    'Waterfall Chart':'🪜','Funnel Chart':'🔻','Donut Chart':'🍩','Gauge Chart':'🎯',
+    'Combo Chart (Bar + Line)':'📊','Bullet Chart':'🎯','Radar Chart':'🕸️',
+    'Heatmap':'🔥','Histogram':'📊','Box Plot':'📦'
+  };
+  const CAT_COLOR = {
+    'Financial':'#34d399','Sales':'#60a5fa','Marketing':'#a78bfa',
+    'Customer':'#fb923c','Operational':'#22d3ee','HR & People':'#f472b6',
+    'Technology / IT':'#818cf8','E-commerce / Digital':'#facc15'
+  };
+  const TYPE_STYLE = {
+    'Core':         { bg:'rgba(59,130,246,0.15)',  color:'#93c5fd', border:'rgba(59,130,246,0.3)' },
+    'Supporting':   { bg:'rgba(100,116,139,0.15)', color:'#94a3b8', border:'rgba(100,116,139,0.3)' },
+    'Advanced':     { bg:'rgba(139,92,246,0.15)',  color:'#c4b5fd', border:'rgba(139,92,246,0.3)' },
+    'Lesser-Known': { bg:'rgba(100,116,139,0.12)', color:'#94a3b8', border:'rgba(100,116,139,0.25)' }
+  };
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  const state = {
+    mode: 'tags',
+    search: '',
+    categories: [],
+    tags: [],
+    showTagsPanel: false,
+    showAll: true,
+    detailKpi: null,
+    compareList: [],
+    showCompare: false,
+    calcKpi: null,
+    calcValues: {},
+    calcResult: null,
+    calcError: null,
+  };
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function getFilteredKPIs() {
+    let result = KPI_DATA;
+    if (state.mode === 'tags') {
+      if (state.showAll) return [...result].sort((a, b) => a.name.localeCompare(b.name));
+      if (state.categories.length > 0)
+        result = result.filter(k => state.categories.includes(k.category));
+      if (state.tags.length > 0)
+        result = result.filter(k => state.tags.every(t => k.generalTags.includes(t)));
+      if (state.categories.length === 0 && state.tags.length === 0) return [];
+    } else {
+      const q = state.search.trim().toLowerCase();
+      if (!q) return [];
+      result = result.filter(k =>
+        k.name.toLowerCase().includes(q) ||
+        k.description.toLowerCase().includes(q) ||
+        k.generalTags.some(t => t.toLowerCase().includes(q)) ||
+        k.category.toLowerCase().includes(q)
+      );
+    }
+    return [...result].sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  function formatNumber(n, precision) {
+    const fixed = Math.abs(n).toFixed(precision);
+    const parts = fixed.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (n < 0 ? '-' : '') + parts.join('.');
+  }
+
+  function getChartExplainer(kpi) {
+    const rec = kpi.chartRecommendation || '';
+    return rec.split('\u2014')[1]?.trim() || rec.split('\u2013')[1]?.trim() || '';
+  }
+
+  // ── Render: Header ─────────────────────────────────────────────────────────
+  function renderHeader() {
+    const count = state.compareList.length;
+    const btn = document.getElementById('compare-nav-btn');
+    const countEl = document.getElementById('compare-nav-count');
+    const clearEl = document.getElementById('compare-clear-btn');
+    if (count > 0) {
+      btn.className = 'compare-nav-btn has-items';
+      countEl.style.display = 'flex';
+      countEl.textContent = count;
+      clearEl.style.display = 'flex';
+    } else {
+      btn.className = 'compare-nav-btn empty';
+      countEl.style.display = 'none';
+      clearEl.style.display = 'none';
+    }
+  }
+
+  // ── Render: Filters ────────────────────────────────────────────────────────
+  function renderFilters() {
+    document.getElementById('search-section').style.display = state.mode === 'search' ? 'block' : 'none';
+    document.getElementById('tags-section').style.display = state.mode === 'tags' ? 'flex' : 'none';
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.className = 'mode-btn ' + (btn.dataset.mode === state.mode ? 'active' : 'inactive');
+    });
+
+    // All button
+    const allBtn = document.getElementById('all-btn');
+    allBtn.className = 'filter-pill ' + (state.showAll ? 'active' : 'inactive');
+    allBtn.innerHTML = state.showAll
+      ? '<span class="dot" style="background:#818cf8;"></span> All'
+      : 'All';
+
+    // Category buttons
+    document.getElementById('cat-pills').innerHTML = CATEGORIES.map(cat => {
+      const active = state.categories.includes(cat);
+      const color = CAT_COLOR[cat] || '#818cf8';
+      const dot = active ? '<span class="dot" style="background:' + color + ';"></span> ' : '';
+      return '<button class="filter-pill ' + (active ? 'active' : 'inactive') + '" data-action="toggle-cat" data-cat="' + esc(cat) + '">' + dot + esc(cat) + '</button>';
+    }).join('');
+
+    // Focus toggle button
+    const arrow = document.getElementById('focus-arrow');
+    arrow.style.transform = state.showTagsPanel ? 'rotate(180deg)' : 'rotate(0)';
+    document.getElementById('focus-toggle-label').textContent = (state.showTagsPanel ? 'Hide' : 'Show') + ' focus areas';
+    const badge = document.getElementById('focus-count-badge');
+    badge.style.display = state.tags.length > 0 ? 'inline' : 'none';
+    badge.textContent = state.tags.length;
+
+    // Focus area tags panel
+    const panel = document.getElementById('focus-tags-panel');
+    panel.style.display = state.showTagsPanel ? 'block' : 'none';
+    if (state.showTagsPanel) {
+      document.getElementById('focus-tag-pills').innerHTML = GENERAL_TAGS.map(tag => {
+        const active = state.tags.includes(tag);
+        return '<button class="tag-pill-focus ' + (active ? 'active' : 'inactive') + '" data-action="toggle-tag" data-tag="' + esc(tag) + '">' + esc(tag) + '</button>';
+      }).join('');
+    }
+
+    // Clear filters
+    const total = state.categories.length + state.tags.length;
+    const clearBtn = document.getElementById('clear-filters-btn');
+    clearBtn.style.display = total > 0 ? 'block' : 'none';
+    clearBtn.textContent = '\u00d7 Clear ' + total + ' filter' + (total !== 1 ? 's' : '');
+  }
+
+  // ── Render: Results ────────────────────────────────────────────────────────
+  function renderResults() {
+    const kpis = getFilteredKPIs();
+    const container = document.getElementById('results-section');
+    const showEmpty = state.mode === 'tags'
+      ? (!state.showAll && state.categories.length === 0 && state.tags.length === 0)
+      : !state.search.trim();
+
+    if (showEmpty) {
+      const isTag = state.mode === 'tags';
+      container.innerHTML =
+        '<div class="empty-state">' +
+        '<div class="empty-icon"><svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#475569" stroke-width="1.5">' +
+        (isTag
+          ? '<path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>'
+          : '<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>') +
+        '</svg></div>' +
+        '<p class="empty-text">' + (isTag ? 'Select a department or focus area to see matching KPIs' : 'Type a KPI name or keyword above') + '</p>' +
+        '</div>';
+      return;
+    }
+
+    if (kpis.length === 0) {
+      container.innerHTML =
+        '<div class="empty-state">' +
+        '<p class="empty-text">No KPIs match your ' + (state.mode === 'tags' ? 'filters' : 'search') + '</p>' +
+        '<button class="try-again-btn" data-action="clear-all">Clear and try again</button>' +
+        '</div>';
+      return;
+    }
+
+    container.innerHTML =
+      '<p class="results-count"><strong>' + kpis.length + '</strong> KPI' + (kpis.length !== 1 ? 's' : '') + ' found</p>' +
+      '<div class="kpi-grid">' + kpis.map(renderCard).join('') + '</div>';
+  }
+
+  function renderCard(kpi) {
+    const color = CAT_COLOR[kpi.category] || '#818cf8';
+    const icon = CHART_ICONS[kpi.chartType] || '📊';
+    const inCompare = state.compareList.some(k => k.id === kpi.id);
+    const ts = TYPE_STYLE[kpi.type] || TYPE_STYLE['Supporting'];
+
+    const tagsHtml = kpi.generalTags.map(tag => {
+      const active = state.tags.includes(tag);
+      return '<button class="tag-pill-card ' + (active ? 'active' : 'inactive') + '" data-action="click-tag" data-tag="' + esc(tag) + '">' +
+        (active ? '\u2713 ' : '') + esc(tag) + '</button>';
+    }).join('');
+
+    const chartHtml = kpi.chartType
+      ? '<div class="chart-rec">' +
+        '<span class="chart-rec-icon">' + icon + '</span>' +
+        '<div style="min-width:0;">' +
+        '<p class="chart-rec-label">Recommended chart</p>' +
+        '<p class="chart-rec-type" style="color:' + color + ';">' + esc(kpi.chartType) + '</p>' +
+        '</div></div>'
+      : '';
+
+    return '<div class="kpi-card' + (inCompare ? ' comparing' : '') + '" data-action="select-kpi" data-id="' + esc(kpi.id) + '">' +
+      '<div class="card-accent" style="background:' + color + ';"></div>' +
+      '<div class="card-body">' +
+      '<div class="card-header-row">' +
+      '<h3 class="card-title">' + esc(kpi.name) + '</h3>' +
+      '<span class="type-badge" style="background:' + ts.bg + ';color:' + ts.color + ';border:1px solid ' + ts.border + ';">' + esc(kpi.type) + '</span>' +
+      '</div>' +
+      '<div class="card-category">' +
+      '<span class="dot" style="background:' + color + ';"></span>' +
+      '<button class="cat-link" data-action="click-cat" data-cat="' + esc(kpi.category) + '" style="color:' + color + ';">' + esc(kpi.category) + '</button>' +
+      '</div>' +
+      '<p class="card-desc">' + esc(kpi.description) + '</p>' +
+      chartHtml +
+      (kpi.generalTags.length > 0 ? '<div class="card-tags">' + tagsHtml + '</div>' : '') +
+      '</div>' +
+      '<div class="card-footer">' +
+      '<button class="card-compare-btn ' + (inCompare ? 'active' : 'inactive') + '" data-action="toggle-compare" data-id="' + esc(kpi.id) + '">' +
+      (inCompare ? '\u2713 In Compare' : '+ Compare') + '</button>' +
+      '<button class="card-calc-btn" data-action="open-calc" data-id="' + esc(kpi.id) + '" ' +
+      'style="background:' + color + '22;border-color:' + color + '55;color:' + color + ';">Calculate</button>' +
+      '</div>' +
+      '</div>';
+  }
+
+  // ── Render: Detail modal ───────────────────────────────────────────────────
+  function renderDetailModal() {
+    const overlay = document.getElementById('modal-detail');
+    if (!state.detailKpi) { overlay.style.display = 'none'; return; }
+
+    const kpi = state.detailKpi;
+    const color = CAT_COLOR[kpi.category] || '#818cf8';
+    const icon = CHART_ICONS[kpi.chartType] || '📊';
+    const ts = TYPE_STYLE[kpi.type] || TYPE_STYLE['Supporting'];
+    const explainer = getChartExplainer(kpi);
+    const inCompare = state.compareList.some(k => k.id === kpi.id);
+
+    overlay.style.display = 'flex';
+    overlay.innerHTML =
+      '<div style="position:absolute;inset:0;" data-action="close-detail"></div>' +
+      '<div class="modal-box" style="max-width:560px;position:relative;">' +
+      '<div class="modal-accent" style="background:' + color + ';"></div>' +
+      '<div class="modal-header">' +
+      '<div>' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">' +
+      '<span class="dot" style="background:' + color + ';width:7px;height:7px;"></span>' +
+      '<button class="cat-link" data-action="click-cat" data-cat="' + esc(kpi.category) + '" style="color:' + color + ';font-size:12px;font-weight:600;">' + esc(kpi.category) + '</button>' +
+      '<span style="color:#334155;">·</span>' +
+      '<span style="background:' + ts.bg + ';color:' + ts.color + ';border:1px solid ' + ts.border + ';padding:2px 9px;border-radius:6px;font-size:11px;font-weight:500;">' + esc(kpi.type) + '</span>' +
+      '</div>' +
+      '<h2 class="modal-title">' + esc(kpi.name) + '</h2>' +
+      '</div>' +
+      '<button class="close-btn" data-action="close-detail">\u2715</button>' +
+      '</div>' +
+      '<div class="modal-divider"></div>' +
+      '<div class="modal-body">' +
+      '<div><p class="section-label">What it measures</p><p style="font-size:14px;color:#cbd5e1;line-height:1.65;">' + esc(kpi.description) + '</p></div>' +
+      (kpi.chartType
+        ? '<div><p class="section-label">Recommended visualisation</p>' +
+          '<div class="chart-rec-box">' +
+          '<span style="font-size:22px;line-height:1;flex-shrink:0;margin-top:2px;">' + icon + '</span>' +
+          '<div><p style="font-size:14px;font-weight:600;color:' + color + ';margin:0 0 6px;">' + esc(kpi.chartType) + '</p>' +
+          (explainer ? '<p style="font-size:13px;color:#94a3b8;margin:0;line-height:1.6;">' + esc(explainer) + '</p>' : '') +
+          '</div></div></div>' : '') +
+      (kpi.generalTags.length > 0
+        ? '<div><p class="section-label">Focus areas</p><div class="focus-tags">' +
+          kpi.generalTags.map(tag => '<button class="focus-pill" data-action="click-tag" data-tag="' + esc(tag) + '">' + esc(tag) + '</button>').join('') +
+          '</div></div>' : '') +
+      (kpi.variableTags.length > 0
+        ? '<div><p class="section-label">Key variables</p><div class="focus-tags">' +
+          kpi.variableTags.map(tag => '<span class="var-pill">' + esc(tag) + '</span>').join('') +
+          '</div></div>' : '') +
+      '</div>' +
+      '<div class="modal-footer">' +
+      '<button class="detail-compare-btn ' + (inCompare ? 'active' : 'inactive') + '" data-action="toggle-compare" data-id="' + esc(kpi.id) + '">' +
+      (inCompare ? '\u2713 Remove from Compare' : '+ Add to Compare') + '</button>' +
+      '<button class="detail-calc-btn" data-action="open-calc" data-id="' + esc(kpi.id) + '" ' +
+      'style="background:' + color + '33;border-color:' + color + '88;color:' + color + ';">Calculate</button>' +
+      '</div>' +
+      '</div>';
+  }
+
+  // ── Render: Compare modal ──────────────────────────────────────────────────
+  function renderCompareModal() {
+    const overlay = document.getElementById('modal-compare');
+    if (!state.showCompare || state.compareList.length === 0) { overlay.style.display = 'none'; return; }
+
+    const items = state.compareList.slice(0, 3);
+    overlay.style.display = 'flex';
+
+    const headerCols = items.map(kpi => {
+      const color = CAT_COLOR[kpi.category] || '#818cf8';
+      return '<th class="compare-kpi-th">' +
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">' +
+        '<div><p style="font-size:15px;font-weight:700;color:#f1f5f9;margin:0 0 8px;">' + esc(kpi.name) + '</p>' +
+        '<div style="display:flex;align-items:center;gap:6px;">' +
+        '<span class="dot" style="background:' + color + ';"></span>' +
+        '<span style="font-size:12px;color:' + color + ';font-weight:500;">' + esc(kpi.category) + '</span>' +
+        '</div></div>' +
+        '<button class="remove-compare-btn" data-action="remove-compare" data-id="' + esc(kpi.id) + '">&times;</button>' +
+        '</div></th>';
+    }).join('');
+
+    const typeRow = items.map(kpi => {
+      const ts = TYPE_STYLE[kpi.type] || TYPE_STYLE['Supporting'];
+      return '<td class="compare-cell">' +
+        '<span style="background:' + ts.bg + ';color:' + ts.color + ';border:1px solid ' + ts.border + ';padding:3px 10px;border-radius:6px;font-size:12px;font-weight:500;">' +
+        esc(kpi.type) + '</span></td>';
+    }).join('');
+
+    const descRow = items.map(kpi =>
+      '<td class="compare-cell top" style="font-size:13px;color:#cbd5e1;line-height:1.65;">' + esc(kpi.description) + '</td>'
+    ).join('');
+
+    const chartRow = items.map(kpi => {
+      const color = CAT_COLOR[kpi.category] || '#818cf8';
+      const icon = CHART_ICONS[kpi.chartType] || '📊';
+      const ex = getChartExplainer(kpi);
+      return '<td class="compare-cell top">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:' + (ex ? '8' : '0') + 'px;">' +
+        '<span style="font-size:18px;">' + icon + '</span>' +
+        '<span style="font-size:13px;font-weight:600;color:' + color + ';">' + esc(kpi.chartType || '\u2014') + '</span>' +
+        '</div>' +
+        (ex ? '<p style="font-size:12px;color:#64748b;margin:0;line-height:1.6;">' + esc(ex) + '</p>' : '') +
+        '</td>';
+    }).join('');
+
+    const focusRow = items.map(kpi =>
+      '<td class="compare-cell top"><div class="focus-tags">' +
+      kpi.generalTags.map(tag => '<span class="focus-pill" style="cursor:default;">' + esc(tag) + '</span>').join('') +
+      '</div></td>'
+    ).join('');
+
+    const varRow = items.map(kpi =>
+      '<td class="compare-cell top last"><div class="focus-tags">' +
+      kpi.variableTags.slice(0, 6).map(tag => '<span class="var-pill">' + esc(tag) + '</span>').join('') +
+      (kpi.variableTags.length > 6 ? '<span style="font-size:12px;color:#334155;">+' + (kpi.variableTags.length - 6) + ' more</span>' : '') +
+      '</div></td>'
+    ).join('');
+
+    overlay.innerHTML =
+      '<div style="position:absolute;inset:0;" data-action="close-compare"></div>' +
+      '<div class="modal-box compare-box" style="position:relative;">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid rgba(51,65,85,0.35);">' +
+      '<div><h2 style="font-size:18px;font-weight:700;color:#f1f5f9;">KPI Comparison</h2>' +
+      '<p style="font-size:13px;color:#475569;margin-top:4px;">Comparing ' + items.length + ' KPI' + (items.length > 1 ? 's' : '') + ' side by side</p></div>' +
+      '<button class="close-btn" data-action="close-compare">\u2715</button>' +
+      '</div>' +
+      '<div style="overflow-x:auto;">' +
+      '<table class="compare-table">' +
+      '<colgroup><col style="width:140px;">' + items.map(() => '<col>').join('') + '</colgroup>' +
+      '<thead><tr><th class="compare-label-th"></th>' + headerCols + '</tr></thead>' +
+      '<tbody>' +
+      '<tr><td class="compare-label-td">Type</td>' + typeRow + '</tr>' +
+      '<tr><td class="compare-label-td top">Description</td>' + descRow + '</tr>' +
+      '<tr><td class="compare-label-td top">Best Chart</td>' + chartRow + '</tr>' +
+      '<tr><td class="compare-label-td top">Focus Areas</td>' + focusRow + '</tr>' +
+      '<tr><td class="compare-label-td top last">Key Variables</td>' + varRow + '</tr>' +
+      '</tbody></table></div></div>';
+  }
+
+  // ── Render: Calculator modal ───────────────────────────────────────────────
+  function renderCalcModal() {
+    const overlay = document.getElementById('modal-calc');
+    if (!state.calcKpi) { overlay.style.display = 'none'; return; }
+
+    const kpi = state.calcKpi;
+    const formula = KPI_FORMULAS[kpi.id];
+    if (!formula) { overlay.style.display = 'none'; return; }
+
+    const color = CAT_COLOR[kpi.category] || '#818cf8';
+    overlay.style.display = 'flex';
+
+    const inputsHtml = formula.inputs.map(input =>
+      '<div>' +
+      '<label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:5px;font-weight:500;">' + esc(input.label) + '</label>' +
+      '<input type="number" class="calc-input" data-field="' + esc(input.id) + '" ' +
+      'value="' + esc(state.calcValues[input.id] || '') + '" placeholder="Enter value..." ' +
+      'style="border-color:rgba(71,85,105,0.5);">' +
+      '</div>'
+    ).join('');
+
+    let resultHtml = '';
+    if (state.calcError) {
+      resultHtml = '<p class="calc-error">' + esc(state.calcError) + '</p>';
+    } else if (state.calcResult !== null) {
+      const display = typeof state.calcResult === 'string'
+        ? state.calcResult
+        : formatNumber(state.calcResult, formula.precision) + (formula.unit ? ' ' + formula.unit : '');
+      const fontSize = typeof state.calcResult === 'string' ? '15px' : '30px';
+      resultHtml =
+        '<div class="calc-result-box" style="background:' + color + '20;border:1px solid ' + color + '66;">' +
+        '<p class="section-label">Result</p>' +
+        '<p class="calc-result-value" style="color:' + color + ';font-size:' + fontSize + ';">' + esc(display) + '</p>' +
+        '</div>';
+    }
+
+    overlay.innerHTML =
+      '<div style="position:absolute;inset:0;" data-action="close-calc"></div>' +
+      '<div class="modal-box" style="max-width:480px;position:relative;">' +
+      '<div class="modal-accent" style="background:' + color + ';"></div>' +
+      '<div class="modal-header modal-header-compact">' +
+      '<div><p class="section-label" style="margin:0 0 6px;">KPI Calculator</p>' +
+      '<h2 class="modal-title" style="font-size:18px;">' + esc(kpi.name) + '</h2></div>' +
+      '<button class="close-btn" data-action="close-calc">\u2715</button>' +
+      '</div>' +
+      '<div class="modal-divider"></div>' +
+      '<div class="modal-body modal-body-compact">' +
+      '<div class="formula-box" style="border-color:' + color + '55;">' +
+      '<p class="section-label">Formula</p>' +
+      '<p class="formula-text" style="color:' + color + ';">' + esc(formula.formula) + '</p>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:12px;">' + inputsHtml + '</div>' +
+      resultHtml +
+      '</div>' +
+      '<div class="modal-footer modal-footer-compact">' +
+      '<button class="calc-run-btn" data-action="run-calc" ' +
+      'style="background:' + color + '33;border-color:' + color + '88;color:' + color + ';">Calculate</button>' +
+      '</div></div>';
+
+    // Re-attach focus/blur colour on inputs after re-render
+    overlay.querySelectorAll('.calc-input').forEach(input => {
+      input.addEventListener('focus', () => { input.style.borderColor = color + '90'; });
+      input.addEventListener('blur', () => { input.style.borderColor = 'rgba(71,85,105,0.5)'; });
+    });
+  }
+
+  // ── Full render ────────────────────────────────────────────────────────────
+  function render() {
+    renderHeader();
+    renderFilters();
+    renderResults();
+    renderDetailModal();
+    renderCompareModal();
+    renderCalcModal();
+  }
+
+  // ── Run calculator ─────────────────────────────────────────────────────────
+  function runCalc() {
+    const formula = KPI_FORMULAS[state.calcKpi.id];
+    if (!formula) return;
+    const result = formula.calculate(state.calcValues);
+    if (result === null) {
+      state.calcError = 'Please fill in all fields with valid numbers.';
+      state.calcResult = null;
+    } else {
+      state.calcResult = result;
+      state.calcError = null;
+    }
+    renderCalcModal();
+  }
+
+  // ── Events ─────────────────────────────────────────────────────────────────
+  document.addEventListener('click', function(event) {
+    const target = event.target.closest('[data-action]');
+    if (!target) return;
+    const action = target.dataset.action;
+
+    if (action === 'toggle-mode') {
+      state.mode = target.dataset.mode;
+      render();
+
+    } else if (action === 'set-all') {
+      state.showAll = true; state.categories = []; state.tags = []; render();
+
+    } else if (action === 'toggle-cat') {
+      const cat = target.dataset.cat;
+      state.showAll = false;
+      state.categories = state.categories.includes(cat)
+        ? state.categories.filter(c => c !== cat)
+        : [...state.categories, cat];
+      render();
+
+    } else if (action === 'toggle-tag') {
+      const tag = target.dataset.tag;
+      state.showAll = false;
+      state.tags = state.tags.includes(tag)
+        ? state.tags.filter(t => t !== tag)
+        : [...state.tags, tag];
+      render();
+
+    } else if (action === 'toggle-focus-panel') {
+      state.showTagsPanel = !state.showTagsPanel; render();
+
+    } else if (action === 'clear-filters') {
+      state.categories = []; state.tags = []; render();
+
+    } else if (action === 'clear-all') {
+      if (state.mode === 'tags') { state.categories = []; state.tags = []; }
+      else { state.search = ''; document.getElementById('search-input').value = ''; }
+      render();
+
+    } else if (action === 'select-kpi') {
+      const kpi = KPI_DATA.find(k => k.id === target.dataset.id);
+      if (kpi) { state.detailKpi = kpi; renderDetailModal(); }
+
+    } else if (action === 'close-detail') {
+      state.detailKpi = null; renderDetailModal();
+
+    } else if (action === 'click-cat') {
+      event.stopPropagation();
+      const cat = target.dataset.cat;
+      state.mode = 'tags'; state.showAll = false; state.detailKpi = null;
+      if (!state.categories.includes(cat)) state.categories = [...state.categories, cat];
+      render();
+
+    } else if (action === 'click-tag') {
+      event.stopPropagation();
+      const tag = target.dataset.tag;
+      state.mode = 'tags'; state.showAll = false; state.detailKpi = null;
+      state.tags = state.tags.includes(tag)
+        ? state.tags.filter(t => t !== tag)
+        : [...state.tags, tag];
+      render();
+
+    } else if (action === 'toggle-compare') {
+      event.stopPropagation();
+      const id = target.dataset.id;
+      const kpi = KPI_DATA.find(k => k.id === id);
+      if (!kpi) return;
+      const exists = state.compareList.find(k => k.id === id);
+      if (exists) {
+        state.compareList = state.compareList.filter(k => k.id !== id);
+      } else if (state.compareList.length >= 3) {
+        state.compareList = [...state.compareList.slice(1), kpi];
+      } else {
+        state.compareList = [...state.compareList, kpi];
+      }
+      if (state.detailKpi) state.detailKpi = null;
+      render();
+
+    } else if (action === 'open-compare') {
+      if (state.compareList.length > 0) { state.showCompare = true; renderCompareModal(); }
+
+    } else if (action === 'close-compare') {
+      state.showCompare = false; renderCompareModal();
+
+    } else if (action === 'clear-compare') {
+      state.compareList = []; render();
+
+    } else if (action === 'remove-compare') {
+      state.compareList = state.compareList.filter(k => k.id !== target.dataset.id);
+      if (state.compareList.length === 0) state.showCompare = false;
+      render();
+
+    } else if (action === 'open-calc') {
+      event.stopPropagation();
+      const kpi = KPI_DATA.find(k => k.id === target.dataset.id);
+      if (!kpi) return;
+      state.calcKpi = kpi; state.calcValues = {}; state.calcResult = null;
+      state.calcError = null; state.detailKpi = null;
+      render();
+
+    } else if (action === 'close-calc') {
+      state.calcKpi = null; state.calcResult = null; state.calcError = null;
+      renderCalcModal();
+
+    } else if (action === 'run-calc') {
+      runCalc();
+    }
+  });
+
+  document.addEventListener('input', function(event) {
+    if (event.target.id === 'search-input') {
+      state.search = event.target.value;
+      renderResults();
+    } else if (event.target.classList.contains('calc-input')) {
+      state.calcValues[event.target.dataset.field] = event.target.value;
+      state.calcResult = null;
+      state.calcError = null;
+    }
+  });
+
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      if (state.calcKpi) { state.calcKpi = null; renderCalcModal(); }
+      else if (state.detailKpi) { state.detailKpi = null; renderDetailModal(); }
+      else if (state.showCompare) { state.showCompare = false; renderCompareModal(); }
+    }
+    if (event.key === 'Enter' && state.calcKpi) runCalc();
+  });
+
+  render();
+
+</script>
+</body>
 </html>
