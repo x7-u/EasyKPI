@@ -18,23 +18,26 @@ export function CalculatorPage() {
 
   if (!kpi) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-semibold">Calculator</h1>
-        <p className="text-slate-400">Pick a KPI to calculate:</p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {kpis.slice(0, 24).map((k) => (
-            <button
-              key={k.id}
-              type="button"
-              onClick={() => navigate(`/calculator/${k.id}`)}
-              className="rounded-md border border-slate-800 bg-slate-900/40 p-3 text-left text-sm hover:border-sky-500/50"
-            >
-              <span className="text-xs text-slate-500">{k.category}</span>
-              <p className="font-medium">{k.name}</p>
-            </button>
-          ))}
+      <div className="space-y-6">
+        <ExportBatchPanel />
+        <div className="space-y-4">
+          <h1 className="text-2xl font-semibold">Calculator</h1>
+          <p className="text-slate-400">Pick a KPI to calculate:</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {kpis.slice(0, 24).map((k) => (
+              <button
+                key={k.id}
+                type="button"
+                onClick={() => navigate(`/calculator/${k.id}`)}
+                className="rounded-md border border-slate-800 bg-slate-900/40 p-3 text-left text-sm hover:border-sky-500/50"
+              >
+                <span className="text-xs text-slate-500">{k.category}</span>
+                <p className="font-medium">{k.name}</p>
+              </button>
+            ))}
+          </div>
+          <Link to="/catalog" className="text-sky-400 hover:underline">Full catalog →</Link>
         </div>
-        <Link to="/catalog" className="text-sky-400 hover:underline">Full catalog →</Link>
       </div>
     );
   }
@@ -112,6 +115,8 @@ function CalculatorFor({ kpi }: { kpi: KPI }) {
 
   return (
     <div className="space-y-6">
+      <ExportBatchPanel />
+
       <div className="flex items-center gap-2 text-sm text-slate-400">
         <Link to="/catalog" className="hover:text-sky-400">Catalog</Link>
         <span>/</span>
@@ -212,8 +217,6 @@ function CalculatorFor({ kpi }: { kpi: KPI }) {
           </div>
         </section>
       )}
-
-      {mode === "series" && <ExportBatchPanel />}
 
       {mode === "goal-seek" && (
         <section className="grid gap-4 lg:grid-cols-2">
