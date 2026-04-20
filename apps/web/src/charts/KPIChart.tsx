@@ -2,6 +2,24 @@ import { useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import type { KPI, SeriesPoint, ChartOverlays } from "@easykpi/shared/types";
+import { getFormula } from "@easykpi/shared/formulas";
+
+/** Format a number to a KPI's precision + unit (%, $, or plain). */
+function formatNumberForKPI(kpiId: string, value: unknown): string {
+  if (typeof value !== "number" || !isFinite(value)) return "—";
+  const f = getFormula(kpiId);
+  const precision = f?.precision ?? 2;
+  const unit = f?.unit;
+  const rounded = Number(value.toFixed(precision));
+  if (unit === "%") return `${rounded.toFixed(precision)}%`;
+  if (unit === "$") {
+    return `$${rounded.toLocaleString("en-US", {
+      minimumFractionDigits: precision,
+      maximumFractionDigits: precision,
+    })}`;
+  }
+  return unit ? `${rounded.toFixed(precision)} ${unit}` : rounded.toFixed(precision);
+}
 
 export interface KPIChartProps {
   kpi: KPI;
@@ -165,8 +183,14 @@ export function KPIChart({
 
     return {
       backgroundColor: "transparent",
-      grid: { top: 20, right: 16, bottom: 30, left: 48 },
-      tooltip: { trigger: "axis", backgroundColor: "#0f172a", borderColor: "#334155", textStyle: { color: "#e2e8f0" } },
+      grid: { top: 20, right: 16, bottom: 30, left: 56 },
+      tooltip: {
+        trigger: "axis",
+        backgroundColor: "#0f172a",
+        borderColor: "#334155",
+        textStyle: { color: "#e2e8f0" },
+        valueFormatter: (v: unknown) => formatNumberForKPI(kpi.id, v),
+      },
       xAxis: {
         type: "category",
         data: allCategories.length ? allCategories : ["(no data)"],
@@ -177,7 +201,10 @@ export function KPIChart({
         type: "value",
         axisLine: { lineStyle: { color: "#334155" } },
         splitLine: { lineStyle: { color: "#1e293b" } },
-        axisLabel: { color: "#94a3b8" },
+        axisLabel: {
+          color: "#94a3b8",
+          formatter: (v: number) => formatNumberForKPI(kpi.id, v),
+        },
       },
       legend: { show: false },
       series,

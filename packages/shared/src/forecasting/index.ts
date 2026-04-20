@@ -63,17 +63,18 @@ export function forecast(
   };
   const lastPeriod = series[series.length - 1]?.period ?? "0";
 
+  const round2 = (v: number) => Math.round(v * 100) / 100;
   const points = projected.map((value, i) => ({
     period: nextPeriod(lastPeriod, i + 1),
-    value,
+    value: round2(value),
   }));
   const low = projected.map((value, i) => ({
     period: nextPeriod(lastPeriod, i + 1),
-    value: value - margin,
+    value: round2(value - margin),
   }));
   const high = projected.map((value, i) => ({
     period: nextPeriod(lastPeriod, i + 1),
-    value: value + margin,
+    value: round2(value + margin),
   }));
 
   return { points, low, high, method: "holt-winters", confidence };

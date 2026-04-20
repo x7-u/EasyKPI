@@ -28,9 +28,13 @@ export function calculateSeries(
 ): (number | null)[] {
   const f = kpiFormulas[kpiId];
   if (!f) return rows.map(() => null);
+  // Round to the KPI's declared precision at the source so chart tooltips,
+  // Excel cells, and derived forecasts all agree on the displayed value.
+  const factor = Math.pow(10, f.precision);
   return rows.map((row) => {
     const r = f.calculate(row);
-    return typeof r === "number" && isFinite(r) ? r : null;
+    if (typeof r !== "number" || !isFinite(r)) return null;
+    return Math.round(r * factor) / factor;
   });
 }
 
