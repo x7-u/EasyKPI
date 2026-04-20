@@ -161,3 +161,144 @@ export function exportDashboardToExcel(opts: {
   const filename = `${slugify(workspace ?? "workspace")}-${slugify(dashboardName)}-${timestamp()}.xlsx`;
   XLSX.writeFile(wb, filename);
 }
+
+export interface ExportBatchSheet {
+  kpi: KPI;
+  /** User-facing label that becomes the sheet name (truncated to 31 chars). */
+  label: string;
+  data: SeriesPoint[];
+  overlays?: ChartOverlays;
+}
+
+/**
+ * Batch export: one xlsx workbook with a Summary sheet + one sheet per added
+ * calculation. Used by the "Add as page" workflow on the Series calculator so
+ * users can collect multiple calculations and download them all at once.
+ */
+export function exportBatchToExcel(opts: {
+  sheets: ExportBatchSheet[];
+  workspace?: string;
+  filenameStem?: string;
+}): void {
+  const { sheets, workspace, filenameStem } = opts;
+  if (sheets.length === 0) return;
+  const wb = XLSX.utils.book_new();
+
+  // Summary
+  const summaryHeader = ["#", "Sheet", "KPI", "Category", "Periods", "Latest", "Unit"];
+  const summaryRows = sheets.map((s, i) => {
+    const f = getFormula(s.kpi.id);
+    const latest = s.data[s.data.length - 1]?.value ?? null;
+    return [i + 1, trimSheetName(s.label), s.kpi.name, s.kpi.category, s.data.length, latest, f?.unit ?? ""];
+  });
+  const summary = XLSX.utils.aoa_to_sheet([
+    ["Workbook", "EasyKPI batch export"],
+    ["Workspace", workspace ?? ""],
+    ["Generated at", new Date().toISOString()],
+    ["Sheets", sheets.length],
+    [],
+    summaryHeader,
+    ...summaryRows,
+  ]);
+  summary["!cols"] = [
+    { wch: 4 },
+    { wch: 30 },
+    { wch: 28 },
+    { wch: 18 },
+    { wch: 10 },
+    { wch: 14 },
+    { wch: 8 },
+  ];
+  summary["!freeze"] = { xSplit: 0, ySplit: 6 };
+  XLSX.utils.book_append_sheet(wb, summary, "Summary");
+
+  // One sheet per batch item
+  const usedNames = new Set<string>(["Summary", "Metadata"]);
+  for (const s of sheets) {
+    const header = ["period", "value"];
+    if (s.overlays?.target) header.push("target");
+    if (s.overlays?.bands) header.push("benchmark_p25", "benchmark_p50", "benchmark_p75");
+    if (s.overlays?.forecast) header.push("forecast", "forecast_low", "forecast_high");
+    if (s.overlays?.anomalies) header.push("anomaly");
+
+    const fcByPeriod = new Map((s.overlays?.forecast?.points ?? []).map((p) => [p.period, p.value] as const));
+    const fcLowByPeriod = new Map((s.overlays?.forecast?.low ?? []).map((p) => [p.period, p.value] as const));
+    const fcHighByPeriod = new Map((s.overlays?.forecast?.high ?? []).map((p) => [p.period, p.value] as const));
+    const anomByPeriod = new Map((s.overlays?.anomalies ?? []).map((a) => [a.period, a.severity] as const));
+    const allPeriods = [
+      ...s.data.map((p) => p.period),
+      ...(s.overlays?.forecast?.points ?? []).map((p) => p.period),
+    ];
+    const uniq = Array.from(new Set(allPeriods));
+    const rows: (string | number | null)[][] = [];
+    for (const period of uniq) {
+      const actual = s.data.find((p) => p.period === period);
+      const row: (string | number | null)[] = [period, actual?.value ?? null];
+      if (s.overlays?.target) row.push(s.overlays.target.value);
+      if (s.overlays?.bands)
+        row.push(s.overlays.bands.p25, s.overlays.bands.p50, s.overlays.bands.p75);
+      if (s.overlays?.forecast)
+        row.push(
+          fcByPeriod.get(period) ?? null,
+          fcLowByPeriod.get(period) ?? null,
+          fcHighByPeriod.get(period) ?? null,
+        );
+      if (s.overlays?.anomalies) row.push(anomByPeriod.get(period) ?? "");
+      rows.push(row);
+    }
+
+    const f = getFormula(s.kpi.id);
+    const metaRows: (string | number)[][] = [
+      ["KPI", s.kpi.name],
+      ["Category", s.kpi.category],
+      ["Formula", f?.formula ?? ""],
+      ["Unit", f?.unit ?? ""],
+      ["Precision", f?.precision ?? 2],
+      ["Generated at", new Date().toISOString()],
+      [],
+    ];
+
+    const aoa: (string | number | null)[][] = [...metaRows, header, ...rows];
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws["!cols"] = header.map(() => ({ wch: 16 }));
+    ws["!freeze"] = { xSplit: 0, ySplit: metaRows.length + 1 };
+
+    const sheetName = uniqueSheetName(trimSheetName(s.label || s.kpi.name), usedNames);
+    usedNames.add(sheetName);
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  }
+
+  // Metadata sheet
+  const metaHeader = ["#", "Label", "KPI", "Category", "Formula", "Unit", "Precision"];
+  const metaRows = sheets.map((s, i) => {
+    const f = getFormula(s.kpi.id);
+    return [i + 1, s.label, s.kpi.name, s.kpi.category, f?.formula ?? "", f?.unit ?? "", f?.precision ?? 2];
+  });
+  const meta = XLSX.utils.aoa_to_sheet([metaHeader, ...metaRows]);
+  meta["!cols"] = [
+    { wch: 4 },
+    { wch: 30 },
+    { wch: 28 },
+    { wch: 18 },
+    { wch: 60 },
+    { wch: 8 },
+    { wch: 10 },
+  ];
+  XLSX.utils.book_append_sheet(wb, meta, "Metadata");
+
+  const stem = filenameStem ?? "easykpi-batch";
+  const filename = `${slugify(stem)}-${timestamp()}.xlsx`;
+  XLSX.writeFile(wb, filename);
+}
+
+function trimSheetName(name: string): string {
+  // Excel forbids : \ / ? * [ ] and caps sheet names at 31 chars
+  return (name || "Sheet").replace(/[:\\\/\?\*\[\]]/g, "-").slice(0, 31) || "Sheet";
+}
+
+function uniqueSheetName(base: string, used: Set<string>): string {
+  if (!used.has(base)) return base;
+  let i = 2;
+  while (used.has(`${base.slice(0, 28)} (${i})`)) i++;
+  return `${base.slice(0, 28)} (${i})`;
+}

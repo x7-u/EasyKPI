@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useCompareStore } from "../stores/useCompareStore";
+import { useExportBatchStore } from "../stores/useExportBatchStore";
 
 const navItems = [
   { to: "/catalog", label: "Catalog" },
@@ -12,6 +13,7 @@ const navItems = [
 
 export function RootLayout() {
   const compareCount = useCompareStore((s) => s.items.length);
+  const batchCount = useExportBatchStore((s) => s.items.length);
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/95 backdrop-blur">
@@ -40,6 +42,11 @@ export function RootLayout() {
                 {item.to === "/compare" && compareCount > 0 && (
                   <span className="ml-2 inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-sky-500 px-1.5 py-0.5 text-xs font-semibold text-white">
                     {compareCount}
+                  </span>
+                )}
+                {item.to === "/calculator" && batchCount > 0 && (
+                  <span className="ml-2 inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-xs font-semibold text-white" title={`${batchCount} calculation(s) queued for batch export`}>
+                    {batchCount}
                   </span>
                 )}
               </NavLink>

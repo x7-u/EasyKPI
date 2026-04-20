@@ -6,6 +6,8 @@ import { goalSeek } from "@easykpi/shared/forecasting";
 import type { KPI, SeriesPoint } from "@easykpi/shared/types";
 import { KPIChart } from "../../charts/KPIChart";
 import { ExportExcelButton } from "../../components/ExportExcelButton";
+import { useExportBatchStore } from "../../stores/useExportBatchStore";
+import { exportBatchToExcel } from "../../export/excel";
 
 type Mode = "single" | "series" | "goal-seek";
 
@@ -191,12 +193,15 @@ function CalculatorFor({ kpi }: { kpi: KPI }) {
             </p>
           </div>
           <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-4">
-            <div className="mb-2 flex items-center justify-between">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Series result ({seriesPoints.length} periods)
               </h3>
               {seriesPoints.length > 0 && (
-                <ExportExcelButton kpi={kpi} data={seriesPoints} label="Export" />
+                <div className="flex items-center gap-2">
+                  <AddToExportBatchButton kpi={kpi} data={seriesPoints} />
+                  <ExportExcelButton kpi={kpi} data={seriesPoints} label="Export" />
+                </div>
               )}
             </div>
             {seriesPoints.length > 0 ? (
@@ -207,6 +212,8 @@ function CalculatorFor({ kpi }: { kpi: KPI }) {
           </div>
         </section>
       )}
+
+      {mode === "series" && <ExportBatchPanel />}
 
       {mode === "goal-seek" && (
         <section className="grid gap-4 lg:grid-cols-2">
@@ -266,5 +273,119 @@ function CalculatorFor({ kpi }: { kpi: KPI }) {
         </section>
       )}
     </div>
+  );
+}
+
+function AddToExportBatchButton({ kpi, data }: { kpi: KPI; data: SeriesPoint[] }) {
+  const add = useExportBatchStore((s) => s.add);
+  const count = useExportBatchStore((s) => s.items.length);
+  const [flash, setFlash] = useState(false);
+  const handleAdd = () => {
+    const label = `${kpi.name} — ${data.length}p`;
+    add({ kpiId: kpi.id, kpiName: kpi.name, label, data: [...data] });
+    setFlash(true);
+    setTimeout(() => setFlash(false), 900);
+  };
+  return (
+    <button
+      type="button"
+      onClick={handleAdd}
+      className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition ${
+        flash
+          ? "border-emerald-400 bg-emerald-500/30 text-white"
+          : "border-sky-500/40 bg-sky-500/10 text-sky-200 hover:bg-sky-500/20"
+      }`}
+      title="Add this calculation to the multi-sheet export batch"
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      {flash ? "Added" : "Add as page"}
+      {count > 0 && !flash && (
+        <span className="ml-1 rounded-full bg-sky-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
+
+function ExportBatchPanel() {
+  const items = useExportBatchStore((s) => s.items);
+  const remove = useExportBatchStore((s) => s.remove);
+  const clear = useExportBatchStore((s) => s.clear);
+  const rename = useExportBatchStore((s) => s.rename);
+
+  if (items.length === 0) return null;
+
+  const handleDownload = () => {
+    exportBatchToExcel({
+      sheets: items.map((it) => {
+        const kpi = getKPI(it.kpiId);
+        if (!kpi) return null;
+        return { kpi, label: it.label, data: it.data, overlays: it.overlays };
+      }).filter((s): s is NonNullable<typeof s> => !!s),
+      workspace: "local",
+      filenameStem: `easykpi-batch-${items.length}`,
+    });
+  };
+
+  return (
+    <section className="rounded-xl border border-sky-500/40 bg-sky-500/5 p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold text-sky-100">
+          Export batch <span className="text-slate-400">({items.length} {items.length === 1 ? "sheet" : "sheets"})</span>
+        </h3>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleDownload}
+            className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300 hover:bg-emerald-500/20"
+          >
+            Download {items.length}-sheet workbook
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm(`Clear all ${items.length} queued sheets?`)) clear();
+            }}
+            className="rounded-md bg-slate-800 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-700"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+      <ul className="space-y-1.5 text-xs">
+        {items.map((it, i) => (
+          <li
+            key={it.id}
+            className="flex items-center gap-2 rounded border border-slate-800 bg-slate-950/60 px-2 py-1.5"
+          >
+            <span className="w-6 text-center text-slate-500">{i + 1}</span>
+            <input
+              type="text"
+              value={it.label}
+              onChange={(e) => rename(it.id, e.target.value)}
+              className="flex-1 rounded bg-transparent px-1 py-0.5 text-slate-100 outline-none focus:bg-slate-900"
+            />
+            <span className="text-slate-500">{it.data.length}p</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-slate-400">{it.kpiName}</span>
+            <button
+              type="button"
+              onClick={() => remove(it.id)}
+              className="ml-1 rounded px-1 text-slate-500 hover:text-red-400"
+              title="Remove from batch"
+            >
+              ×
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-[10px] text-slate-500">
+        Sheet names are editable. Queue survives reloads until you download or clear it.
+      </p>
+    </section>
   );
 }
