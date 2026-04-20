@@ -1,0 +1,30 @@
+{
+  "name": "@easykpi/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./catalog": "./src/catalog/index.ts",
+    "./formulas": "./src/formulas/index.ts",
+    "./benchmarks": "./src/benchmarks.ts",
+    "./drivers": "./src/drivers/index.ts",
+    "./forecasting": "./src/forecasting/index.ts",
+    "./schemas": "./src/schemas.ts",
+    "./types": "./src/types.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.3"
+  }
+}

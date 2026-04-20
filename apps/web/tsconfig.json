@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@easykpi/shared": ["../../packages/shared/src/index.ts"],
+      "@easykpi/shared/*": ["../../packages/shared/src/*"],
+      "@/*": ["src/*"]
+    },
+    "noEmit": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "vite.config.ts"]
+}

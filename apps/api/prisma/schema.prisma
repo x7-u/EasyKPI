@@ -1,0 +1,180 @@
+// Prisma schema — stays on the common Postgres/SQLite subset.
+// Production runs on Postgres; SQLite is used for local dev and inside the .exe launcher.
+// CI must run test suites against both engines from Phase 4 onward.
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  members   Membership[]
+  kpis      CustomKPI[]
+  targets   Target[]
+  benchmarks Benchmark[]
+  dashboards Dashboard[]
+  datasets  Dataset[]
+  auditEvents AuditEvent[]
+  comments  Comment[]
+  digests   Digest[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  clerkId   String?  @unique
+  createdAt DateTime @default(now())
+  memberships Membership[]
+  comments  Comment[]
+  auditEvents AuditEvent[]
+}
+
+model Membership {
+  id          String   @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        String   // admin | editor | viewer
+  createdAt   DateTime @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  @@unique([userId, workspaceId])
+}
+
+model CustomKPI {
+  id             String   @id @default(cuid())
+  workspaceId    String
+  // References the formula registry in @easykpi/shared by key.
+  formulaKey     String
+  name           String
+  category       String
+  description    String
+  variableTags   String   // JSON-serialized string[]
+  generalTags    String   // JSON-serialized string[]
+  chartType      String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  workspace      Workspace @relation(fields: [workspaceId], references: [id])
+  targets        Target[]
+  benchmarks     Benchmark[]
+}
+
+model Dataset {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  source      String   // csv | xlsx | google-sheets | rest | sql | manual
+  // Schema-free payload; for sql source, stores dsn (encrypted) + query.
+  payload     String   // JSON
+  uploadedAt  DateTime @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+}
+
+model Target {
+  id          String   @id @default(cuid())
+  workspaceId String
+  kpiKey      String   // either a shared KPI id or a CustomKPI id
+  customKpiId String?
+  value       Float
+  direction   String   // higher-is-better | lower-is-better
+  warnAtPct   Float
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  customKpi   CustomKPI? @relation(fields: [customKpiId], references: [id])
+}
+
+model Benchmark {
+  id          String   @id @default(cuid())
+  workspaceId String
+  kpiKey      String
+  customKpiId String?
+  industry    String?
+  region      String?
+  p25         Float
+  p50         Float
+  p75         Float
+  source      String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  customKpi   CustomKPI? @relation(fields: [customKpiId], references: [id])
+}
+
+model Dashboard {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  tiles       String   // JSON payload of DashboardTile[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  comments    Comment[]
+  permalinks  Permalink[]
+}
+
+model Permalink {
+  id          String   @id @default(cuid())
+  dashboardId String
+  token       String   @unique
+  passwordHash String?
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  revokedAt   DateTime?
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id])
+}
+
+model Comment {
+  id          String   @id @default(cuid())
+  workspaceId String
+  dashboardId String?
+  kpiKey      String?
+  authorId    String
+  body        String
+  mentions    String   // JSON userId[]
+  createdAt   DateTime @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  dashboard   Dashboard? @relation(fields: [dashboardId], references: [id])
+  author      User      @relation(fields: [authorId], references: [id])
+}
+
+model AuditEvent {
+  id          String   @id @default(cuid())
+  workspaceId String
+  actorId     String
+  entity      String   // kpi | target | threshold | formulaKey | dashboard | benchmark
+  entityId    String
+  action      String   // create | update | delete
+  before      String?  // JSON
+  after       String?  // JSON
+  createdAt   DateTime @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  actor       User      @relation(fields: [actorId], references: [id])
+}
+
+model Digest {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  cron         String   // cron expression
+  channel      String   // email | slack
+  target       String   // email addr or webhook url
+  dashboardId  String?
+  lastSentAt   DateTime?
+  createdAt    DateTime @default(now())
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+}
+
+model LlmSpend {
+  id          String   @id @default(cuid())
+  workspaceId String
+  model       String
+  promptTokens Int
+  outputTokens Int
+  usd         Float
+  feature     String   // narrate | semantic | explain
+  createdAt   DateTime @default(now())
+}

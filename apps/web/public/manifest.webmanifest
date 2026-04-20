@@ -1,0 +1,12 @@
+{
+  "name": "EasyKPI — Analyst Workbench",
+  "short_name": "EasyKPI",
+  "description": "95 KPIs, charts, forecasting, benchmarks, and Excel export.",
+  "start_url": "/catalog",
+  "display": "standalone",
+  "background_color": "#0a0f1e",
+  "theme_color": "#0a0f1e",
+  "icons": [
+    { "src": "/vite.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
